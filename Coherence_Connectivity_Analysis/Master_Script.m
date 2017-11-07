@@ -6,6 +6,9 @@ function Master_Script
 makefiles = 0;
 extractlfps = 0;
 
+method = 'granger';
+%method = 'coh';
+
 start_times = 0;
 end_times = 500;
 
@@ -20,8 +23,6 @@ pathstem_raw = '/imaging/hp02/pnfa_mmn/preprocessed/dvts_sep/';
 outdir = '/imaging/tc02/Holly_MMN/Coherence_Connectivity/';
 
 fft_method = 'mtmfft'; % 'wavelet' for morlet; can leave blank for multitaper.
-%method = 'granger';
-method = 'coh';
 
 groupstodo = {'matched_HCs' 'pca' 'bvFTD' 'pnfa'};
 dirnames_inv = {'matched_HCs' 'pca' 'ftd' 'vespa'};
@@ -131,7 +132,12 @@ end
 
 parfor subj = 1:size(all_subjs,1)
     warning('off','all')
-    this_outdir = [outdir groupstodo{all_subjs(subj,1)} '/'];
+    if strcmp(method,'coh')
+        this_outdir = [outdir groupstodo{all_subjs(subj,1)} '/'];
+    else
+        this_outdir = [outdir method '/' groupstodo{all_subjs(subj,1)} '/'];
+    end
+    
     if exist([this_outdir 's' num2str(all_subjs(subj,:)) '_grangerdata_highfreq_averagesubtracted_100_' num2str(start_times) '_' num2str(end_times) '_z' num2str(1) '.mat'],'file')
         disp(['Found some existing files for subject s' num2str(all_subjs(subj,:))])
         existing_files = dir([this_outdir 's' num2str(all_subjs(subj,:)) '_grangerdata_highfreq_averagesubtracted_100_' num2str(start_times) '_' num2str(end_times) '_z*'])
