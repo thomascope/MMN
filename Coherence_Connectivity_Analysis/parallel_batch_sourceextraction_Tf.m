@@ -98,7 +98,7 @@ for time = 3
     thisdir = pwd;
     cd([tf_pathstem subjects{s}]);
     %spm_eeg_inv_extract(D)
-    %spm_eeg_inv_extract_flexible(D,pathstem)
+    spm_eeg_inv_extract_flexible(D,pathstem)
     cd(thisdir);
     clear D
     
@@ -111,7 +111,7 @@ for time = 3
     thisdir = pwd;
     cd([tf_pathstem subjects{s}]);
     %spm_eeg_inv_extract(D)
-    %spm_eeg_inv_extract_flexible(D,pathstem)
+    spm_eeg_inv_extract_flexible(D,pathstem)
     cd(thisdir);
     clear D
     
