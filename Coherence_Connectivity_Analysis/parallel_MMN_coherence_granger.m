@@ -210,6 +210,9 @@ for n = 1:21
         
     end
     foi = foi(2:end);
+    if ~exist(outdir,'dir')
+        mkdir(outdir)
+    end
     save([outdir 's' num2str(this_subj) '_grangerdata_highfreq_averagesubtracted_100_' num2str(start_times) '_' num2str(end_times) '_z' num2str(n)],'bipolar_labels','corr_sig_pairs','temp_granger_data','start_times','end_times','foi');
 end
 %% save results

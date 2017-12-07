@@ -2,7 +2,7 @@
 
 thisdir = pwd;
 
-datapathstem = '/imaging/tc02/Holly_MMN/Coherence_Connectivity/'; %For spoken baseline
+datapathstem = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_secondfilter/'; %For spoken baseline
 %datapathstem = '/imaging/tc02/vespa/preprocess/SPM12_fullpipeline_fixedICA/extractedsources_tf_newinversions_newbaseline/'; %For written baseline
 addpath(['/group/language/data/thomascope/vespa/SPM12version/Standalone preprocessing pipeline/tc_source_stats/ojwoodford-export_fig-216b30e'])
 
@@ -21,13 +21,14 @@ averagesubtracted = 1;
 highfreq = 1;
 timewins = [0 500];
 %timewins = [32 296; 300 564; 636 900];
+topfreqband = 49;
 
-%analysis_type = 'Granger';
-analysis_type = 'icoh';
+analysis_type = 'Granger';
+%analysis_type = 'icoh';
 
 switch(analysis_type)
     case 'Granger'
-        datapathstem = [datapathstem 'granger'];
+        datapathstem = [datapathstem 'granger/'];
     case 'icoh'
         
 end
@@ -55,20 +56,20 @@ for t = 1:size(timewins)
     start_times = timewins(t,1);
     end_times = timewins(t,2);
     
-    all_granger_data = zeros(8,8,1,35,7,length(group));
-    all_mismatch_contrasts = zeros(8,8,1,35,length(group));
-    all_absolute_mismatch_contrasts = zeros(8,8,1,35,length(group));
-    all_clarity_contrasts = zeros(8,8,1,35,length(group));
-    all_absolute_clarity_contrasts = zeros(8,8,1,35,length(group));
-    all_random_granger_data = zeros(8,8,1,35,7,100,length(group));
-    all_random_mismatch_contrasts = zeros(8,8,1,35,100,length(group));
-    all_random_clarity_contrasts = zeros(8,8,1,35,100,length(group));
-    all_absolute_random_mismatch_contrasts = zeros(8,8,1,35,100,length(group));
-    all_absolute_random_clarity_contrasts = zeros(8,8,1,35,100,length(group));
-    all_interaction_contrasts = zeros(8,8,1,35,length(group));
-    all_absolute_interaction_contrasts = zeros(8,8,1,35,length(group));
-    all_random_interaction_contrasts = zeros(8,8,1,35,100,length(group));
-    all_absolute_random_interaction_contrasts = zeros(8,8,1,35,100,length(group));
+    all_granger_data = zeros(8,8,1,topfreqband,7,length(group));
+    all_mismatch_contrasts = zeros(8,8,1,topfreqband,length(group));
+    all_absolute_mismatch_contrasts = zeros(8,8,1,topfreqband,length(group));
+    all_clarity_contrasts = zeros(8,8,1,topfreqband,length(group));
+    all_absolute_clarity_contrasts = zeros(8,8,1,topfreqband,length(group));
+    all_random_granger_data = zeros(8,8,1,topfreqband,7,100,length(group));
+    all_random_mismatch_contrasts = zeros(8,8,1,topfreqband,100,length(group));
+    all_random_clarity_contrasts = zeros(8,8,1,topfreqband,100,length(group));
+    all_absolute_random_mismatch_contrasts = zeros(8,8,1,topfreqband,100,length(group));
+    all_absolute_random_clarity_contrasts = zeros(8,8,1,topfreqband,100,length(group));
+    all_interaction_contrasts = zeros(8,8,1,topfreqband,length(group));
+    all_absolute_interaction_contrasts = zeros(8,8,1,topfreqband,length(group));
+    all_random_interaction_contrasts = zeros(8,8,1,topfreqband,100,length(group));
+    all_absolute_random_interaction_contrasts = zeros(8,8,1,topfreqband,100,length(group));
     all_controls_granger_data = [];
     all_patients_granger_data = [];
     all_controls_mismatch_contrasts = [];
@@ -78,9 +79,9 @@ for t = 1:size(timewins)
     all_controls_interaction_contrasts = [];
     all_patients_interaction_contrasts = [];
     
-    demeaned_all_granger_data = zeros(8,8,1,35,7,length(group));
-    demeaned_all_mismatch_contrasts = zeros(8,8,1,35,length(group));
-    demeaned_all_clarity_contrasts = zeros(8,8,1,35,length(group));
+    demeaned_all_granger_data = zeros(8,8,1,topfreqband,7,length(group));
+    demeaned_all_mismatch_contrasts = zeros(8,8,1,topfreqband,length(group));
+    demeaned_all_clarity_contrasts = zeros(8,8,1,topfreqband,length(group));
     demeaned_all_controls_granger_data = [];
     demeaned_all_patients_granger_data = [];
     demeaned_all_controls_mismatch_contrasts = [];
@@ -120,8 +121,8 @@ for t = 1:size(timewins)
         %     end
         
         %Trim final frequency (or all higher frequencies) - seems artefactually high ?filtering
-        foi = foi(1:35);
-        granger_data = granger_data(:,:,:,1:35,:,:);
+        foi = foi(1:topfreqband);
+        granger_data = granger_data(:,:,:,1:topfreqband,:,:);
         
         %     foi = foi(1:end-1);
         %     granger_data = granger_data(:,:,:,1:end-1,:,:);
@@ -233,7 +234,7 @@ for t = 1:size(timewins)
         plot(foi,squeeze(mean(mean(all_granger_data(to,from,:,:,:,:),5),6)),'b','LineWidth',7)
         title(['All ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
         legend({[from_name '-' to_name],[to_name '-' from_name]})
-        for i = 1:35 %Compare across group permutation
+        for i = 1:topfreqband %Compare across group permutation
             p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(mean(all_random_granger_data(from,to,:,i,:,:,:),5),7)),squeeze(mean(mean(all_granger_data(from,to,:,i,:,:),5),6)))
             p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(mean(all_random_granger_data(to,from,:,i,:,:,:),5),7)),squeeze(mean(mean(all_granger_data(to,from,:,i,:,:),5),6)))
             if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -255,7 +256,7 @@ for t = 1:size(timewins)
                 plot(foi,squeeze(mean(mean(all_granger_data(to,from,:,:,:,:),5),6)),'b','LineWidth',7)
                 title(['By direction ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
                 legend({[from_name '-' to_name],[to_name '-' from_name]})
-                for i = 1:35
+                for i = 1:topfreqband
                     thisarray = [repmat(sort(repmat([1:96],1,7))',2,1),repmat([1:7]',96*2,1),[ones(96*7,1);2*ones(96*7,1)],[reshape(all_granger_data(from,to,:,i,:,:),[672,1]);reshape(all_granger_data(to,from,:,i,:,:),[672,1])]];
                     t1=array2table(thisarray,'VariableNames',{'Subject','Condition','Direction','Response'});
                     thistest = fitglm(t1,'Response ~ Direction + Condition + Subject');
@@ -282,7 +283,7 @@ for t = 1:size(timewins)
                 %             plot(foi,squeeze(median(mean(all_granger_data(to,from,:,:,:,:),5),6)),'b','LineWidth',7)
                 %             title(['All median ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
                 %             legend({[from_name '-' to_name],[to_name '-' from_name]})
-                %             for i = 1:35 %Compare across group permutation
+                %             for i = 1:topfreqband %Compare across group permutation
                 %                 p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(median(mean(all_random_granger_data(from,to,:,i,:,:,:),5),7)),squeeze(median(mean(all_granger_data(from,to,:,i,:,:),5),6)))
                 %                 p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(median(mean(all_random_granger_data(to,from,:,i,:,:,:),5),7)),squeeze(median(mean(all_granger_data(to,from,:,i,:,:),5),6)))
                 %                 if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -302,7 +303,7 @@ for t = 1:size(timewins)
                 plot(foi,squeeze(mean(mean(demeaned_all_granger_data(to,from,:,:,:,:),5),6)),'b','LineWidth',7)
                 title(['All demeaned ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
                 legend({[from_name '-' to_name],[to_name '-' from_name]}) %Not yet clear how to do stats on this - XXX
-                %             for i = 1:35 %Rough initial parametric stats - better to use permutation
+                %             for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
                 %                 %[h_tf(i) p_tf(i)] = ttest(mean(demeaned_all_granger_data(from,to,:,i,:,:),5)-mean(demeaned_all_granger_data(to,from,:,i,:,:),5));
                 %                 [h_tf(i) p_tf(i)] = ttest(reshape(demeaned_all_granger_data(from,to,:,i,:,:),[126,1]),reshape(demeaned_all_granger_data(to,from,:,i,:,:),[126,1]))
                 %                 if h_tf(i) == 1
@@ -318,7 +319,7 @@ for t = 1:size(timewins)
                 % effect, but I can't figure out how to do this and the
                 % Bonferroni correction is stringent and should more than
                 % compensate
-                for i = 1:35
+                for i = 1:topfreqband
                     thisarray = [repmat(sort(repmat([1:96],1,7))',2,1),repmat([1:7]',96*2,1),[ones(96*7,1);2*ones(96*7,1)],[reshape(demeaned_all_granger_data(from,to,:,i,:,:),[672,1]);reshape(demeaned_all_granger_data(to,from,:,i,:,:),[672,1])]];
                     t1=array2table(thisarray,'VariableNames',{'Subject','Condition','Direction','Response'});
                     thistest = fitglm(t1,'Response ~ Direction + Condition + Subject');
@@ -358,7 +359,7 @@ for t = 1:size(timewins)
     %             legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
     %             title(['By group demeaned ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
     %             legend({[from_name '-' to_name],[to_name '-' from_name]}) %Not yet clear how to do stats on this - XXX
-    %             for i = 1:35 %Rough initial parametric stats - better to use permutation
+    %             for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
     %                 [h_tf(i) p_tf(i)] = ttest2(mean(demeaned_all_controls_granger_data(from,to,:,i,:,:),5),mean(demeaned_all_patients_granger_data(from,to,:,i,:,:),5));
     %                 [h_ft(i) p_ft(i)] = ttest2(mean(demeaned_all_controls_granger_data(to,from,:,i,:,:),5),mean(demeaned_all_patients_granger_data(to,from,:,i,:,:),5));
     %                 if h_tf(i) == 1
@@ -382,7 +383,7 @@ for t = 1:size(timewins)
     plot(foi,squeeze(mean(mean(all_granger_data(to,from,:,:,:,group==4),5),6)),'g--','LineWidth',7)
     legend({[from_name '-' to_name ' control'],[to_name '-' from_name ' control'],[from_name '-' to_name ' pca'],[to_name '-' from_name ' pca'],[from_name '-' to_name ' bvFTD'],[to_name '-' from_name ' bvFTD'],[from_name '-' to_name ' nfvPPA'],[to_name '-' from_name ' nfvPPA']})
     title(['By group ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
-%     for i = 1:35 %Rough initial parametric stats - better to use permutation
+%     for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
 %         [h_tf(i) p_tf(i)] = ttest2(mean(all_controls_granger_data(from,to,:,i,:,:),5),mean(all_patients_granger_data(from,to,:,i,:,:),5));
 %         [h_ft(i) p_ft(i)] = ttest2(mean(all_controls_granger_data(to,from,:,i,:,:),5),mean(all_patients_granger_data(to,from,:,i,:,:),5));
 %         if h_tf(i) == 1
@@ -427,7 +428,7 @@ for t = 1:size(timewins)
 %     plot(foi,squeeze(mean(mean(all_patients_granger_data(to,from,:,:,:,2:end),5),6)),'y','LineWidth',7)
 %     legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
 %     title(['By group ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
-%     for i = 1:35 %Rough initial parametric stats - better to use permutation
+%     for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
 %         [h_tf(i) p_tf(i)] = ttest2(mean(all_controls_granger_data(from,to,:,i,:,:),5),mean(all_patients_granger_data(from,to,:,i,:,:),5));
 %         [h_ft(i) p_ft(i)] = ttest2(mean(all_controls_granger_data(to,from,:,i,:,:),5),mean(all_patients_granger_data(to,from,:,i,:,:),5));
 %         if h_tf(i) == 1
@@ -450,7 +451,7 @@ for t = 1:size(timewins)
 %     plot(foi,squeeze(median(mean(all_patients_granger_data(to,from,:,:,:,:),5),6)),'b--','LineWidth',7)
 %     legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
 %     title(['By group median ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
-%     for i = 1:35 %Rough initial parametric stats - better to use permutation
+%     for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
 %         [p_tf(i) h_tf(i)] = ranksum(squeeze(mean(all_controls_granger_data(from,to,:,i,:,:),5)),squeeze(mean(all_patients_granger_data(from,to,:,i,:,:),5)));
 %         [p_ft(i) h_ft(i)] = ranksum(squeeze(mean(all_controls_granger_data(to,from,:,i,:,:),5)),squeeze(mean(all_patients_granger_data(to,from,:,i,:,:),5)));
 %         if h_tf(i) == 1
@@ -505,7 +506,7 @@ for t = 1:size(timewins)
 %             plot(foi,squeeze(mean(all_granger_data(from,to,:,:,:,s),5)),'g','LineWidth',7)
 %             hold on
 %             plot(foi,squeeze(mean(all_granger_data(to,from,:,:,:,s),5)),'b','LineWidth',7)
-%             for i = 1:35 %Compare within subj permutation
+%             for i = 1:topfreqband %Compare within subj permutation
 %                 p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_granger_data(from,to,:,i,:,:,s),5)),squeeze(mean(all_granger_data(from,to,:,i,:,s),5)));
 %                 p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_granger_data(to,from,:,i,:,:,s),5)),squeeze(mean(all_granger_data(to,from,:,i,:,s),5)));
 %                 if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -529,7 +530,7 @@ for t = 1:size(timewins)
 %             plot(foi,squeeze(mean(all_mismatch_contrasts(to,from,:,:,s),5)),'b','LineWidth',7)
 %             
 %             %legend({[from_name '-' to_name],[to_name '-' from_name]})
-%             for i = 1:35 %Compare across group permutation
+%             for i = 1:topfreqband %Compare across group permutation
 %                 p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_mismatch_contrasts(from,to,:,i,:,s),6)),squeeze(mean(all_mismatch_contrasts(from,to,:,i,s),5)));
 %                 p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_mismatch_contrasts(to,from,:,i,:,s),6)),squeeze(mean(all_mismatch_contrasts(to,from,:,i,s),5)));
 %                 if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -553,7 +554,7 @@ for t = 1:size(timewins)
 %             plot(foi,squeeze(mean(all_interaction_contrasts(to,from,:,:,s),5)),'b','LineWidth',7)
 %             
 %             %legend({[from_name '-' to_name],[to_name '-' from_name]})
-%             for i = 1:35 %Compare across group permutation
+%             for i = 1:topfreqband %Compare across group permutation
 %                 p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_interaction_contrasts(from,to,:,i,:,s),6)),squeeze(mean(all_interaction_contrasts(from,to,:,i,s),5)));
 %                 p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_interaction_contrasts(to,from,:,i,:,s),6)),squeeze(mean(all_interaction_contrasts(to,from,:,i,s),5)));
 %                 if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -573,7 +574,7 @@ for t = 1:size(timewins)
 %             plot(foi,squeeze(mean(all_granger_data(from,to,:,:,:,s),5)),'g','LineWidth',7)
 %             hold on
 %             plot(foi,squeeze(mean(all_granger_data(to,from,:,:,:,s),5)),'b','LineWidth',7)
-%             for i = 1:35 %Compare within subj permutation
+%             for i = 1:topfreqband %Compare within subj permutation
 %                 p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_granger_data(from,to,:,i,:,:,s),5)),squeeze(mean(all_granger_data(from,to,:,i,:,s),5)));
 %                 p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_granger_data(to,from,:,i,:,:,s),5)),squeeze(mean(all_granger_data(to,from,:,i,:,s),5)));
 %                 if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -597,7 +598,7 @@ for t = 1:size(timewins)
 %             plot(foi,squeeze(mean(all_mismatch_contrasts(to,from,:,:,s),5)),'b','LineWidth',7)
 %             
 %             %legend({[from_name '-' to_name],[to_name '-' from_name]})
-%             for i = 1:35 %Compare across group permutation
+%             for i = 1:topfreqband %Compare across group permutation
 %                 p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_mismatch_contrasts(from,to,:,i,:,s),6)),squeeze(mean(all_mismatch_contrasts(from,to,:,i,s),5)));
 %                 p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_mismatch_contrasts(to,from,:,i,:,s),6)),squeeze(mean(all_mismatch_contrasts(to,from,:,i,s),5)));
 %                 if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -621,7 +622,7 @@ for t = 1:size(timewins)
 %             plot(foi,squeeze(mean(all_interaction_contrasts(to,from,:,:,s),5)),'b','LineWidth',7)
 %             
 %             %legend({[from_name '-' to_name],[to_name '-' from_name]})
-%             for i = 1:35 %Compare across group permutation
+%             for i = 1:topfreqband %Compare across group permutation
 %                 p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_interaction_contrasts(from,to,:,i,:,s),6)),squeeze(mean(all_interaction_contrasts(from,to,:,i,s),5)));
 %                 p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_interaction_contrasts(to,from,:,i,:,s),6)),squeeze(mean(all_interaction_contrasts(to,from,:,i,s),5)));
 %                 if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -658,9 +659,9 @@ for t = 1:size(timewins)
     plot(foi,squeeze(mean(all_mismatch_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
     
     plot(foi,squeeze(mean(all_mismatch_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
-    title(['All MisMatch-Match ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
+    title(['All Standard-Deviant ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
     legend({[from_name '-' to_name],[to_name '-' from_name]})
-    for i = 1:35 %Compare across group permutation
+    for i = 1:topfreqband %Compare across group permutation
         p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_mismatch_contrasts(from,to,:,i,:,:),6)),squeeze(mean(all_mismatch_contrasts(from,to,:,i,:),5)));
         p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_mismatch_contrasts(to,from,:,i,:,:),6)),squeeze(mean(all_mismatch_contrasts(to,from,:,i,:),5)));
         if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -681,9 +682,9 @@ for t = 1:size(timewins)
     plot(foi,squeeze(median(all_mismatch_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
     
     plot(foi,squeeze(median(all_mismatch_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
-    title(['All median MisMatch-Match ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
+    title(['All median Standard-Deviant ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
     legend({[from_name '-' to_name],[to_name '-' from_name]})
-    for i = 1:35 %Compare across group permutation
+    for i = 1:topfreqband %Compare across group permutation
         p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(median(all_random_mismatch_contrasts(from,to,:,i,:,:),6)),squeeze(median(all_mismatch_contrasts(from,to,:,i,:),5)));
         p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(median(all_random_mismatch_contrasts(to,from,:,i,:,:),6)),squeeze(median(all_mismatch_contrasts(to,from,:,i,:),5)));
         if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -706,7 +707,7 @@ for t = 1:size(timewins)
 %     plot(foi,squeeze(mean(all_clarity_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
 %     title(['All Clear-Unclear ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     legend({[from_name '-' to_name],[to_name '-' from_name]})
-%     for i = 1:35 %Compare across group permutation
+%     for i = 1:topfreqband %Compare across group permutation
 %         p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_clarity_contrasts(from,to,:,i,:,:),6)),squeeze(mean(all_clarity_contrasts(from,to,:,i,:),5)));
 %         p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_clarity_contrasts(to,from,:,i,:,:),6)),squeeze(mean(all_clarity_contrasts(to,from,:,i,:),5)));
 %         if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -729,7 +730,7 @@ for t = 1:size(timewins)
 %     plot(foi,squeeze(median(all_clarity_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
 %     title(['All median Clear-Unclear ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     legend({[from_name '-' to_name],[to_name '-' from_name]})
-%     for i = 1:35 %Compare across group permutation
+%     for i = 1:topfreqband %Compare across group permutation
 %         p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(median(all_random_clarity_contrasts(from,to,:,i,:,:),6)),squeeze(median(all_clarity_contrasts(from,to,:,i,:),5)));
 %         p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(median(all_random_clarity_contrasts(to,from,:,i,:,:),6)),squeeze(median(all_clarity_contrasts(to,from,:,i,:),5)));
 %         if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -754,7 +755,7 @@ for t = 1:size(timewins)
     
     title(['By group Mean Standard-Deviant ' analysis_type ])
 
-%     for i = 1:35 %Rough initial parametric stats - better to use permutation
+%     for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
 %         [h_tf(i) p_tf(i)] = ttest2(squeeze(all_patients_mismatch_contrasts(from,to,:,i,:)),squeeze(all_controls_mismatch_contrasts(from,to,:,i,:)));
 %         [p_tf(i) h_tf(i)] = ttest2(squeeze(all_absolute_patients_mismatch_contrasts(from,to,:,i,:)),squeeze(all_absolute_controls_mismatch_contrasts(from,to,:,i,:)));
 %         [h_ft(i) p_ft(i)] = ttest2(squeeze(all_patients_mismatch_contrasts(to,from,:,i,:)),squeeze(all_controls_mismatch_contrasts(to,from,:,i,:)));
@@ -774,7 +775,7 @@ for t = 1:size(timewins)
 %     plot(foi,squeeze(median(all_patients_mismatch_contrasts(to,from,:,:,:),5)),'b--','LineWidth',7)
 %     title(['By group Median Standard-Deviant ' analysis_type ])
 %     legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
-%     for i = 1:35 %Rough initial parametric stats - better to use permutation
+%     for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
 %         [p_tf(i) h_tf(i)] = ranksum(squeeze(all_patients_mismatch_contrasts(from,to,:,i,:)),squeeze(all_controls_mismatch_contrasts(from,to,:,i,:)));
 %         [p_ft(i) h_ft(i)] = ranksum(squeeze(all_patients_mismatch_contrasts(to,from,:,i,:)),squeeze(all_controls_mismatch_contrasts(to,from,:,i,:)));
 %         if h_tf(i) == 1
@@ -795,7 +796,7 @@ for t = 1:size(timewins)
 %     plot(foi,squeeze(mean(all_interaction_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
 %     title(['All Interaction ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     legend({[from_name '-' to_name],[to_name '-' from_name]})
-%     for i = 1:35 %Compare across group permutation
+%     for i = 1:topfreqband %Compare across group permutation
 %         p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_interaction_contrasts(from,to,:,i,:,:),6)),squeeze(mean(all_interaction_contrasts(from,to,:,i,:),5)));
 %         p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_interaction_contrasts(to,from,:,i,:,:),6)),squeeze(mean(all_interaction_contrasts(to,from,:,i,:),5)));
 %         if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -817,7 +818,7 @@ for t = 1:size(timewins)
 %     plot(foi,squeeze(median(all_interaction_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
 %     title(['All median Interaction ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     legend({[from_name '-' to_name],[to_name '-' from_name]})
-%     for i = 1:35 %Compare across group permutation
+%     for i = 1:topfreqband %Compare across group permutation
 %         p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(median(all_random_interaction_contrasts(from,to,:,i,:,:),6)),squeeze(median(all_interaction_contrasts(from,to,:,i,:),5)));
 %         p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(median(all_random_interaction_contrasts(to,from,:,i,:,:),6)),squeeze(median(all_interaction_contrasts(to,from,:,i,:),5)));
 %         if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -844,7 +845,7 @@ for t = 1:size(timewins)
 %     plot(foi,squeeze(median(mean(all_patients_mismatch_contrasts(to,from,:,:,:),5),6)),'b--','LineWidth',7)
 %     title(['By group sig Mean Standard-Deviant ' analysis_type ])
 %     legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
-%     for i = 1:35 %Rough initial parametric stats - better to use permutation
+%     for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
 %         p_tf_c(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_controls_mismatch_contrasts(from,to,i,:,:,:),6)),squeeze(mean(all_controls_mismatch_contrasts(from,to,:,i,:),5)));
 %         p_ft_c(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_controls_mismatch_contrasts(to,from,i,:,:,:),6)),squeeze(mean(all_controls_mismatch_contrasts(to,from,:,i,:),5)));
 %         if p_tf_c(i)<=0.05 || p_ft_c(i)>=0.95
@@ -879,7 +880,7 @@ for t = 1:size(timewins)
 %     plot(foi,squeeze(median(median(all_patients_mismatch_contrasts(to,from,:,:,:),5),6)),'b--','LineWidth',7)
 %     title(['By group sig Median Standard-Deviant ' analysis_type ])
 %     legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
-%     for i = 1:35 %Rough initial parametric stats - better to use permutation
+%     for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
 %         p_tf_c(i) = 1-relRankIn_includeValue_lowerBound(squeeze(median(all_random_controls_mismatch_contrasts(from,to,i,:,:,:),6)),squeeze(median(all_controls_mismatch_contrasts(from,to,:,i,:),5)));
 %         p_ft_c(i) = 1-relRankIn_includeValue_lowerBound(squeeze(median(all_random_controls_mismatch_contrasts(to,from,i,:,:,:),6)),squeeze(median(all_controls_mismatch_contrasts(to,from,:,i,:),5)));
 %         if p_tf_c(i)<=0.05 || p_ft_c(i)>=0.95
@@ -914,7 +915,7 @@ for t = 1:size(timewins)
 %     plot(foi,squeeze(median(mean(all_patients_interaction_contrasts(to,from,:,:,:),5),6)),'b--','LineWidth',7)
 %     title(['By group Interaction ' analysis_type ])
 %     legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
-%     for i = 1:35 %Rough initial parametric stats - better to use permutation
+%     for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
 %         p_tf_c(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_controls_interaction_contrasts(from,to,i,:,:,:),6)),squeeze(mean(all_controls_interaction_contrasts(from,to,:,i,:),5)));
 %         p_ft_c(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_controls_interaction_contrasts(to,from,i,:,:,:),6)),squeeze(mean(all_controls_interaction_contrasts(to,from,:,i,:),5)));
 %         if p_tf_c(i)<=0.05 || p_tf_c(i)>=0.95
@@ -949,7 +950,7 @@ for t = 1:size(timewins)
 %     plot(foi,squeeze(median(mean(all_patients_clarity_contrasts(to,from,:,:,:),5),6)),'b--','LineWidth',7)
 %     title(['By group Clarity ' analysis_type ])
 %     legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
-%     for i = 1:35 %Rough initial parametric stats - better to use permutation
+%     for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
 %         p_tf_c(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_controls_clarity_contrasts(from,to,i,:,:,:),6)),squeeze(mean(all_controls_clarity_contrasts(from,to,:,i,:),5)));
 %         p_ft_c(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_controls_clarity_contrasts(to,from,i,:,:,:),6)),squeeze(mean(all_controls_clarity_contrasts(to,from,:,i,:),5)));
 %         if p_tf_c(i)<=0.05 || p_tf_c(i)>=0.95
@@ -982,7 +983,7 @@ for t = 1:size(timewins)
 %     %
 %     %             title(['All abs ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     %             legend({[from_name '-' to_name],[to_name '-' from_name]})
-%     %             for i = 1:35 %Compare across group permutation
+%     %             for i = 1:topfreqband %Compare across group permutation
 %     %                 p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(mean(abs(all_random_granger_data(from,to,:,i,:,:,:)),5),7)),squeeze(mean(mean(abs(all_granger_data(from,to,:,i,:,:)),5),6)))
 %     %                 p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(mean(abs(all_random_granger_data(to,from,:,i,:,:,:)),5),7)),squeeze(mean(mean(abs(all_granger_data(to,from,:,i,:,:)),5),6)))
 %     %                 if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -1004,7 +1005,7 @@ for t = 1:size(timewins)
 %     %
 %     %             title(['All median ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     %             legend({[from_name '-' to_name],[to_name '-' from_name]})
-%     %             for i = 1:35 %Compare across group permutation
+%     %             for i = 1:topfreqband %Compare across group permutation
 %     %                 p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(median(mean(abs(all_random_granger_data(from,to,:,i,:,:,:)),5),7)),squeeze(median(mean(abs(all_granger_data(from,to,:,i,:,:)),5),6)))
 %     %                 p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(median(mean(abs(all_random_granger_data(to,from,:,i,:,:,:)),5),7)),squeeze(median(mean(abs(all_granger_data(to,from,:,i,:,:)),5),6)))
 %     %                 if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -1023,7 +1024,7 @@ for t = 1:size(timewins)
 %     %             plot(foi,squeeze(mean(mean(abs(all_patients_granger_data(to,from,:,:,:,:)),5),6)),'b--','LineWidth',7)
 %     %             legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
 %     %             title(['By group ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
-%     %             for i = 1:35 %Rough initial parametric stats - better to use permutation
+%     %             for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
 %     %                 [h_tf(i) p_tf(i)] = ttest2(mean(abs(all_controls_granger_data(from,to,:,i,:,:)),5),mean(abs(all_patients_granger_data(from,to,:,i,:,:)),5));
 %     %                 [h_ft(i) p_ft(i)] = ttest2(mean(abs(all_controls_granger_data(to,from,:,i,:,:)),5),mean(abs(all_patients_granger_data(to,from,:,i,:,:)),5));
 %     %                 if h_tf(i) == 1
@@ -1042,7 +1043,7 @@ for t = 1:size(timewins)
 %     %             plot(foi,squeeze(median(mean(abs(all_patients_granger_data(to,from,:,:,:,:)),5),6)),'b--','LineWidth',7)
 %     %             legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
 %     %             title(['By group median ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
-%     %             for i = 1:35 %Rough initial parametric stats - better to use permutation
+%     %             for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
 %     %                 [p_tf(i) h_tf(i)] = ranksum(squeeze(mean(abs(all_controls_granger_data(from,to,:,i,:,:)),5)),squeeze(mean(abs(all_patients_granger_data(from,to,:,i,:,:)),5)));
 %     %                 [p_ft(i) h_ft(i)] = ranksum(squeeze(mean(abs(all_controls_granger_data(to,from,:,i,:,:)),5)),squeeze(mean(abs(all_patients_granger_data(to,from,:,i,:,:)),5)));
 %     %                 if h_tf(i) == 1
@@ -1066,7 +1067,7 @@ for t = 1:size(timewins)
 %     %                     plot(foi,squeeze(mean(abs(all_granger_data(from,to,:,:,:,s)),5)),'g','LineWidth',7)
 %     %                     hold on
 %     %                     plot(foi,squeeze(mean(abs(all_granger_data(to,from,:,:,:,s)),5)),'b','LineWidth',7)
-%     %                     for i = 1:35 %Compare within subj permutation
+%     %                     for i = 1:topfreqband %Compare within subj permutation
 %     %                         p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(abs(all_random_granger_data(from,to,:,i,:,:,s)),5)),squeeze(mean(abs(all_granger_data(from,to,:,i,:,s)),5)));
 %     %                         p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(abs(all_random_granger_data(to,from,:,i,:,:,s)),5)),squeeze(mean(abs(all_granger_data(to,from,:,i,:,s)),5)));
 %     %                         if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -1084,7 +1085,7 @@ for t = 1:size(timewins)
 %     %                     plot(foi,squeeze(mean(abs(all_granger_data(from,to,:,:,:,s)),5)),'g','LineWidth',7)
 %     %                     hold on
 %     %                     plot(foi,squeeze(mean(abs(all_granger_data(to,from,:,:,:,s)),5)),'b','LineWidth',7)
-%     %                     for i = 1:35 %Compare within subj permutation
+%     %                     for i = 1:topfreqband %Compare within subj permutation
 %     %                         p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(abs(all_random_granger_data(from,to,:,i,:,:,s)),5)),squeeze(mean(abs(all_granger_data(from,to,:,i,:,s)),5)));
 %     %                         p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(abs(all_random_granger_data(to,from,:,i,:,:,s)),5)),squeeze(mean(abs(all_granger_data(to,from,:,i,:,s)),5)));
 %     %                         if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -1112,9 +1113,9 @@ for t = 1:size(timewins)
 %     %
 %     %             plot(foi,squeeze(mean(all_absolute_mismatch_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
 %     %
-%     %             title(['All MisMatch-Match ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
+%     %             title(['All Standard-Deviant ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     %             legend({[from_name '-' to_name],[to_name '-' from_name]})
-%     %             for i = 1:35 %Compare across group permutation
+%     %             for i = 1:topfreqband %Compare across group permutation
 %     %                 p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_absolute_random_mismatch_contrasts(from,to,:,i,:,:),6)),squeeze(mean(all_absolute_mismatch_contrasts(from,to,:,i,:),5)));
 %     %                 p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_absolute_random_mismatch_contrasts(to,from,:,i,:,:),6)),squeeze(mean(all_absolute_mismatch_contrasts(to,from,:,i,:),5)));
 %     %                 if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -1135,9 +1136,9 @@ for t = 1:size(timewins)
 %     %
 %     %             plot(foi,squeeze(median(all_absolute_mismatch_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
 %     %
-%     %             title(['All median MisMatch-Match ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
+%     %             title(['All median Standard-Deviant ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     %             legend({[from_name '-' to_name],[to_name '-' from_name]})
-%     %             for i = 1:35 %Compare across group permutation
+%     %             for i = 1:topfreqband %Compare across group permutation
 %     %                 p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(median(all_absolute_random_mismatch_contrasts(from,to,:,i,:,:),6)),squeeze(median(all_absolute_mismatch_contrasts(from,to,:,i,:),5)));
 %     %                 p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(median(all_absolute_random_mismatch_contrasts(to,from,:,i,:,:),6)),squeeze(median(all_absolute_mismatch_contrasts(to,from,:,i,:),5)));
 %     %                 if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -1160,7 +1161,7 @@ for t = 1:size(timewins)
 %     %
 %     %             title(['All Clear-Unclear ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     %             legend({[from_name '-' to_name],[to_name '-' from_name]})
-%     %             for i = 1:35 %Compare across group permutation
+%     %             for i = 1:topfreqband %Compare across group permutation
 %     %                 p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_absolute_random_clarity_contrasts(from,to,:,i,:,:),6)),squeeze(mean(all_absolute_clarity_contrasts(from,to,:,i,:),5)));
 %     %                 p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_absolute_random_clarity_contrasts(to,from,:,i,:,:),6)),squeeze(mean(all_absolute_clarity_contrasts(to,from,:,i,:),5)));
 %     %                 if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -1183,7 +1184,7 @@ for t = 1:size(timewins)
 %     %
 %     %             title(['All median Clear-Unclear ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     %             legend({[from_name '-' to_name],[to_name '-' from_name]})
-%     %             for i = 1:35 %Compare across group permutation
+%     %             for i = 1:topfreqband %Compare across group permutation
 %     %                 p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(median(all_absolute_random_clarity_contrasts(from,to,:,i,:,:),6)),squeeze(median(all_absolute_clarity_contrasts(from,to,:,i,:),5)));
 %     %                 p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(median(all_absolute_random_clarity_contrasts(to,from,:,i,:,:),6)),squeeze(median(all_absolute_clarity_contrasts(to,from,:,i,:),5)));
 %     %                 if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -1200,7 +1201,7 @@ for t = 1:size(timewins)
 %     %             plot(foi,squeeze(mean(all_absolute_interaction_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
 %     %             title(['All Interaction ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     %             legend({[from_name '-' to_name],[to_name '-' from_name]})
-%     %             for i = 1:35 %Compare across group permutation
+%     %             for i = 1:topfreqband %Compare across group permutation
 %     %                 p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_absolute_random_interaction_contrasts(from,to,:,i,:,:),6)),squeeze(mean(all_absolute_interaction_contrasts(from,to,:,i,:),5)));
 %     %                 p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_absolute_random_interaction_contrasts(to,from,:,i,:,:),6)),squeeze(mean(all_absolute_interaction_contrasts(to,from,:,i,:),5)));
 %     %                 if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -1217,7 +1218,7 @@ for t = 1:size(timewins)
 %     %             plot(foi,squeeze(median(all_absolute_interaction_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
 %     %             title(['All median Interaction ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     %             legend({[from_name '-' to_name],[to_name '-' from_name]})
-%     %             for i = 1:35 %Compare across group permutation
+%     %             for i = 1:topfreqband %Compare across group permutation
 %     %                 p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(median(all_absolute_random_interaction_contrasts(from,to,:,i,:,:),6)),squeeze(median(all_absolute_interaction_contrasts(from,to,:,i,:),5)));
 %     %                 p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(median(all_absolute_random_interaction_contrasts(to,from,:,i,:,:),6)),squeeze(median(all_absolute_interaction_contrasts(to,from,:,i,:),5)));
 %     %                 if p_tf(i)<=0.05 || p_tf(i)>=0.95
@@ -1237,7 +1238,7 @@ for t = 1:size(timewins)
 %     %
 %     %             title(['Group by Mean Standard-Deviant ' analysis_type ])
 %     %             legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
-%     %             for i = 1:35 %Rough initial parametric stats - better to use permutation
+%     %             for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
 %     %                 [p_tf(i) h_tf(i)] = ttest2(squeeze(all_absolute_patients_mismatch_contrasts(from,to,:,i,:)),squeeze(all_absolute_controls_mismatch_contrasts(from,to,:,i,:)));
 %     %                 [p_ft(i) h_ft(i)] = ttest2(squeeze(all_absolute_patients_mismatch_contrasts(to,from,:,i,:)),squeeze(all_absolute_controls_mismatch_contrasts(to,from,:,i,:)));
 %     %                 if h_tf(i) == 1
@@ -1257,7 +1258,7 @@ for t = 1:size(timewins)
 %     %
 %     %             title(['Group by Median Standard-Deviant ' analysis_type ])
 %     %             legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
-%     %             for i = 1:35 %Rough initial parametric stats - better to use permutation
+%     %             for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
 %     %                 [p_tf(i) h_tf(i)] = ranksum(squeeze(all_absolute_patients_mismatch_contrasts(from,to,:,i,:)),squeeze(all_absolute_controls_mismatch_contrasts(from,to,:,i,:)));
 %     %                 [p_ft(i) h_ft(i)] = ranksum(squeeze(all_absolute_patients_mismatch_contrasts(to,from,:,i,:)),squeeze(all_absolute_controls_mismatch_contrasts(to,from,:,i,:)));
 %     %                 if h_tf(i) == 1
@@ -1285,7 +1286,7 @@ for t = 1:size(timewins)
 %     %
 %     %             title(['By group sig Mean Standard-Deviant ' analysis_type ])
 %     %             legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
-%     %             for i = 1:35 %Rough initial parametric stats - better to use permutation
+%     %             for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
 %     %                 p_tf_c(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_absolute_random_controls_mismatch_contrasts(from,to,i,:,:,:),6)),squeeze(mean(all_absolute_controls_mismatch_contrasts(from,to,:,i,:),5)));
 %     %                 p_ft_c(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_absolute_random_controls_mismatch_contrasts(to,from,i,:,:,:),6)),squeeze(mean(all_absolute_controls_mismatch_contrasts(to,from,:,i,:),5)));
 %     %                 if p_tf_c(i)<=0.05 || p_ft_p(i)>=0.95
@@ -1321,7 +1322,7 @@ for t = 1:size(timewins)
 %     %
 %     %             title(['By group sig Median Standard-Deviant ' analysis_type ])
 %     %             legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
-%     %             for i = 1:35 %Rough initial parametric stats - better to use permutation
+%     %             for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
 %     %                 p_tf_c(i) = 1-relRankIn_includeValue_lowerBound(squeeze(median(all_absolute_random_controls_mismatch_contrasts(from,to,i,:,:,:),6)),squeeze(median(all_absolute_controls_mismatch_contrasts(from,to,:,i,:),5)));
 %     %                 p_ft_c(i) = 1-relRankIn_includeValue_lowerBound(squeeze(median(all_absolute_random_controls_mismatch_contrasts(to,from,i,:,:,:),6)),squeeze(median(all_absolute_controls_mismatch_contrasts(to,from,:,i,:),5)));
 %     %                 if p_tf_c(i)<=0.05 || p_ft_p(i)>=0.95
