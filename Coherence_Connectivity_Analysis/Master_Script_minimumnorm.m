@@ -1,4 +1,4 @@
-function Master_Script_secondfilter
+function Master_Script_minimumnorm
 
 rmpath(genpath('/imaging/local/software/spm_cbu_svn/releases/spm12_latest/'))
 %addpath /imaging/local/software/spm_cbu_svn/releases/spm12_fil_r6906
@@ -11,8 +11,8 @@ spm eeg
 makefiles = 0;
 extractlfps = 0;
 
-%method = 'granger';
-method = 'coh';
+method = 'granger';
+%method = 'coh';
 
 start_times = 0;
 end_times = 500;
@@ -23,14 +23,14 @@ addpath('/group/language/data/thomascope/vespa/SPM12version/Standalone preproces
 
 %pathstem = '/imaging/hp02/pnfa_mmn/forward_modelling/LFPs_TA';
 pathstem_evoked = '/imaging/tc02/Holly_MMN/LFPs/';
-pathstem_inv = '/imaging/hp02/pnfa_mmn/forward_modelling/MSP/';
+%pathstem_inv = '/imaging/hp02/pnfa_mmn/forward_modelling/MSP/';
 pathstem_raw = '/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/';
-outdir = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_secondfilter/';
+outdir = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_minimumnorm/';
 
 fft_method = 'mtmfft'; % 'wavelet' for morlet; can leave blank for multitaper.
 
 groupstodo = {'matched_HCs' 'pca' 'bvFTD' 'pnfa'};
-dirnames_inv = {'matched_HCs' 'pca' 'ftd' 'vespa'};
+dirnames_inv = {'matched_HCs' 'pca' 'bvftd' 'vespa'};
 all_subjs = [];
 
 cd(pathstem_evoked)
@@ -46,51 +46,76 @@ end
 
 inversion_prefix = 'fmraedfff';
 
-raw_prefix = 'raedffff';
+raw_prefix = 's_all_time_raedffff';
 
 val = 1; %1st inversion
 
+% if makefiles == 1
+% for s=1:size(all_subjs,1)
+%     %Find out where all the data are
+%     raw_suffix = strsplit(filenames{s},inversion_prefix);
+%     raw_suffix = raw_suffix{2}; %get the participant i.d.
+%     if exist([pathstem_inv dirnames_inv{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' inversion_prefix raw_suffix],'file');
+%         S.D = [pathstem_inv dirnames_inv{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' inversion_prefix raw_suffix];    
+%     else
+%         error([pathstem_inv dirnames_inv{all_subjs(s,1)} '/' raw_suffix(1:end-4)  ' does not contain the inversion file'])
+%     end
+%     if exist([pathstem_raw dirnames_inv{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' raw_prefix raw_suffix],'file')
+%         unaveragedfile = [pathstem_raw dirnames_inv{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' raw_prefix raw_suffix];
+%     else
+%         error([pathstem_inv dirnames_inv{all_subjs(s,1)} '/' raw_suffix(1:end-4)  ' does not contain the raw data file'])
+%     end
+%     ouputfile = [outdir groupstodo{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' raw_prefix raw_suffix];
+%     
+%     if ~exist([outdir groupstodo{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/'],'dir')
+%         mkdir([outdir groupstodo{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/'])
+%     end
+%     
+%     %Extract the inversion
+%     D = spm_eeg_load(S.D);
+%     inversion = D.inv;
+%     
+%     clear S D
+%     
+%     %Copy the raw data
+%     S.D = unaveragedfile;
+%     S.outfile = ouputfile;
+%     
+%     spm_eeg_copy(S)
+%     
+%     %Place the inversion in raw data file
+%     D = spm_eeg_load(S.outfile);
+%     D.inv = inversion;
+%     D.save
+% 
+% end
+% end
 if makefiles == 1
 for s=1:size(all_subjs,1)
     %Find out where all the data are
     raw_suffix = strsplit(filenames{s},inversion_prefix);
     raw_suffix = raw_suffix{2}; %get the participant i.d.
-    if exist([pathstem_inv dirnames_inv{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' inversion_prefix raw_suffix],'file');
-        S.D = [pathstem_inv dirnames_inv{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' inversion_prefix raw_suffix];    
-    else
-        error([pathstem_inv dirnames_inv{all_subjs(s,1)} '/' raw_suffix(1:end-4)  ' does not contain the inversion file'])
-    end
+   
     if exist([pathstem_raw dirnames_inv{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' raw_prefix raw_suffix],'file')
         unaveragedfile = [pathstem_raw dirnames_inv{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' raw_prefix raw_suffix];
     else
-        error([pathstem_inv dirnames_inv{all_subjs(s,1)} '/' raw_suffix(1:end-4)  ' does not contain the raw data file'])
+        error([pathstem_raw dirnames_inv{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' ' does not contain the raw data file'])
     end
     ouputfile = [outdir groupstodo{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' raw_prefix raw_suffix];
     
     if ~exist([outdir groupstodo{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/'],'dir')
         mkdir([outdir groupstodo{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/'])
     end
-    
-    %Extract the inversion
-    D = spm_eeg_load(S.D);
-    inversion = D.inv;
-    
-    clear S D
-    
+       
     %Copy the raw data
     S.D = unaveragedfile;
     S.outfile = ouputfile;
     
     spm_eeg_copy(S)
     
-    %Place the inversion in raw data file
-    D = spm_eeg_load(S.outfile);
-    D.inv = inversion;
-    D.save
 
 end
 end
-
 
 
 cd(thisdir)

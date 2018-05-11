@@ -3,7 +3,8 @@
 thisdir = pwd;
 
 %datapathstem = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_secondfilter/'; %For spoken baseline
-datapathstem = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_secondfilter/crosshem/'; %With cross hemispheric connections
+%datapathstem = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_secondfilter/crosshem/'; %With cross hemispheric connections
+datapathstem = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_minimumnorm/crosshem/'; %With minimum norm source reconstruction
 %datapathstem = '/imaging/tc02/vespa/preprocess/SPM12_fullpipeline_fixedICA/extractedsources_tf_newinversions_newbaseline/'; %For written baseline
 addpath(['/group/language/data/thomascope/vespa/SPM12version/Standalone preprocessing pipeline/tc_source_stats/ojwoodford-export_fig-216b30e'])
 
@@ -26,8 +27,8 @@ topfreqband = 49;
 
 closeafter = 1;
 
-%analysis_type = 'Granger';
-analysis_type = 'icoh';
+analysis_type = 'Granger';
+%analysis_type = 'icoh';
 
 switch(analysis_type)
     case 'Granger'
@@ -59,12 +60,12 @@ for t = 1:size(timewins)
     start_times = timewins(t,1);
     end_times = timewins(t,2);
     
-    all_granger_data = zeros(8,8,1,topfreqband,7,length(group));
+    all_granger_data = zeros(8,8,1,topfreqband,2,length(group));
     all_mismatch_contrasts = zeros(8,8,1,topfreqband,length(group));
     all_absolute_mismatch_contrasts = zeros(8,8,1,topfreqband,length(group));
     all_clarity_contrasts = zeros(8,8,1,topfreqband,length(group));
     all_absolute_clarity_contrasts = zeros(8,8,1,topfreqband,length(group));
-    all_random_granger_data = zeros(8,8,1,topfreqband,7,100,length(group));
+    all_random_granger_data = zeros(8,8,1,topfreqband,2,100,length(group));
     all_random_mismatch_contrasts = zeros(8,8,1,topfreqband,100,length(group));
     all_random_clarity_contrasts = zeros(8,8,1,topfreqband,100,length(group));
     all_absolute_random_mismatch_contrasts = zeros(8,8,1,topfreqband,100,length(group));
@@ -82,7 +83,7 @@ for t = 1:size(timewins)
     all_controls_interaction_contrasts = [];
     all_patients_interaction_contrasts = [];
     
-    demeaned_all_granger_data = zeros(8,8,1,topfreqband,7,length(group));
+    demeaned_all_granger_data = zeros(8,8,1,topfreqband,2,length(group));
     demeaned_all_mismatch_contrasts = zeros(8,8,1,topfreqband,length(group));
     demeaned_all_clarity_contrasts = zeros(8,8,1,topfreqband,length(group));
     demeaned_all_controls_granger_data = [];
@@ -142,15 +143,15 @@ for t = 1:size(timewins)
         all_random_mismatch_contrasts(:,:,:,:,:,s) = mean((granger_data(:,:,:,:,1,1:100)-granger_data(:,:,:,:,2,1:100))/3,5);
         all_absolute_random_mismatch_contrasts(:,:,:,:,:,s) = mean((abs(granger_data(:,:,:,:,1,1:100))-abs(granger_data(:,:,:,:,2,1:100)))/3,5);
         demeaned_all_mismatch_contrasts(:,:,:,:,s) = mean((granger_data(:,:,:,:,1,201)-granger_data(:,:,:,:,2,201))/3,5) / mean(mean(mean(nanmean(granger_data(:,:,:,:,:,201)))));
-        all_clarity_contrasts(:,:,:,:,s) = mean((granger_data(:,:,:,:,[5,6],201)-granger_data(:,:,:,:,[1,2],201))/2,5);
-        all_absolute_clarity_contrasts(:,:,:,:,s) = mean((abs(granger_data(:,:,:,:,[5,6],201))-abs(granger_data(:,:,:,:,[1,2],201)))/2,5);
-        demeaned_all_clarity_contrasts(:,:,:,:,s) = mean((granger_data(:,:,:,:,[5,6],201)-granger_data(:,:,:,:,[1,2],201))/2,5) / mean(mean(mean(nanmean(granger_data(:,:,:,:,:,201)))));
-        all_random_clarity_contrasts(:,:,:,:,:,s) = mean((granger_data(:,:,:,:,[5,6],1:100)-granger_data(:,:,:,:,[1,2],1:100))/3,5);
-        all_absolute_random_clarity_contrasts(:,:,:,:,:,s) = mean((abs(granger_data(:,:,:,:,1,1:100))-abs(granger_data(:,:,:,:,2,1:100)))/3,5);
-        all_interaction_contrasts(:,:,:,:,s) = mean((granger_data(:,:,:,:,[2,5],201)-granger_data(:,:,:,:,[1,6],201))/3,5); %Match4-MisMatch4+MisMatch16-Match16
-        all_absolute_interaction_contrasts(:,:,:,:,s) = mean((abs(granger_data(:,:,:,:,[2,5],201))-abs(granger_data(:,:,:,:,[1,6],201)))/3,5);
-        all_random_interaction_contrasts(:,:,:,:,:,s) = mean((granger_data(:,:,:,:,[2,5],1:100)-granger_data(:,:,:,:,[1,6],1:100))/3,5);
-        all_absolute_random_interaction_contrasts(:,:,:,:,:,s) = mean((abs(granger_data(:,:,:,:,[2,5],1:100))-abs(granger_data(:,:,:,:,[1,6],1:100)))/3,5);
+%         all_clarity_contrasts(:,:,:,:,s) = mean((granger_data(:,:,:,:,[5,6],201)-granger_data(:,:,:,:,[1,2],201))/2,5);
+%         all_absolute_clarity_contrasts(:,:,:,:,s) = mean((abs(granger_data(:,:,:,:,[5,6],201))-abs(granger_data(:,:,:,:,[1,2],201)))/2,5);
+%         demeaned_all_clarity_contrasts(:,:,:,:,s) = mean((granger_data(:,:,:,:,[5,6],201)-granger_data(:,:,:,:,[1,2],201))/2,5) / mean(mean(mean(nanmean(granger_data(:,:,:,:,:,201)))));
+%         all_random_clarity_contrasts(:,:,:,:,:,s) = mean((granger_data(:,:,:,:,[5,6],1:100)-granger_data(:,:,:,:,[1,2],1:100))/3,5);
+%         all_absolute_random_clarity_contrasts(:,:,:,:,:,s) = mean((abs(granger_data(:,:,:,:,1,1:100))-abs(granger_data(:,:,:,:,2,1:100)))/3,5);
+%         all_interaction_contrasts(:,:,:,:,s) = mean((granger_data(:,:,:,:,[2,5],201)-granger_data(:,:,:,:,[1,6],201))/3,5); %Match4-MisMatch4+MisMatch16-Match16
+%         all_absolute_interaction_contrasts(:,:,:,:,s) = mean((abs(granger_data(:,:,:,:,[2,5],201))-abs(granger_data(:,:,:,:,[1,6],201)))/3,5);
+%         all_random_interaction_contrasts(:,:,:,:,:,s) = mean((granger_data(:,:,:,:,[2,5],1:100)-granger_data(:,:,:,:,[1,6],1:100))/3,5);
+%         all_absolute_random_interaction_contrasts(:,:,:,:,:,s) = mean((abs(granger_data(:,:,:,:,[2,5],1:100))-abs(granger_data(:,:,:,:,[1,6],1:100)))/3,5);
         if group(s) == 1
             all_controls_granger_data(:,:,:,:,:,end+1) = granger_data(:,:,:,:,:,201);
             all_random_controls_granger_data(:,:,:,:,:,:,end+1) = granger_data(:,:,:,:,:,101:200); %Random permutations by trial
@@ -160,11 +161,11 @@ for t = 1:size(timewins)
             all_absolute_random_controls_mismatch_contrasts(:,:,:,:,:,end+1) = mean((abs(granger_data(:,:,:,:,1,1:100))-abs(granger_data(:,:,:,:,2,1:100)))/3,5);
             all_random_controls_mismatch_contrasts(:,:,:,:,:,end+1) = mean((granger_data(:,:,:,:,1,1:100)-granger_data(:,:,:,:,2,1:100))/3,5);
             demeaned_all_controls_mismatch_contrasts(:,:,:,:,end+1) = mean((granger_data(:,:,:,:,1,201)-granger_data(:,:,:,:,2,201))/3,5)/ mean(mean(mean(nanmean(granger_data(:,:,:,:,:,201)))));
-            all_controls_clarity_contrasts(:,:,:,:,end+1) = mean((granger_data(:,:,:,:,[5,6],201)-granger_data(:,:,:,:,[1,2],201))/2,5);
-            all_random_controls_clarity_contrasts(:,:,:,:,:,end+1) = mean((granger_data(:,:,:,:,[5,6],1:100)-granger_data(:,:,:,:,[1,2],1:100))/3,5);
-            demeaned_all_controls_clarity_contrasts(:,:,:,:,end+1) = mean((granger_data(:,:,:,:,[5,6],201)-granger_data(:,:,:,:,[1,2],201))/2,5)/ mean(mean(mean(nanmean(granger_data(:,:,:,:,:,201)))));
-            all_controls_interaction_contrasts(:,:,:,:,end+1) = mean((granger_data(:,:,:,:,[2,5],201)-granger_data(:,:,:,:,[1,6],201))/3,5); %Match4-MisMatch4+MisMatch16-Match16
-            all_random_controls_interaction_contrasts(:,:,:,:,:,end+1) = mean((granger_data(:,:,:,:,[2,5],1:100)-granger_data(:,:,:,:,[1,6],1:100))/3,5);
+%             all_controls_clarity_contrasts(:,:,:,:,end+1) = mean((granger_data(:,:,:,:,[5,6],201)-granger_data(:,:,:,:,[1,2],201))/2,5);
+%             all_random_controls_clarity_contrasts(:,:,:,:,:,end+1) = mean((granger_data(:,:,:,:,[5,6],1:100)-granger_data(:,:,:,:,[1,2],1:100))/3,5);
+%             demeaned_all_controls_clarity_contrasts(:,:,:,:,end+1) = mean((granger_data(:,:,:,:,[5,6],201)-granger_data(:,:,:,:,[1,2],201))/2,5)/ mean(mean(mean(nanmean(granger_data(:,:,:,:,:,201)))));
+%             all_controls_interaction_contrasts(:,:,:,:,end+1) = mean((granger_data(:,:,:,:,[2,5],201)-granger_data(:,:,:,:,[1,6],201))/3,5); %Match4-MisMatch4+MisMatch16-Match16
+%             all_random_controls_interaction_contrasts(:,:,:,:,:,end+1) = mean((granger_data(:,:,:,:,[2,5],1:100)-granger_data(:,:,:,:,[1,6],1:100))/3,5);
         elseif group(s) == 2
             all_patients_granger_data(:,:,:,:,:,end+1) = granger_data(:,:,:,:,:,201);
             all_random_patients_granger_data(:,:,:,:,:,:,end+1) = granger_data(:,:,:,:,:,101:200); %Random permutations by trial
@@ -174,11 +175,11 @@ for t = 1:size(timewins)
             all_absolute_random_patients_mismatch_contrasts(:,:,:,:,:,end+1) = mean((abs(granger_data(:,:,:,:,1,1:100))-abs(granger_data(:,:,:,:,2,1:100)))/3,5);
             all_random_patients_mismatch_contrasts(:,:,:,:,:,end+1) = mean((granger_data(:,:,:,:,1,1:100)-granger_data(:,:,:,:,2,1:100))/3,5);
             demeaned_all_patients_mismatch_contrasts(:,:,:,:,end+1) = mean((granger_data(:,:,:,:,1,201)-granger_data(:,:,:,:,2,201))/3,5)/ mean(mean(mean(nanmean(granger_data(:,:,:,:,:,201)))));
-            all_patients_clarity_contrasts(:,:,:,:,end+1) = mean((granger_data(:,:,:,:,[5,6],201)-granger_data(:,:,:,:,[1,2],201))/2,5);
-            all_random_patients_clarity_contrasts(:,:,:,:,:,end+1) = mean((granger_data(:,:,:,:,[5,6],1:100)-granger_data(:,:,:,:,[1,2],1:100))/3,5);
-            demeaned_all_patients_clarity_contrasts(:,:,:,:,end+1) = mean((granger_data(:,:,:,:,[5,6],201)-granger_data(:,:,:,:,[1,2],201))/2,5)/ mean(mean(mean(nanmean(granger_data(:,:,:,:,:,201)))));
-            all_patients_interaction_contrasts(:,:,:,:,end+1) = mean((granger_data(:,:,:,:,[2,5],201)-granger_data(:,:,:,:,[1,6],201))/3,5); %Match4-MisMatch4+MisMatch16-Match16
-            all_random_patients_interaction_contrasts(:,:,:,:,:,end+1) = mean((granger_data(:,:,:,:,[2,5],1:100)-granger_data(:,:,:,:,[1,6],1:100))/3,5);
+%             all_patients_clarity_contrasts(:,:,:,:,end+1) = mean((granger_data(:,:,:,:,[5,6],201)-granger_data(:,:,:,:,[1,2],201))/2,5);
+%             all_random_patients_clarity_contrasts(:,:,:,:,:,end+1) = mean((granger_data(:,:,:,:,[5,6],1:100)-granger_data(:,:,:,:,[1,2],1:100))/3,5);
+%             demeaned_all_patients_clarity_contrasts(:,:,:,:,end+1) = mean((granger_data(:,:,:,:,[5,6],201)-granger_data(:,:,:,:,[1,2],201))/2,5)/ mean(mean(mean(nanmean(granger_data(:,:,:,:,:,201)))));
+%             all_patients_interaction_contrasts(:,:,:,:,end+1) = mean((granger_data(:,:,:,:,[2,5],201)-granger_data(:,:,:,:,[1,6],201))/3,5); %Match4-MisMatch4+MisMatch16-Match16
+%             all_random_patients_interaction_contrasts(:,:,:,:,:,end+1) = mean((granger_data(:,:,:,:,[2,5],1:100)-granger_data(:,:,:,:,[1,6],1:100))/3,5);
         end
         
     end
@@ -263,7 +264,7 @@ for t = 1:size(timewins)
                 title(['By direction ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
                 legend({[from_name '-' to_name],[to_name '-' from_name]})
                 for i = 1:topfreqband
-                    thisarray = [repmat(sort(repmat([1:96],1,7))',2,1),repmat([1:7]',96*2,1),[ones(96*7,1);2*ones(96*7,1)],[reshape(all_granger_data(from,to,:,i,:,:),[672,1]);reshape(all_granger_data(to,from,:,i,:,:),[672,1])]];
+                    thisarray = [repmat(sort(repmat([1:96],1,2))',2,1),repmat([1:2]',96*2,1),[ones(96*2,1);2*ones(96*2,1)],[reshape(all_granger_data(from,to,:,i,:,:),[2*96,1]);reshape(all_granger_data(to,from,:,i,:,:),[2*96,1])]];
                     t1=array2table(thisarray,'VariableNames',{'Subject','Condition','Direction','Response'});
                     thistest = fitglm(t1,'Response ~ Direction + Condition + Subject');
                     p_tf(i) = thistest.Coefficients{4,4};
@@ -391,7 +392,7 @@ for t = 1:size(timewins)
     title(['By group ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
     
     for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
-        % all_granger_data = zeros(8,8,1,topfreqband,7,length(group));
+        % all_granger_data = zeros(8,8,1,topfreqband,2,length(group));
         %Key: regions, regions, timepoints, frequencies, conditions, group
         p_tf(i) = anova1(squeeze(mean(all_granger_data(from,to,:,i,:,:),5)),group,'off');
         p_ft(i) = anova1(squeeze(mean(all_granger_data(to,from,:,i,:,:),5)),group,'off');
