@@ -250,7 +250,7 @@ for t = 1:size(timewins)
         end
         savestring = ['./figures/' from_name '_' to_name '_All_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
         savestring = strrep(savestring,' ','_');
-        eval(['export_fig ' savestring ' -transparent'])
+        eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
         
         
         switch(analysis_type)
@@ -278,7 +278,7 @@ for t = 1:size(timewins)
                 end
                 savestring = ['./figures/' from_name '_' to_name '_All_mean_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
                 savestring = strrep(savestring,' ','_');
-                eval(['export_fig ' savestring ' -transparent'])
+                eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
                 
                 %             if closeafter == 1; close all; end; figure
                 %             plot(foi,squeeze(median(mean(all_granger_data(from,to,:,:,:,:),5),6)),'g','LineWidth',7)
@@ -302,7 +302,7 @@ for t = 1:size(timewins)
                 %             end
                 %             savestring = ['./figures/' from_name '_' to_name '_All_median_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
                 %             savestring = strrep(savestring,' ','_');
-                %             eval(['export_fig ' savestring ' -transparent'])
+                %             eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
                 
                 if closeafter == 1; close all; end; figure
                 plot(foi,squeeze(mean(mean(demeaned_all_granger_data(from,to,:,:,:,:),5),6)),'g','LineWidth',7)
@@ -327,7 +327,7 @@ for t = 1:size(timewins)
                 % Bonferroni correction is stringent and should more than
                 % compensate
                 for i = 1:topfreqband
-                    thisarray = [repmat(sort(repmat([1:96],1,7))',2,1),repmat([1:7]',96*2,1),[ones(96*7,1);2*ones(96*7,1)],[reshape(demeaned_all_granger_data(from,to,:,i,:,:),[672,1]);reshape(demeaned_all_granger_data(to,from,:,i,:,:),[672,1])]];
+                    thisarray = [repmat(sort(repmat([1:96],1,2))',2,1),repmat([1:2]',96*2,1),[ones(96*2,1);2*ones(96*2,1)],[reshape(demeaned_all_granger_data(from,to,:,i,:,:),[96*2,1]);reshape(demeaned_all_granger_data(to,from,:,i,:,:),[96*2,1])]];
                     t1=array2table(thisarray,'VariableNames',{'Subject','Condition','Direction','Response'});
                     thistest = fitglm(t1,'Response ~ Direction + Condition + Subject');
                     p_tf(i) = thistest.Coefficients{4,4};
@@ -342,7 +342,7 @@ for t = 1:size(timewins)
                 end
                 savestring = ['./figures/' from_name '_' to_name '_All_demeaned_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
                 savestring = strrep(savestring,' ','_');
-                eval(['export_fig ' savestring ' -transparent'])
+                eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
                 
                 if closeafter == 1; close all; end; figure
                 difference_demeaned = demeaned_all_granger_data(from,to,:,:,:,:)-demeaned_all_granger_data(to,from,:,:,:,:);
@@ -353,7 +353,7 @@ for t = 1:size(timewins)
                 plot([0 40],[0 0],'k--','LineWidth',1);
                 savestring = ['./figures/' from_name '_' to_name '_Difference_demeaned_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
                 savestring = strrep(savestring,' ','_');
-                eval(['export_fig ' savestring ' -transparent'])
+                eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
                 
         end
     
@@ -436,7 +436,7 @@ for t = 1:size(timewins)
     %             end
     savestring = ['./figures/' from_name '_' to_name '_By_group_mean_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
     savestring = strrep(savestring,' ','_');
-    eval(['export_fig ' savestring ' -transparent'])
+    eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
     
     
 %     if closeafter == 1; close all; end; figure
@@ -461,7 +461,7 @@ for t = 1:size(timewins)
 %     end
 %     savestring = ['./figures/' from_name '_' to_name '_By_group_mean_withSEM_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
 %     savestring = strrep(savestring,' ','_');
-%     eval(['export_fig ' savestring ' -transparent'])
+%     eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
 %     
     
 %     if closeafter == 1; close all; end; figure
@@ -485,7 +485,7 @@ for t = 1:size(timewins)
 %     
 %     savestring = ['./figures/' from_name '_' to_name '_By_group_median_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
 %     savestring = strrep(savestring,' ','_');
-%     eval(['export_fig ' savestring ' -transparent'])
+%     eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
     
     
 %     if closeafter == 1; close all; end; figure
@@ -694,7 +694,7 @@ for t = 1:size(timewins)
     end
     savestring = ['./figures/' from_name '_' to_name '_All_mean_std-dvt_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
     savestring = strrep(savestring,' ','_');
-    eval(['export_fig ' savestring ' -transparent'])
+    eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
     
     if closeafter == 1; close all; end; figure
     hold on
@@ -720,7 +720,7 @@ for t = 1:size(timewins)
     end
     savestring = ['./figures/' from_name '_' to_name '_All_median_std-dvt_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
     savestring = strrep(savestring,' ','_');
-    eval(['export_fig ' savestring ' -transparent'])
+    eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
     
 %     if closeafter == 1; close all; end; figure
 %     hold on
@@ -783,7 +783,7 @@ for t = 1:size(timewins)
     title(['By group Mean Standard-Deviant ' analysis_type ])
     savestring = ['./figures/' from_name '_' to_name '_Group_mean_std-dvt_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
     savestring = strrep(savestring,' ','_');
-    eval(['export_fig ' savestring ' -transparent'])
+    eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
 
 %     for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
 %         [h_tf(i) p_tf(i)] = ttest2(squeeze(all_patients_mismatch_contrasts(from,to,:,i,:)),squeeze(all_controls_mismatch_contrasts(from,to,:,i,:)));
