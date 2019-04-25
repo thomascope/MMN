@@ -43,6 +43,11 @@ savepath = ['./VBM/bvFTD-nfvPPA_05FWE'];
 eval(['export_fig ' savepath '.png -transparent -m2.5'])
 close all
 
+jp_spm8_surfacerender2_version_tc(['/imaging/tc02/vespa/scans/PNFA_VBM/tom/Stats/ERF_factorial_full_group_vbm_TIVnormalised_agecovaried_smoothedmask/spmT_0001.nii'],'jet',cfg)
+savepath = ['./VBM/Con-nfvPPA_VESPA_05FWE'];
+eval(['export_fig ' savepath '.png -transparent -m2.5'])
+close all
+
 cfg.threshold = [3.19 11]; %p=0.001 
 
 jp_spm8_surfacerender2_version_tc(['/imaging/tc02/Holly_MMN/VBM/VBM_stats/factorial_full_group_vbm_TIVnormalised_agecovaried_unsmoothedmask/spmT_0001.nii'],'jet',cfg)
@@ -72,5 +77,15 @@ close all
 
 jp_spm8_surfacerender2_version_tc(['/imaging/tc02/Holly_MMN/VBM/VBM_stats/factorial_full_group_vbm_TIVnormalised_agecovaried_unsmoothedmask/spmT_0011.nii'],'jet',cfg)
 savepath = ['./VBM/bvFTD-nfvPPA_001unc'];
+eval(['export_fig ' savepath '.png -transparent -m2.5'])
+close all
+
+jp_spm8_surfacerender2_version_tc(['/imaging/tc02/vespa/scans/PNFA_VBM/tom/Stats/ERF_factorial_full_group_vbm_TIVnormalised_agecovaried_smoothedmask/spmT_0001.nii'],'jet',cfg)
+savepath = ['./VBM/Con-nfvPPA_VESPA_001unc'];
+eval(['export_fig ' savepath '.png -transparent -m2.5'])
+close all
+
+jp_spm8_surfacerender2_version_tc(['/imaging/tc02/vespa/scans/PNFA_VBM/tom/Stats/ERF_factorial_full_group_vbm_TIVnormalised_agecovaried_smoothedmask/spmT_0002.nii'],'jet',cfg)
+savepath = ['./VBM/Con-nfvPPA_VESPA_001unc_rev'];
 eval(['export_fig ' savepath '.png -transparent -m2.5'])
 close all
