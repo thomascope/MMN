@@ -3,16 +3,16 @@ function Master_Script_LOR
 rmpath(genpath('/imaging/local/software/spm_cbu_svn/releases/spm12_latest/'))
 %addpath /imaging/local/software/spm_cbu_svn/releases/spm12_fil_r6906
 addpath /group/language/data/thomascope/spm12_fil_r6906/
-% spm eeg
+spm eeg
 
 %A script to calculate Imaginary Coherence and Granger Causailty from LFP
 %data for the MMN project
 
-makefiles = 1;
-extractlfps = 1;
+makefiles = 0;
+extractlfps = 0;
 
-%method = 'granger';
-method = 'coh';
+method = 'granger';
+%method = 'coh';
 
 start_times = 0;
 end_times = 500;
@@ -30,7 +30,8 @@ outdir = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_LOR/';
 fft_method = 'mtmfft'; % 'wavelet' for morlet; can leave blank for multitaper.
 
 groupstodo = {'matched_HCs' 'pca' 'bvFTD' 'pnfa'};
-dirnames_inv = {'matched_HCs' 'pca' 'bvftd' 'vespa'};
+dirnames_inv = {'matched_HCs' 'pca' 'bvFTD' 'pnfa'};
+dirnames_raw = {'matched_HCs' 'pca' 'bvftd' 'vespa'};
 all_subjs = [];
 
 cd(pathstem_evoked)
@@ -60,10 +61,10 @@ for s=1:size(all_subjs,1)
     else
         error([pathstem_inv dirnames_inv{all_subjs(s,1)} '/' inversion_prefix raw_suffix(1:end-4)  ' does not contain the inversion file'])
     end
-    if exist([pathstem_raw dirnames_inv{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' raw_prefix raw_suffix],'file')
-        unaveragedfile = [pathstem_raw dirnames_inv{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' raw_prefix raw_suffix];
+    if exist([pathstem_raw dirnames_raw{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' raw_prefix raw_suffix],'file')
+        unaveragedfile = [pathstem_raw dirnames_raw{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' raw_prefix raw_suffix];
     else
-        error([pathstem_inv dirnames_inv{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' raw_prefix raw_suffix ' does not contain the raw data file'])
+        error([pathstem_raw dirnames_raw{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' raw_prefix raw_suffix ' does not contain the raw data file'])
     end
     ouputfile = [outdir groupstodo{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' raw_prefix raw_suffix];
     
@@ -96,10 +97,10 @@ end
 %     raw_suffix = strsplit(filenames{s},inversion_prefix);
 %     raw_suffix = raw_suffix{2}; %get the participant i.d.
 %    
-%     if exist([pathstem_raw dirnames_inv{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' raw_prefix raw_suffix],'file')
-%         unaveragedfile = [pathstem_raw dirnames_inv{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' raw_prefix raw_suffix];
+%     if exist([pathstem_raw dirnames_raw{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' raw_prefix raw_suffix],'file')
+%         unaveragedfile = [pathstem_raw dirnames_raw{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' raw_prefix raw_suffix];
 %     else
-%         error([pathstem_raw dirnames_inv{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' ' does not contain the raw data file'])
+%         error([pathstem_raw dirnames_raw{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' ' does not contain the raw data file'])
 %     end
 %     ouputfile = [outdir groupstodo{all_subjs(s,1)} '/' raw_suffix(1:end-4) '/' raw_prefix raw_suffix];
 %     
@@ -119,24 +120,27 @@ end
 
 
 cd(thisdir)
-try
-    s = matlabpool('size');
-    if s == 0
-        this_pool = cbupool(min(size(all_subjs,1),46));
-        this_pool.ResourceTemplate = '-l nodes=^N^,mem=256GB,walltime=100:00:00';
-        matlabpool(this_pool)
-    end
-catch
-    try
-        delete(gcp)
-    catch
-    end
-    this_pool = cbupool(min(size(all_subjs,1),46));
-    this_pool.ResourceTemplate = '-l nodes=^N^,mem=256GB,walltime=100:00:00';
-    parpool(this_pool,this_pool.NumWorkers)
-    
+% try
+%     s = matlabpool('size');
+%     if s == 0
+%         this_pool = cbupool(min(size(all_subjs,1),46));
+%         this_pool.ResourceTemplate = '-l nodes=^N^,mem=256GB,walltime=100:00:00';
+%         matlabpool(this_pool)
+%     end
+% catch
+%     try
+%         delete(gcp)
+%     catch
+%     end
+%     this_pool = cbupool(min(size(all_subjs,1),46));
+%     this_pool.ResourceTemplate = '-l nodes=^N^,mem=256GB,walltime=100:00:00';
+%     parpool(this_pool,this_pool.NumWorkers)
+%     
+% end
+s = matlabpool('size');
+if s == 0
+cbupool(46);
 end
-
 
 if extractlfps == 1
     parfor subj = 1:size(all_subjs,1)
