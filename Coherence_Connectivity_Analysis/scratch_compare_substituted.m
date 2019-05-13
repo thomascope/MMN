@@ -230,13 +230,13 @@ for t = 1:size(timewins)
         to_name = sources{to};
         
         if closeafter == 1; close all; end; figure
-        plot(foi,squeeze(mean(mean(all_granger_data(from,to,:,:,:,:),5),6)),'g','LineWidth',7)
+        stdshade_TEC(squeeze(mean(all_granger_data(from,to,:,:,:,:),5))',0.2,'g',foi,1,1)
         hold on
-        plot(foi,squeeze(mean(mean(all_granger_data(to,from,:,:,:,:),5),6)),'b','LineWidth',7)
+        stdshade_TEC(squeeze(mean(all_granger_data(to,from,:,:,:,:),5))',0.2,'b',foi,1,1)
         plot(foi,squeeze(mean(mean(all_random_granger_data(from,to,:,:,:,:,:),5),7)),'k')
         plot(foi,squeeze(mean(mean(all_random_granger_data(to,from,:,:,:,:,:),5),7)),'k')
-        plot(foi,squeeze(mean(mean(all_granger_data(from,to,:,:,:,:),5),6)),'g','LineWidth',7)
-        plot(foi,squeeze(mean(mean(all_granger_data(to,from,:,:,:,:),5),6)),'b','LineWidth',7)
+        stdshade_TEC(squeeze(mean(all_granger_data(from,to,:,:,:,:),5))',0.2,'g',foi,1,1)
+        stdshade_TEC(squeeze(mean(all_granger_data(to,from,:,:,:,:),5))',0.2,'b',foi,1,1)
         title(['All ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
         legend({[from_name '-' to_name],[to_name '-' from_name]})
         for i = 1:topfreqband %Compare across group permutation
@@ -259,9 +259,9 @@ for t = 1:size(timewins)
                 
                 
                 if closeafter == 1; close all; end; figure
-                plot(foi,squeeze(mean(mean(all_granger_data(from,to,:,:,:,:),5),6)),'g','LineWidth',7)
+                stdshade_TEC(squeeze(mean(all_granger_data(from,to,:,:,:,:),5))',0.2,'g',foi,1,1)
                 hold on
-                plot(foi,squeeze(mean(mean(all_granger_data(to,from,:,:,:,:),5),6)),'b','LineWidth',7)
+                stdshade_TEC(squeeze(mean(all_granger_data(to,from,:,:,:,:),5))',0.2,'b',foi,1,1)
                 title(['By direction ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
                 legend({[from_name '-' to_name],[to_name '-' from_name]})
                 for i = 1:topfreqband
@@ -282,13 +282,13 @@ for t = 1:size(timewins)
                 eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
                 
                 %             if closeafter == 1; close all; end; figure
-                %             plot(foi,squeeze(median(mean(all_granger_data(from,to,:,:,:,:),5),6)),'g','LineWidth',7)
+                %             stdshade_TEC(squeeze(median(all_granger_data(from,to,:,:,:,:),5))',0.2,'g',foi,1,1)
                 %             hold on
-                %             plot(foi,squeeze(median(mean(all_granger_data(to,from,:,:,:,:),5),6)),'b','LineWidth',7)
+                %             stdshade_TEC(squeeze(median(all_granger_data(to,from,:,:,:,:),5))',0.2,'b',foi,1,1)
                 %             plot(foi,squeeze(median(mean(all_random_granger_data(from,to,:,:,:,:,:),5),7)),'k')
                 %             plot(foi,squeeze(median(mean(all_random_granger_data(to,from,:,:,:,:,:),5),7)),'k')
-                %             plot(foi,squeeze(median(mean(all_granger_data(from,to,:,:,:,:),5),6)),'g','LineWidth',7)
-                %             plot(foi,squeeze(median(mean(all_granger_data(to,from,:,:,:,:),5),6)),'b','LineWidth',7)
+                %             stdshade_TEC(squeeze(median(all_granger_data(from,to,:,:,:,:),5))',0.2,'g',foi,1,1)
+                %             stdshade_TEC(squeeze(median(all_granger_data(to,from,:,:,:,:),5))',0.2,'b',foi,1,1)
                 %             title(['All median ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
                 %             legend({[from_name '-' to_name],[to_name '-' from_name]})
                 %             for i = 1:topfreqband %Compare across group permutation
@@ -306,9 +306,9 @@ for t = 1:size(timewins)
                 %             eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
                 
                 if closeafter == 1; close all; end; figure
-                plot(foi,squeeze(mean(mean(demeaned_all_granger_data(from,to,:,:,:,:),5),6)),'g','LineWidth',7)
+                stdshade_TEC(squeeze(mean(demeaned_all_granger_data(from,to,:,:,:,:),5))',0.2,'g',foi,1,1)
                 hold on
-                plot(foi,squeeze(mean(mean(demeaned_all_granger_data(to,from,:,:,:,:),5),6)),'b','LineWidth',7)
+                stdshade_TEC(squeeze(mean(demeaned_all_granger_data(to,from,:,:,:,:),5))',0.2,'b',foi,1,1)
                 title(['All demeaned ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
                 legend({[from_name '-' to_name],[to_name '-' from_name]}) %Not yet clear how to do stats on this - XXX
                 %             for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
@@ -349,21 +349,22 @@ for t = 1:size(timewins)
                 difference_demeaned = demeaned_all_granger_data(from,to,:,:,:,:)-demeaned_all_granger_data(to,from,:,:,:,:);
                 hold on
                 fill([foi,fliplr(foi)],[squeeze(mean(mean(difference_demeaned(1,1,:,:,:,:),5),6))-SEM';flipud(squeeze(mean(mean(difference_demeaned(1,1,:,:,:,:),5),6))+SEM')]','g');
-                plot(foi,squeeze(mean(mean(difference_demeaned(1,1,:,:,:,:),5),6)),'b','LineWidth',7);
-                ylim([-1 1]);
+                stdshade_TEC(squeeze(mean(difference_demeaned(1,1,:,:,:,:),5))',0.2,'b',foi,1,1);
+                %ylim([-1 1]);
                 plot([0 40],[0 0],'k--','LineWidth',1);
                 savestring = ['./figures/' from_name '_' to_name '_Difference_demeaned_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
+                title(['Direction difference ' analysis_type ' ' from_name ' to ' to_name])
                 savestring = strrep(savestring,' ','_');
                 eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
                 
         end
     
     %             if closeafter == 1; close all; end; figure
-    %             plot(foi,squeeze(mean(mean(demeaned_all_controls_granger_data(from,to,:,:,:,:),5),6)),'g:','LineWidth',7)
+    %             stdshade_TEC(squeeze(mean(demeaned_all_controls_granger_data(from,to,:,:,:,:),5))',0.2,'g:',foi,1,1)
     %             hold on
-    %             plot(foi,squeeze(mean(mean(demeaned_all_patients_granger_data(from,to,:,:,:,:),5),6)),'g--','LineWidth',7)
-    %             plot(foi,squeeze(mean(mean(demeaned_all_controls_granger_data(to,from,:,:,:,:),5),6)),'b:','LineWidth',7)
-    %             plot(foi,squeeze(mean(mean(demeaned_all_patients_granger_data(to,from,:,:,:,:),5),6)),'b--','LineWidth',7)
+    %             stdshade_TEC(squeeze(mean(demeaned_all_patients_granger_data(from,to,:,:,:,:),5))',0.2,'g--',foi,1,1)
+    %             stdshade_TEC(squeeze(mean(demeaned_all_controls_granger_data(to,from,:,:,:,:),5))',0.2,'b:',foi,1,1)
+    %             stdshade_TEC(squeeze(mean(demeaned_all_patients_granger_data(to,from,:,:,:,:),5))',0.2,'b--',foi,1,1)
     %             legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
     %             title(['By group demeaned ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
     %             legend({[from_name '-' to_name],[to_name '-' from_name]}) %Not yet clear how to do stats on this - XXX
@@ -381,14 +382,14 @@ for t = 1:size(timewins)
     
     if closeafter == 1; close all; end; figure
     hold on
-    plot(foi,squeeze(mean(mean(all_granger_data(from,to,:,:,:,group==1),5),6)),'k:','LineWidth',5)
-    plot(foi,squeeze(mean(mean(all_granger_data(to,from,:,:,:,group==1),5),6)),'k--','LineWidth',5)
-    plot(foi,squeeze(mean(mean(all_granger_data(from,to,:,:,:,group==2),5),6)),'b:','LineWidth',5)
-    plot(foi,squeeze(mean(mean(all_granger_data(to,from,:,:,:,group==2),5),6)),'b--','LineWidth',5)
-        plot(foi,squeeze(mean(mean(all_granger_data(from,to,:,:,:,group==3),5),6)),'r:','LineWidth',5)
-    plot(foi,squeeze(mean(mean(all_granger_data(to,from,:,:,:,group==3),5),6)),'r--','LineWidth',5)
-        plot(foi,squeeze(mean(mean(all_granger_data(from,to,:,:,:,group==4),5),6)),'g:','LineWidth',5)
-    plot(foi,squeeze(mean(mean(all_granger_data(to,from,:,:,:,group==4),5),6)),'g--','LineWidth',5)
+    stdshade_TEC(squeeze(mean(all_granger_data(from,to,:,:,:,group==1),5))',0.2,'k:',foi,1,1)
+    stdshade_TEC(squeeze(mean(all_granger_data(to,from,:,:,:,group==1),5))',0.2,'k--',foi,1,1)
+    stdshade_TEC(squeeze(mean(all_granger_data(from,to,:,:,:,group==2),5))',0.2,'b:',foi,1,1)
+    stdshade_TEC(squeeze(mean(all_granger_data(to,from,:,:,:,group==2),5))',0.2,'b--',foi,1,1)
+        stdshade_TEC(squeeze(mean(all_granger_data(from,to,:,:,:,group==3),5))',0.2,'r:',foi,1,1)
+    stdshade_TEC(squeeze(mean(all_granger_data(to,from,:,:,:,group==3),5))',0.2,'r--',foi,1,1)
+        stdshade_TEC(squeeze(mean(all_granger_data(from,to,:,:,:,group==4),5))',0.2,'g:',foi,1,1)
+    stdshade_TEC(squeeze(mean(all_granger_data(to,from,:,:,:,group==4),5))',0.2,'g--',foi,1,1)
     legend({[from_name '-' to_name ' control'],[to_name '-' from_name ' control'],[from_name '-' to_name ' pca'],[to_name '-' from_name ' pca'],[from_name '-' to_name ' bvFTD'],[to_name '-' from_name ' bvFTD'],[from_name '-' to_name ' nfvPPA'],[to_name '-' from_name ' nfvPPA']})
     title(['By group ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
     
@@ -446,8 +447,8 @@ for t = 1:size(timewins)
 %     control_SEMs = std(squeeze(mean(all_controls_granger_data(from,to,:,:,:,2:end),5))')/sqrt(11);
 %     fill([foi,fliplr(foi)],[squeeze(mean(mean(all_controls_granger_data(to,from,:,:,:,2:end),5),6))-control_SEMs';flipud(squeeze(mean(mean(all_controls_granger_data(to,from,:,:,:,2:end),5),6))+control_SEMs')]','c');
 %     fill([foi,fliplr(foi)],[squeeze(mean(mean(all_patients_granger_data(to,from,:,:,:,2:end),5),6))-patient_SEMs';flipud(squeeze(mean(mean(all_patients_granger_data(to,from,:,:,:,2:end),5),6))+patient_SEMs')]','m');
-%     plot(foi,squeeze(mean(mean(all_controls_granger_data(to,from,:,:,:,2:end),5),6)),'k','LineWidth',7)
-%     plot(foi,squeeze(mean(mean(all_patients_granger_data(to,from,:,:,:,2:end),5),6)),'y','LineWidth',7)
+%     stdshade_TEC(squeeze(mean(all_controls_granger_data(to,from,:,:,:,2:end),5))',0.2,'k',foi,1,1)
+%     stdshade_TEC(squeeze(mean(all_patients_granger_data(to,from,:,:,:,2:end),5))',0.2,'y',foi,1,1)
 %     legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
 %     title(['By group ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
@@ -467,10 +468,10 @@ for t = 1:size(timewins)
     
 %     if closeafter == 1; close all; end; figure
 %     hold on
-%     plot(foi,squeeze(median(mean(all_controls_granger_data(from,to,:,:,:,:),5),6)),'g:','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_patients_granger_data(from,to,:,:,:,:),5),6)),'g--','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_controls_granger_data(to,from,:,:,:,:),5),6)),'b:','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_patients_granger_data(to,from,:,:,:,:),5),6)),'b--','LineWidth',7)
+%     stdshade_TEC(squeeze(median(all_controls_granger_data(from,to,:,:,:,:),5))',0.2,'g:',foi,1,1)
+%     stdshade_TEC(squeeze(median(all_patients_granger_data(from,to,:,:,:,:),5))',0.2,'g--',foi,1,1)
+%     stdshade_TEC(squeeze(median(all_controls_granger_data(to,from,:,:,:,:),5))',0.2,'b:',foi,1,1)
+%     stdshade_TEC(squeeze(median(all_patients_granger_data(to,from,:,:,:,:),5))',0.2,'b--',foi,1,1)
 %     legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
 %     title(['By group median ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
@@ -491,10 +492,10 @@ for t = 1:size(timewins)
     
 %     if closeafter == 1; close all; end; figure
 %     hold on
-%     plot(foi,squeeze(mean(mean(demeaned_all_controls_granger_data(from,to,:,:,:,2:end),5),6)),'g:','LineWidth',7)
-%     plot(foi,squeeze(mean(mean(demeaned_all_patients_granger_data(from,to,:,:,:,2:end),5),6)),'g--','LineWidth',7)
-%     plot(foi,squeeze(mean(mean(demeaned_all_controls_granger_data(to,from,:,:,:,2:end),5),6)),'b:','LineWidth',7)
-%     plot(foi,squeeze(mean(mean(demeaned_all_patients_granger_data(to,from,:,:,:,2:end),5),6)),'b--','LineWidth',7)
+%     stdshade_TEC(squeeze(mean(demeaned_all_controls_granger_data(from,to,:,:,:,2:end),5))',0.2,'g:',foi,1,1)
+%     stdshade_TEC(squeeze(mean(demeaned_all_patients_granger_data(from,to,:,:,:,2:end),5))',0.2,'g--',foi,1,1)
+%     stdshade_TEC(squeeze(mean(demeaned_all_controls_granger_data(to,from,:,:,:,2:end),5))',0.2,'b:',foi,1,1)
+%     stdshade_TEC(squeeze(mean(demeaned_all_patients_granger_data(to,from,:,:,:,2:end),5))',0.2,'b--',foi,1,1)
 %     
 %     title(['By group demeaned ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
@@ -525,9 +526,9 @@ for t = 1:size(timewins)
 %             this_con = this_con+1;
 %             figure(config);
 %             h = subplot(4,3,this_con);
-%             plot(foi,squeeze(mean(all_granger_data(from,to,:,:,:,s),5)),'g','LineWidth',7)
+%             stdshade_TEC(squeeze(mean(demeaned_all_patients_granger_data(to,from,:,:,:,2:end),5))',0.2,'b--',foi,1,1)
 %             hold on
-%             plot(foi,squeeze(mean(all_granger_data(to,from,:,:,:,s),5)),'b','LineWidth',7)
+%             stdshade_TEC(squeeze(mean(demeaned_all_patients_granger_data(to,from,:,:,:,2:end),5))',0.2,'b--',foi,1,1)
 %             for i = 1:topfreqband %Compare within subj permutation
 %                 p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_granger_data(from,to,:,i,:,:,s),5)),squeeze(mean(all_granger_data(from,to,:,i,:,s),5)));
 %                 p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_granger_data(to,from,:,i,:,:,s),5)),squeeze(mean(all_granger_data(to,from,:,i,:,s),5)));
@@ -542,14 +543,14 @@ for t = 1:size(timewins)
 %             figure(con_contrastfig);
 %             h = subplot(4,3,this_con);
 %             hold on
-%             plot(foi,squeeze(mean(all_mismatch_contrasts(from,to,:,:,s),5)),'g','LineWidth',7)
+%             stdshade_TEC(squeeze(all_mismatch_contrasts(from,to,:,:,s))',0.2,'g',foi,1,1)
 %             
-%             plot(foi,squeeze(mean(all_mismatch_contrasts(to,from,:,:,s),5)),'b','LineWidth',7)
+%             stdshade_TEC(squeeze(all_mismatch_contrasts(to,from,:,:,s))',0.2,'b',foi,1,1)
 %             plot(foi,squeeze(mean(all_random_mismatch_contrasts(from,to,:,:,:,s),6)),'k')
 %             plot(foi,squeeze(mean(all_random_mismatch_contrasts(to,from,:,:,:,s),6)),'k')
-%             plot(foi,squeeze(mean(all_mismatch_contrasts(from,to,:,:,s),5)),'g','LineWidth',7)
+%             stdshade_TEC(squeeze(all_mismatch_contrasts(from,to,:,:,s))',0.2,'g',foi,1,1)
 %             
-%             plot(foi,squeeze(mean(all_mismatch_contrasts(to,from,:,:,s),5)),'b','LineWidth',7)
+%             stdshade_TEC(squeeze(all_mismatch_contrasts(to,from,:,:,s))',0.2,'b',foi,1,1)
 %             
 %             %legend({[from_name '-' to_name],[to_name '-' from_name]})
 %             for i = 1:topfreqband %Compare across group permutation
@@ -566,14 +567,14 @@ for t = 1:size(timewins)
 %             figure(con_interactionfig);
 %             h = subplot(4,3,this_con);
 %             hold on
-%             plot(foi,squeeze(mean(all_interaction_contrasts(from,to,:,:,s),5)),'g','LineWidth',7)
+%             stdshade_TEC(squeeze(all_interaction_contrasts(from,to,:,:,s))',0.2,'g',foi,1,1)
 %             
-%             plot(foi,squeeze(mean(all_interaction_contrasts(to,from,:,:,s),5)),'b','LineWidth',7)
+%             stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,s))',0.2,'b',foi,1,1)
 %             plot(foi,squeeze(mean(all_random_interaction_contrasts(from,to,:,:,:,s),6)),'k')
 %             plot(foi,squeeze(mean(all_random_interaction_contrasts(to,from,:,:,:,s),6)),'k')
-%             plot(foi,squeeze(mean(all_interaction_contrasts(from,to,:,:,s),5)),'g','LineWidth',7)
+%             stdshade_TEC(squeeze(all_interaction_contrasts(from,to,:,:,s))',0.2,'g',foi,1,1)
 %             
-%             plot(foi,squeeze(mean(all_interaction_contrasts(to,from,:,:,s),5)),'b','LineWidth',7)
+%             stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,s))',0.2,'b',foi,1,1)
 %             
 %             %legend({[from_name '-' to_name],[to_name '-' from_name]})
 %             for i = 1:topfreqband %Compare across group permutation
@@ -593,9 +594,9 @@ for t = 1:size(timewins)
 %             this_pat = this_pat+1;
 %             figure(patfig);
 %             h = subplot(4,3,this_pat);
-%             plot(foi,squeeze(mean(all_granger_data(from,to,:,:,:,s),5)),'g','LineWidth',7)
+%             stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,s))',0.2,'b',foi,1,1)
 %             hold on
-%             plot(foi,squeeze(mean(all_granger_data(to,from,:,:,:,s),5)),'b','LineWidth',7)
+%             stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,s))',0.2,'b',foi,1,1)
 %             for i = 1:topfreqband %Compare within subj permutation
 %                 p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_granger_data(from,to,:,i,:,:,s),5)),squeeze(mean(all_granger_data(from,to,:,i,:,s),5)));
 %                 p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(all_random_granger_data(to,from,:,i,:,:,s),5)),squeeze(mean(all_granger_data(to,from,:,i,:,s),5)));
@@ -610,14 +611,14 @@ for t = 1:size(timewins)
 %             figure(pat_contrastfig);
 %             h = subplot(4,3,this_pat);
 %             hold on
-%             plot(foi,squeeze(mean(all_mismatch_contrasts(from,to,:,:,s),5)),'g','LineWidth',7)
+%             stdshade_TEC(squeeze(all_mismatch_contrasts(from,to,:,:,s))',0.2,'g',foi,1,1)
 %             
-%             plot(foi,squeeze(mean(all_mismatch_contrasts(to,from,:,:,s),5)),'b','LineWidth',7)
+%             stdshade_TEC(squeeze(all_mismatch_contrasts(to,from,:,:,s))',0.2,'b',foi,1,1)
 %             plot(foi,squeeze(mean(all_random_mismatch_contrasts(from,to,:,:,:,s),6)),'k')
 %             plot(foi,squeeze(mean(all_random_mismatch_contrasts(to,from,:,:,:,s),6)),'k')
-%             plot(foi,squeeze(mean(all_mismatch_contrasts(from,to,:,:,s),5)),'g','LineWidth',7)
+%             stdshade_TEC(squeeze(all_mismatch_contrasts(from,to,:,:,s))',0.2,'g',foi,1,1)
 %             
-%             plot(foi,squeeze(mean(all_mismatch_contrasts(to,from,:,:,s),5)),'b','LineWidth',7)
+%             stdshade_TEC(squeeze(all_mismatch_contrasts(to,from,:,:,s))',0.2,'b',foi,1,1)
 %             
 %             %legend({[from_name '-' to_name],[to_name '-' from_name]})
 %             for i = 1:topfreqband %Compare across group permutation
@@ -634,14 +635,14 @@ for t = 1:size(timewins)
 %             figure(pat_interactionfig);
 %             h = subplot(4,3,this_pat);
 %             hold on
-%             plot(foi,squeeze(mean(all_interaction_contrasts(from,to,:,:,s),5)),'g','LineWidth',7)
+%             stdshade_TEC(squeeze(all_interaction_contrasts(from,to,:,:,s))',0.2,'g',foi,1,1)
 %             
-%             plot(foi,squeeze(mean(all_interaction_contrasts(to,from,:,:,s),5)),'b','LineWidth',7)
+%             stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,s))',0.2,'b',foi,1,1)
 %             plot(foi,squeeze(mean(all_random_interaction_contrasts(from,to,:,:,:,s),6)),'k')
 %             plot(foi,squeeze(mean(all_random_interaction_contrasts(to,from,:,:,:,s),6)),'k')
-%             plot(foi,squeeze(mean(all_interaction_contrasts(from,to,:,:,s),5)),'g','LineWidth',7)
+%             stdshade_TEC(squeeze(all_interaction_contrasts(from,to,:,:,s))',0.2,'g',foi,1,1)
 %             
-%             plot(foi,squeeze(mean(all_interaction_contrasts(to,from,:,:,s),5)),'b','LineWidth',7)
+%             stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,s))',0.2,'b',foi,1,1)
 %             
 %             %legend({[from_name '-' to_name],[to_name '-' from_name]})
 %             for i = 1:topfreqband %Compare across group permutation
@@ -673,14 +674,14 @@ for t = 1:size(timewins)
     
     if closeafter == 1; close all; end; figure
     hold on
-    plot(foi,squeeze(mean(all_mismatch_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+    stdshade_TEC(squeeze(all_mismatch_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
     
-    plot(foi,squeeze(mean(all_mismatch_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+    stdshade_TEC(squeeze(all_mismatch_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
     plot(foi,squeeze(mean(all_random_mismatch_contrasts(from,to,:,:,:,:),6)),'k')
     plot(foi,squeeze(mean(all_random_mismatch_contrasts(to,from,:,:,:,:),6)),'k')
-    plot(foi,squeeze(mean(all_mismatch_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+    stdshade_TEC(squeeze(all_mismatch_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
     
-    plot(foi,squeeze(mean(all_mismatch_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+    stdshade_TEC(squeeze(all_mismatch_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
     title(['All Standard-Deviant ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
     legend({[from_name '-' to_name],[to_name '-' from_name]})
     for i = 1:topfreqband %Compare across group permutation
@@ -699,14 +700,14 @@ for t = 1:size(timewins)
     
     if closeafter == 1; close all; end; figure
     hold on
-    plot(foi,squeeze(median(all_mismatch_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+    stdshade_TEC(squeeze(all_mismatch_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
     
-    plot(foi,squeeze(median(all_mismatch_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+    stdshade_TEC(squeeze(all_mismatch_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
     plot(foi,squeeze(median(all_random_mismatch_contrasts(from,to,:,:,:,:),6)),'k')
     plot(foi,squeeze(median(all_random_mismatch_contrasts(to,from,:,:,:,:),6)),'k')
-    plot(foi,squeeze(median(all_mismatch_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+    stdshade_TEC(squeeze(all_mismatch_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
     
-    plot(foi,squeeze(median(all_mismatch_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+    stdshade_TEC(squeeze(all_mismatch_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
     title(['All median Standard-Deviant ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
     legend({[from_name '-' to_name],[to_name '-' from_name]})
     for i = 1:topfreqband %Compare across group permutation
@@ -725,14 +726,14 @@ for t = 1:size(timewins)
     
 %     if closeafter == 1; close all; end; figure
 %     hold on
-%     plot(foi,squeeze(mean(all_clarity_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+%     stdshade_TEC(squeeze(all_clarity_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
 %     
-%     plot(foi,squeeze(mean(all_clarity_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+%     stdshade_TEC(squeeze(all_clarity_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     plot(foi,squeeze(mean(all_random_clarity_contrasts(from,to,:,:,:,:),6)),'k')
 %     plot(foi,squeeze(mean(all_random_clarity_contrasts(to,from,:,:,:,:),6)),'k')
-%     plot(foi,squeeze(mean(all_clarity_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+%     stdshade_TEC(squeeze(all_clarity_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
 %     
-%     plot(foi,squeeze(mean(all_clarity_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+%     stdshade_TEC(squeeze(all_clarity_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     title(['All Clear-Unclear ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     legend({[from_name '-' to_name],[to_name '-' from_name]})
 %     for i = 1:topfreqband %Compare across group permutation
@@ -748,14 +749,14 @@ for t = 1:size(timewins)
 %     
 %     if closeafter == 1; close all; end; figure
 %     hold on
-%     plot(foi,squeeze(median(all_clarity_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+%     stdshade_TEC(squeeze(all_clarity_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
 %     
-%     plot(foi,squeeze(median(all_clarity_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+%     stdshade_TEC(squeeze(all_clarity_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     plot(foi,squeeze(median(all_random_clarity_contrasts(from,to,:,:,:,:),6)),'k')
 %     plot(foi,squeeze(median(all_random_clarity_contrasts(to,from,:,:,:,:),6)),'k')
-%     plot(foi,squeeze(median(all_clarity_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+%     stdshade_TEC(squeeze(all_clarity_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
 %     
-%     plot(foi,squeeze(median(all_clarity_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+%     stdshade_TEC(squeeze(all_clarity_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     title(['All median Clear-Unclear ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     legend({[from_name '-' to_name],[to_name '-' from_name]})
 %     for i = 1:topfreqband %Compare across group permutation
@@ -771,14 +772,14 @@ for t = 1:size(timewins)
 %     
     if closeafter == 1; close all; end; figure
     hold on
-    plot(foi,squeeze(mean(all_mismatch_contrasts(from,to,:,:,group==1),5)),'k:','LineWidth',5)
-    plot(foi,squeeze(mean(all_mismatch_contrasts(to,from,:,:,group==1),5)),'k--','LineWidth',5)
-    plot(foi,squeeze(mean(all_mismatch_contrasts(from,to,:,:,group==2),5)),'b:','LineWidth',5)
-    plot(foi,squeeze(mean(all_mismatch_contrasts(to,from,:,:,group==2),5)),'b--','LineWidth',5)
-    plot(foi,squeeze(mean(all_mismatch_contrasts(from,to,:,:,group==3),5)),'r:','LineWidth',5)
-    plot(foi,squeeze(mean(all_mismatch_contrasts(to,from,:,:,group==3),5)),'r--','LineWidth',5)
-    plot(foi,squeeze(mean(all_mismatch_contrasts(from,to,:,:,group==4),5)),'g:','LineWidth',5)
-    plot(foi,squeeze(mean(all_mismatch_contrasts(to,from,:,:,group==4),5)),'g--','LineWidth',5)
+    stdshade_TEC(squeeze(all_mismatch_contrasts(from,to,:,:,group==1))',0.2,'k:',foi,1,1)
+    stdshade_TEC(squeeze(all_mismatch_contrasts(to,from,:,:,group==1))',0.2,'k--',foi,1,1)
+    stdshade_TEC(squeeze(all_mismatch_contrasts(from,to,:,:,group==2))',0.2,'b:',foi,1,1)
+    stdshade_TEC(squeeze(all_mismatch_contrasts(to,from,:,:,group==2))',0.2,'b--',foi,1,1)
+    stdshade_TEC(squeeze(all_mismatch_contrasts(from,to,:,:,group==3))',0.2,'r:',foi,1,1)
+    stdshade_TEC(squeeze(all_mismatch_contrasts(to,from,:,:,group==3))',0.2,'r--',foi,1,1)
+    stdshade_TEC(squeeze(all_mismatch_contrasts(from,to,:,:,group==4))',0.2,'g:',foi,1,1)
+    stdshade_TEC(squeeze(all_mismatch_contrasts(to,from,:,:,group==4))',0.2,'g--',foi,1,1)
     legend({[from_name '-' to_name ' control'],[to_name '-' from_name ' control'],[from_name '-' to_name ' pca'],[to_name '-' from_name ' pca'],[from_name '-' to_name ' bvFTD'],[to_name '-' from_name ' bvFTD'],[from_name '-' to_name ' nfvPPA'],[to_name '-' from_name ' nfvPPA']})
     
     title(['By group Mean Standard-Deviant ' analysis_type ])
@@ -800,10 +801,10 @@ for t = 1:size(timewins)
 %     
 %     if closeafter == 1; close all; end; figure
 %     hold on
-%     plot(foi,squeeze(median(all_controls_mismatch_contrasts(from,to,:,:,:),5)),'g:','LineWidth',7)
-%     plot(foi,squeeze(median(all_patients_mismatch_contrasts(from,to,:,:,:),5)),'g--','LineWidth',7)
-%     plot(foi,squeeze(median(all_controls_mismatch_contrasts(to,from,:,:,:),5)),'b:','LineWidth',7)
-%     plot(foi,squeeze(median(all_patients_mismatch_contrasts(to,from,:,:,:),5)),'b--','LineWidth',7)
+%     stdshade_TEC(squeeze(all_controls_mismatch_contrasts(from,to,:,:,:))',0.2,'g:',foi,1,1)
+%     stdshade_TEC(squeeze(all_patients_mismatch_contrasts(from,to,:,:,:))',0.2,'g--',foi,1,1)
+%     stdshade_TEC(squeeze(all_controls_mismatch_contrasts(to,from,:,:,:))',0.2,'b:',foi,1,1)
+%     stdshade_TEC(squeeze(all_patients_mismatch_contrasts(to,from,:,:,:))',0.2,'b--',foi,1,1)
 %     title(['By group Median Standard-Deviant ' analysis_type ])
 %     legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
 %     for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
@@ -818,13 +819,13 @@ for t = 1:size(timewins)
 %     end
 %     
 %     if closeafter == 1; close all; end; figure
-%     plot(foi,squeeze(mean(all_interaction_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
 %     hold on
-%     plot(foi,squeeze(mean(all_interaction_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     plot(foi,squeeze(mean(all_random_interaction_contrasts(from,to,:,:,:,:),6)),'k')
 %     plot(foi,squeeze(mean(all_random_interaction_contrasts(to,from,:,:,:,:),6)),'k')
-%     plot(foi,squeeze(mean(all_interaction_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
-%     plot(foi,squeeze(mean(all_interaction_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     title(['All Interaction ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     legend({[from_name '-' to_name],[to_name '-' from_name]})
 %     for i = 1:topfreqband %Compare across group permutation
@@ -839,14 +840,14 @@ for t = 1:size(timewins)
 %     end
 %     
 %     if closeafter == 1; close all; end; figure
-%     plot(foi,squeeze(median(all_interaction_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
 %     hold on
-%     plot(foi,squeeze(median(all_interaction_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     plot(foi,squeeze(median(all_random_interaction_contrasts(from,to,:,:,:,:),6)),'k')
 %     plot(foi,squeeze(median(all_random_interaction_contrasts(to,from,:,:,:,:),6)),'k')
-%     plot(foi,squeeze(median(all_interaction_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
 %     
-%     plot(foi,squeeze(median(all_interaction_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     title(['All median Interaction ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     legend({[from_name '-' to_name],[to_name '-' from_name]})
 %     for i = 1:topfreqband %Compare across group permutation
@@ -862,18 +863,18 @@ for t = 1:size(timewins)
 %     
 %     if closeafter == 1; close all; end; figure
 %     hold on
-%     plot(foi,squeeze(median(mean(all_controls_mismatch_contrasts(from,to,:,:,:),5),6)),'g:','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_patients_mismatch_contrasts(from,to,:,:,:),5),6)),'g--','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_controls_mismatch_contrasts(to,from,:,:,:),5),6)),'b:','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_patients_mismatch_contrasts(to,from,:,:,:),5),6)),'b--','LineWidth',7)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     plot(foi,squeeze(mean(all_random_controls_mismatch_contrasts(from,to,:,:,:,:),6)),'k:')
 %     plot(foi,squeeze(mean(all_random_patients_mismatch_contrasts(from,to,:,:,:,:),6)),'k--')
 %     plot(foi,squeeze(mean(all_random_controls_mismatch_contrasts(to,from,:,:,:,:),6)),'k:')
 %     plot(foi,squeeze(mean(all_random_patients_mismatch_contrasts(to,from,:,:,:,:),6)),'k--')
-%     plot(foi,squeeze(median(mean(all_controls_mismatch_contrasts(from,to,:,:,:),5),6)),'g:','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_patients_mismatch_contrasts(from,to,:,:,:),5),6)),'g--','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_controls_mismatch_contrasts(to,from,:,:,:),5),6)),'b:','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_patients_mismatch_contrasts(to,from,:,:,:),5),6)),'b--','LineWidth',7)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     title(['By group sig Mean Standard-Deviant ' analysis_type ])
 %     legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
 %     for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
@@ -897,18 +898,18 @@ for t = 1:size(timewins)
 %     
 %     if closeafter == 1; close all; end; figure
 %     hold on
-%     plot(foi,squeeze(median(median(all_controls_mismatch_contrasts(from,to,:,:,:),5),6)),'g:','LineWidth',7)
-%     plot(foi,squeeze(median(median(all_patients_mismatch_contrasts(from,to,:,:,:),5),6)),'g--','LineWidth',7)
-%     plot(foi,squeeze(median(median(all_controls_mismatch_contrasts(to,from,:,:,:),5),6)),'b:','LineWidth',7)
-%     plot(foi,squeeze(median(median(all_patients_mismatch_contrasts(to,from,:,:,:),5),6)),'b--','LineWidth',7)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     plot(foi,squeeze(median(all_random_controls_mismatch_contrasts(from,to,:,:,:,:),6)),'k:')
 %     plot(foi,squeeze(median(all_random_patients_mismatch_contrasts(from,to,:,:,:,:),6)),'k--')
 %     plot(foi,squeeze(median(all_random_controls_mismatch_contrasts(to,from,:,:,:,:),6)),'k:')
 %     plot(foi,squeeze(median(all_random_patients_mismatch_contrasts(to,from,:,:,:,:),6)),'k--')
-%     plot(foi,squeeze(median(median(all_controls_mismatch_contrasts(from,to,:,:,:),5),6)),'g:','LineWidth',7)
-%     plot(foi,squeeze(median(median(all_patients_mismatch_contrasts(from,to,:,:,:),5),6)),'g--','LineWidth',7)
-%     plot(foi,squeeze(median(median(all_controls_mismatch_contrasts(to,from,:,:,:),5),6)),'b:','LineWidth',7)
-%     plot(foi,squeeze(median(median(all_patients_mismatch_contrasts(to,from,:,:,:),5),6)),'b--','LineWidth',7)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     title(['By group sig Median Standard-Deviant ' analysis_type ])
 %     legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
 %     for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
@@ -932,18 +933,18 @@ for t = 1:size(timewins)
 %     
 %     if closeafter == 1; close all; end; figure
 %     hold on
-%     plot(foi,squeeze(median(mean(all_controls_interaction_contrasts(from,to,:,:,:),5),6)),'g:','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_patients_interaction_contrasts(from,to,:,:,:),5),6)),'g--','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_controls_interaction_contrasts(to,from,:,:,:),5),6)),'b:','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_patients_interaction_contrasts(to,from,:,:,:),5),6)),'b--','LineWidth',7)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     plot(foi,squeeze(mean(all_random_controls_interaction_contrasts(from,to,:,:,:,:),6)),'k:')
 %     plot(foi,squeeze(mean(all_random_patients_interaction_contrasts(from,to,:,:,:,:),6)),'k--')
 %     plot(foi,squeeze(mean(all_random_controls_interaction_contrasts(to,from,:,:,:,:),6)),'k:')
 %     plot(foi,squeeze(mean(all_random_patients_interaction_contrasts(to,from,:,:,:,:),6)),'k--')
-%     plot(foi,squeeze(median(mean(all_controls_interaction_contrasts(from,to,:,:,:),5),6)),'g:','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_patients_interaction_contrasts(from,to,:,:,:),5),6)),'g--','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_controls_interaction_contrasts(to,from,:,:,:),5),6)),'b:','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_patients_interaction_contrasts(to,from,:,:,:),5),6)),'b--','LineWidth',7)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     title(['By group Interaction ' analysis_type ])
 %     legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
 %     for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
@@ -967,18 +968,18 @@ for t = 1:size(timewins)
 %     
 %     if closeafter == 1; close all; end; figure
 %     hold on
-%     plot(foi,squeeze(median(mean(all_controls_clarity_contrasts(from,to,:,:,:),5),6)),'g:','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_patients_clarity_contrasts(from,to,:,:,:),5),6)),'g--','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_controls_clarity_contrasts(to,from,:,:,:),5),6)),'b:','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_patients_clarity_contrasts(to,from,:,:,:),5),6)),'b--','LineWidth',7)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     plot(foi,squeeze(mean(all_random_controls_clarity_contrasts(from,to,:,:,:,:),6)),'k:')
 %     plot(foi,squeeze(mean(all_random_patients_clarity_contrasts(from,to,:,:,:,:),6)),'k--')
 %     plot(foi,squeeze(mean(all_random_controls_clarity_contrasts(to,from,:,:,:,:),6)),'k:')
 %     plot(foi,squeeze(mean(all_random_patients_clarity_contrasts(to,from,:,:,:,:),6)),'k--')
-%     plot(foi,squeeze(median(mean(all_controls_clarity_contrasts(from,to,:,:,:),5),6)),'g:','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_patients_clarity_contrasts(from,to,:,:,:),5),6)),'g--','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_controls_clarity_contrasts(to,from,:,:,:),5),6)),'b:','LineWidth',7)
-%     plot(foi,squeeze(median(mean(all_patients_clarity_contrasts(to,from,:,:,:),5),6)),'b--','LineWidth',7)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     stdshade_TEC(squeeze(all_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     title(['By group Clarity ' analysis_type ])
 %     legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
 %     for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
@@ -1004,13 +1005,13 @@ for t = 1:size(timewins)
 %     %         case 'icoh'
 %     %
 %     %             if closeafter == 1; close all; end; figure
-%     %             plot(foi,squeeze(mean(mean(abs(all_granger_data(from,to,:,:,:,:)),5),6)),'g','LineWidth',7)
+%     %             stdshade_TEC(squeeze(mean(abs(all_granger_data(from,to,:,:,:,:)),5))',0.2,'g',foi,1,1)
 %     %             hold on
-%     %             plot(foi,squeeze(mean(mean(abs(all_granger_data(to,from,:,:,:,:)),5),6)),'b','LineWidth',7)
+%     %             stdshade_TEC(squeeze(mean(abs(all_granger_data(to,from,:,:,:,:)),5))',0.2,'b',foi,1,1)
 %     %             plot(foi,squeeze(mean(mean(abs(all_random_granger_data(from,to,:,:,:,:,:)),5),7)),'k')
 %     %             plot(foi,squeeze(mean(mean(abs(all_random_granger_data(to,from,:,:,:,:,:)),5),7)),'k')
-%     %             plot(foi,squeeze(mean(mean(abs(all_granger_data(from,to,:,:,:,:)),5),6)),'g','LineWidth',7)
-%     %             plot(foi,squeeze(mean(mean(abs(all_granger_data(to,from,:,:,:,:)),5),6)),'b','LineWidth',7)
+%     %             stdshade_TEC(squeeze(mean(abs(all_granger_data(from,to,:,:,:,:)),5))',0.2,'g',foi,1,1)
+%     %             stdshade_TEC(squeeze(mean(abs(all_granger_data(to,from,:,:,:,:)),5))',0.2,'b',foi,1,1)
 %     %
 %     %             title(['All abs ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     %             legend({[from_name '-' to_name],[to_name '-' from_name]})
@@ -1026,13 +1027,13 @@ for t = 1:size(timewins)
 %     %             end
 %     %
 %     %             if closeafter == 1; close all; end; figure
-%     %             plot(foi,squeeze(median(mean(abs(all_granger_data(from,to,:,:,:,:)),5),6)),'g','LineWidth',7)
+%     %             stdshade_TEC(squeeze(median(abs(all_granger_data(from,to,:,:,:,:)),5))',0.2,'g',foi,1,1)
 %     %             hold on
-%     %             plot(foi,squeeze(median(mean(abs(all_granger_data(to,from,:,:,:,:)),5),6)),'b','LineWidth',7)
+%     %             stdshade_TEC(squeeze(median(abs(all_granger_data(to,from,:,:,:,:)),5))',0.2,'b',foi,1,1)
 %     %             plot(foi,squeeze(median(mean(abs(all_random_granger_data(from,to,:,:,:,:,:)),5),7)),'k')
 %     %             plot(foi,squeeze(median(mean(abs(all_random_granger_data(to,from,:,:,:,:,:)),5),7)),'k')
-%     %             plot(foi,squeeze(median(mean(abs(all_granger_data(from,to,:,:,:,:)),5),6)),'g','LineWidth',7)
-%     %             plot(foi,squeeze(median(mean(abs(all_granger_data(to,from,:,:,:,:)),5),6)),'b','LineWidth',7)
+%     %             stdshade_TEC(squeeze(median(abs(all_granger_data(from,to,:,:,:,:)),5))',0.2,'g',foi,1,1)
+%     %             stdshade_TEC(squeeze(median(abs(all_granger_data(to,from,:,:,:,:)),5))',0.2,'b',foi,1,1)
 %     %
 %     %             title(['All median ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     %             legend({[from_name '-' to_name],[to_name '-' from_name]})
@@ -1049,10 +1050,10 @@ for t = 1:size(timewins)
 %     %
 %     %             if closeafter == 1; close all; end; figure
 %     %             hold on
-%     %             plot(foi,squeeze(mean(mean(abs(all_controls_granger_data(from,to,:,:,:,:)),5),6)),'g:','LineWidth',7)
-%     %             plot(foi,squeeze(mean(mean(abs(all_patients_granger_data(from,to,:,:,:,:)),5),6)),'g--','LineWidth',7)
-%     %             plot(foi,squeeze(mean(mean(abs(all_controls_granger_data(to,from,:,:,:,:)),5),6)),'b:','LineWidth',7)
-%     %             plot(foi,squeeze(mean(mean(abs(all_patients_granger_data(to,from,:,:,:,:)),5),6)),'b--','LineWidth',7)
+%     %             stdshade_TEC(squeeze(mean(abs(all_controls_granger_data(from,to,:,:,:,:)),5))',0.2,'g:',foi,1,1)
+%     %             stdshade_TEC(squeeze(mean(abs(all_patients_granger_data(from,to,:,:,:,:)),5))',0.2,'g--',foi,1,1)
+%     %             stdshade_TEC(squeeze(mean(abs(all_controls_granger_data(to,from,:,:,:,:)),5))',0.2,'b:',foi,1,1)
+%     %             stdshade_TEC(squeeze(mean(abs(all_patients_granger_data(to,from,:,:,:,:)),5))',0.2,'b--',foi,1,1)
 %     %             legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
 %     %             title(['By group ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     %             for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
@@ -1068,10 +1069,10 @@ for t = 1:size(timewins)
 %     %
 %     %             if closeafter == 1; close all; end; figure
 %     %             hold on
-%     %             plot(foi,squeeze(median(mean(abs(all_controls_granger_data(from,to,:,:,:,:)),5),6)),'g:','LineWidth',7)
-%     %             plot(foi,squeeze(median(mean(abs(all_patients_granger_data(from,to,:,:,:,:)),5),6)),'g--','LineWidth',7)
-%     %             plot(foi,squeeze(median(mean(abs(all_controls_granger_data(to,from,:,:,:,:)),5),6)),'b:','LineWidth',7)
-%     %             plot(foi,squeeze(median(mean(abs(all_patients_granger_data(to,from,:,:,:,:)),5),6)),'b--','LineWidth',7)
+%     %             stdshade_TEC(squeeze(median(abs(all_controls_granger_data(from,to,:,:,:,:)),5))',0.2,'g:',foi,1,1)
+%     %             stdshade_TEC(squeeze(median(abs(all_patients_granger_data(from,to,:,:,:,:)),5))',0.2,'g--',foi,1,1)
+%     %             stdshade_TEC(squeeze(median(abs(all_controls_granger_data(to,from,:,:,:,:)),5))',0.2,'b:',foi,1,1)
+%     %             stdshade_TEC(squeeze(median(abs(all_patients_granger_data(to,from,:,:,:,:)),5))',0.2,'b--',foi,1,1)
 %     %             legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
 %     %             title(['By group median ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     %             for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
@@ -1095,9 +1096,9 @@ for t = 1:size(timewins)
 %     %                     this_con = this_con+1;
 %     %                     figure(config);
 %     %                     h = subplot(4,3,this_con);
-%     %                     plot(foi,squeeze(mean(abs(all_granger_data(from,to,:,:,:,s)),5)),'g','LineWidth',7)
+%     %                     stdshade_TEC(squeeze(median(abs(all_patients_granger_data(to,from,:,:,:,:)),5))',0.2,'b--',foi,1,1)
 %     %                     hold on
-%     %                     plot(foi,squeeze(mean(abs(all_granger_data(to,from,:,:,:,s)),5)),'b','LineWidth',7)
+%     %                     stdshade_TEC(squeeze(median(abs(all_patients_granger_data(to,from,:,:,:,:)),5))',0.2,'b--',foi,1,1)
 %     %                     for i = 1:topfreqband %Compare within subj permutation
 %     %                         p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(abs(all_random_granger_data(from,to,:,i,:,:,s)),5)),squeeze(mean(abs(all_granger_data(from,to,:,i,:,s)),5)));
 %     %                         p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(abs(all_random_granger_data(to,from,:,i,:,:,s)),5)),squeeze(mean(abs(all_granger_data(to,from,:,i,:,s)),5)));
@@ -1113,9 +1114,9 @@ for t = 1:size(timewins)
 %     %                     this_pat = this_pat+1;
 %     %                     figure(patfig);
 %     %                     h = subplot(4,3,this_pat);
-%     %                     plot(foi,squeeze(mean(abs(all_granger_data(from,to,:,:,:,s)),5)),'g','LineWidth',7)
+%     %                     stdshade_TEC(squeeze(median(abs(all_patients_granger_data(to,from,:,:,:,:)),5))',0.2,'b--',foi,1,1)
 %     %                     hold on
-%     %                     plot(foi,squeeze(mean(abs(all_granger_data(to,from,:,:,:,s)),5)),'b','LineWidth',7)
+%     %                     stdshade_TEC(squeeze(median(abs(all_patients_granger_data(to,from,:,:,:,:)),5))',0.2,'b--',foi,1,1)
 %     %                     for i = 1:topfreqband %Compare within subj permutation
 %     %                         p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(abs(all_random_granger_data(from,to,:,i,:,:,s)),5)),squeeze(mean(abs(all_granger_data(from,to,:,i,:,s)),5)));
 %     %                         p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(abs(all_random_granger_data(to,from,:,i,:,:,s)),5)),squeeze(mean(abs(all_granger_data(to,from,:,i,:,s)),5)));
@@ -1135,14 +1136,14 @@ for t = 1:size(timewins)
 %     %
 %     %
 %     %             if closeafter == 1; close all; end; figure
-%     %             plot(foi,squeeze(mean(all_absolute_mismatch_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_mismatch_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
 %     %             hold on
-%     %             plot(foi,squeeze(mean(all_absolute_mismatch_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_mismatch_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     %             plot(foi,squeeze(mean(all_absolute_random_mismatch_contrasts(from,to,:,:,:,:),6)),'k')
 %     %             plot(foi,squeeze(mean(all_absolute_random_mismatch_contrasts(to,from,:,:,:,:),6)),'k')
-%     %             plot(foi,squeeze(mean(all_absolute_mismatch_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_mismatch_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
 %     %
-%     %             plot(foi,squeeze(mean(all_absolute_mismatch_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_mismatch_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     %
 %     %             title(['All Standard-Deviant ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     %             legend({[from_name '-' to_name],[to_name '-' from_name]})
@@ -1158,14 +1159,14 @@ for t = 1:size(timewins)
 %     %             end
 %     %
 %     %             if closeafter == 1; close all; end; figure
-%     %             plot(foi,squeeze(median(all_absolute_mismatch_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_mismatch_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
 %     %             hold on
-%     %             plot(foi,squeeze(median(all_absolute_mismatch_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_mismatch_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     %             plot(foi,squeeze(median(all_absolute_random_mismatch_contrasts(from,to,:,:,:,:),6)),'k')
 %     %             plot(foi,squeeze(median(all_absolute_random_mismatch_contrasts(to,from,:,:,:,:),6)),'k')
-%     %             plot(foi,squeeze(median(all_absolute_mismatch_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_mismatch_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
 %     %
-%     %             plot(foi,squeeze(median(all_absolute_mismatch_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_mismatch_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     %
 %     %             title(['All median Standard-Deviant ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     %             legend({[from_name '-' to_name],[to_name '-' from_name]})
@@ -1181,14 +1182,14 @@ for t = 1:size(timewins)
 %     %             end
 %     %
 %     %             if closeafter == 1; close all; end; figure
-%     %             plot(foi,squeeze(mean(all_absolute_clarity_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_clarity_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
 %     %             hold on
-%     %             plot(foi,squeeze(mean(all_absolute_clarity_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_clarity_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     %             plot(foi,squeeze(mean(all_absolute_random_clarity_contrasts(from,to,:,:,:,:),6)),'k')
 %     %             plot(foi,squeeze(mean(all_absolute_random_clarity_contrasts(to,from,:,:,:,:),6)),'k')
-%     %             plot(foi,squeeze(mean(all_absolute_clarity_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_clarity_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
 %     %
-%     %             plot(foi,squeeze(mean(all_absolute_clarity_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_clarity_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     %
 %     %             title(['All Clear-Unclear ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     %             legend({[from_name '-' to_name],[to_name '-' from_name]})
@@ -1204,14 +1205,14 @@ for t = 1:size(timewins)
 %     %             end
 %     %
 %     %             if closeafter == 1; close all; end; figure
-%     %             plot(foi,squeeze(median(all_absolute_clarity_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_clarity_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
 %     %             hold on
-%     %             plot(foi,squeeze(median(all_absolute_clarity_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_clarity_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     %             plot(foi,squeeze(median(all_absolute_random_clarity_contrasts(from,to,:,:,:,:),6)),'k')
 %     %             plot(foi,squeeze(median(all_absolute_random_clarity_contrasts(to,from,:,:,:,:),6)),'k')
-%     %             plot(foi,squeeze(median(all_absolute_clarity_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_clarity_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
 %     %
-%     %             plot(foi,squeeze(median(all_absolute_clarity_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_clarity_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     %
 %     %             title(['All median Clear-Unclear ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     %             legend({[from_name '-' to_name],[to_name '-' from_name]})
@@ -1227,9 +1228,9 @@ for t = 1:size(timewins)
 %     %             end
 %     %
 %     %             if closeafter == 1; close all; end; figure
-%     %             plot(foi,squeeze(mean(all_absolute_interaction_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
 %     %             hold on
-%     %             plot(foi,squeeze(mean(all_absolute_interaction_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     %             title(['All Interaction ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     %             legend({[from_name '-' to_name],[to_name '-' from_name]})
 %     %             for i = 1:topfreqband %Compare across group permutation
@@ -1244,9 +1245,9 @@ for t = 1:size(timewins)
 %     %             end
 %     %
 %     %             if closeafter == 1; close all; end; figure
-%     %             plot(foi,squeeze(median(all_absolute_interaction_contrasts(from,to,:,:,:),5)),'g','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(from,to,:,:,:))',0.2,'g',foi,1,1)
 %     %             hold on
-%     %             plot(foi,squeeze(median(all_absolute_interaction_contrasts(to,from,:,:,:),5)),'b','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     %             title(['All median Interaction ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
 %     %             legend({[from_name '-' to_name],[to_name '-' from_name]})
 %     %             for i = 1:topfreqband %Compare across group permutation
@@ -1262,10 +1263,10 @@ for t = 1:size(timewins)
 %     %
 %     %             if closeafter == 1; close all; end; figure
 %     %             hold on
-%     %             plot(foi,squeeze(mean(mean(all_absolute_controls_mismatch_contrasts(from,to,:,:,:),5),6)),'g:','LineWidth',7)
-%     %             plot(foi,squeeze(mean(mean(all_absolute_patients_mismatch_contrasts(from,to,:,:,:),5),6)),'g--','LineWidth',7)
-%     %             plot(foi,squeeze(mean(mean(all_absolute_controls_mismatch_contrasts(to,from,:,:,:),5),6)),'b:','LineWidth',7)
-%     %             plot(foi,squeeze(mean(mean(all_absolute_patients_mismatch_contrasts(to,from,:,:,:),5),6)),'b--','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     %
 %     %             title(['Group by Mean Standard-Deviant ' analysis_type ])
 %     %             legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
@@ -1282,10 +1283,10 @@ for t = 1:size(timewins)
 %     %
 %     %             if closeafter == 1; close all; end; figure
 %     %             hold on
-%     %             plot(foi,squeeze(median(median(all_absolute_controls_mismatch_contrasts(from,to,:,:,:),5),6)),'g:','LineWidth',7)
-%     %             plot(foi,squeeze(median(median(all_absolute_patients_mismatch_contrasts(from,to,:,:,:),5),6)),'g--','LineWidth',7)
-%     %             plot(foi,squeeze(median(median(all_absolute_controls_mismatch_contrasts(to,from,:,:,:),5),6)),'b:','LineWidth',7)
-%     %             plot(foi,squeeze(median(median(all_absolute_patients_mismatch_contrasts(to,from,:,:,:),5),6)),'b--','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     %
 %     %             title(['Group by Median Standard-Deviant ' analysis_type ])
 %     %             legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
@@ -1302,18 +1303,18 @@ for t = 1:size(timewins)
 %     %
 %     %             if closeafter == 1; close all; end; figure
 %     %             hold on
-%     %             plot(foi,squeeze(mean(mean(all_absolute_controls_mismatch_contrasts(from,to,:,:,:),5),6)),'g:','LineWidth',7)
-%     %             plot(foi,squeeze(mean(mean(all_absolute_patients_mismatch_contrasts(from,to,:,:,:),5),6)),'g--','LineWidth',7)
-%     %             plot(foi,squeeze(mean(mean(all_absolute_controls_mismatch_contrasts(to,from,:,:,:),5),6)),'b:','LineWidth',7)
-%     %             plot(foi,squeeze(mean(mean(all_absolute_patients_mismatch_contrasts(to,from,:,:,:),5),6)),'b--','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     %             plot(foi,squeeze(mean(all_absolute_random_controls_mismatch_contrasts(from,to,:,:,:,:),6)),'k:')
 %     %             plot(foi,squeeze(mean(all_absolute_random_patients_mismatch_contrasts(from,to,:,:,:,:),6)),'k--')
 %     %             plot(foi,squeeze(mean(all_absolute_random_controls_mismatch_contrasts(to,from,:,:,:,:),6)),'k:')
 %     %             plot(foi,squeeze(mean(all_absolute_random_patients_mismatch_contrasts(to,from,:,:,:,:),6)),'k--')
-%     %             plot(foi,squeeze(mean(mean(all_absolute_controls_mismatch_contrasts(from,to,:,:,:),5),6)),'g:','LineWidth',7)
-%     %             plot(foi,squeeze(mean(mean(all_absolute_patients_mismatch_contrasts(from,to,:,:,:),5),6)),'g--','LineWidth',7)
-%     %             plot(foi,squeeze(mean(mean(all_absolute_controls_mismatch_contrasts(to,from,:,:,:),5),6)),'b:','LineWidth',7)
-%     %             plot(foi,squeeze(mean(mean(all_absolute_patients_mismatch_contrasts(to,from,:,:,:),5),6)),'b--','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     %
 %     %             title(['By group sig Mean Standard-Deviant ' analysis_type ])
 %     %             legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
@@ -1338,18 +1339,18 @@ for t = 1:size(timewins)
 %     %
 %     %             if closeafter == 1; close all; end; figure
 %     %             hold on
-%     %             plot(foi,squeeze(median(median(all_absolute_controls_mismatch_contrasts(from,to,:,:,:),5),6)),'g:','LineWidth',7)
-%     %             plot(foi,squeeze(median(median(all_absolute_patients_mismatch_contrasts(from,to,:,:,:),5),6)),'g--','LineWidth',7)
-%     %             plot(foi,squeeze(median(median(all_absolute_controls_mismatch_contrasts(to,from,:,:,:),5),6)),'b:','LineWidth',7)
-%     %             plot(foi,squeeze(median(median(all_absolute_patients_mismatch_contrasts(to,from,:,:,:),5),6)),'b--','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     %             plot(foi,squeeze(median(all_absolute_random_controls_mismatch_contrasts(from,to,:,:,:,:),6)),'k:')
 %     %             plot(foi,squeeze(median(all_absolute_random_patients_mismatch_contrasts(from,to,:,:,:,:),6)),'k--')
 %     %             plot(foi,squeeze(median(all_absolute_random_controls_mismatch_contrasts(to,from,:,:,:,:),6)),'k:')
 %     %             plot(foi,squeeze(median(all_absolute_random_patients_mismatch_contrasts(to,from,:,:,:,:),6)),'k--')
-%     %             plot(foi,squeeze(median(median(all_absolute_controls_mismatch_contrasts(from,to,:,:,:),5),6)),'g:','LineWidth',7)
-%     %             plot(foi,squeeze(median(median(all_absolute_patients_mismatch_contrasts(from,to,:,:,:),5),6)),'g--','LineWidth',7)
-%     %             plot(foi,squeeze(median(median(all_absolute_controls_mismatch_contrasts(to,from,:,:,:),5),6)),'b:','LineWidth',7)
-%     %             plot(foi,squeeze(median(median(all_absolute_patients_mismatch_contrasts(to,from,:,:,:),5),6)),'b--','LineWidth',7)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
+%     %             stdshade_TEC(squeeze(all_absolute_interaction_contrasts(to,from,:,:,:))',0.2,'b',foi,1,1)
 %     %
 %     %             title(['By group sig Median Standard-Deviant ' analysis_type ])
 %     %             legend({[from_name '-' to_name ' control'],[from_name '-' to_name ' patient'],[to_name '-' from_name ' control'],[to_name '-' from_name ' patient']})
