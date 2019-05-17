@@ -10,12 +10,15 @@ pathstem = '/imaging/tc02/Holly_MMN/ICA_denoise/';
 data_definition_dir = '/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/';
 folder_structure_file_maindata = 'participant_folder_structure.m';
 
+addpath(script_dir)
+
 % Define data location
 run([data_definition_dir folder_structure_file_maindata]);
 nsubj = size(Participant,2);
 
 % Specify parameters
-p.mod = {'MEGMAG' 'MEGPLANAR' 'EEG'}; % imaging modality (used by 'convert','convert+epoch','image','smooth','mask','firstlevel' steps) NB: EEG MUST ALWAYS BE LISTED LAST!!
+%p.mod = {'MEGMAG' 'MEGPLANAR' 'EEG'}; % imaging modality (used by 'convert','convert+epoch','image','smooth','mask','firstlevel' steps) NB: EEG MUST ALWAYS BE LISTED LAST!!
+p.mod = {'MEGMAG' 'MEGPLANAR'}; % imaging modality (used by 'convert','convert+epoch','image','smooth','mask','firstlevel' steps) NB: EEG MUST ALWAYS BE LISTED LAST!!
 p.ref_chans = {'EOG061','EOG062','ECG063'};
 
 %Open parallel pool
@@ -37,33 +40,44 @@ else
 end
 
 %First copy Holly's data to new folder
-todocomplete = zeros(1,nsubj);
-parfor todonumber = 1:size(todoarray,1)
+copycomplete = zeros(1,nsubj);
+parfor todonumber = 1:nsubj
     this_input_full_fname = [preproc_path Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.name '.mat']
     this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/']
     try
         Preprocessing_mainfunction('Holly_data_copy',this_input_full_fname,p,pathstem, [], this_output_folder_tail,todonumber,[Participant{todonumber}.name '.mat'])
-        todocomplete(todonumber) = 1
-        fprintf('\n\nICA complete for subject number %d, run number %d\n\n',todoarray(todonumber,1), todoarray(todonumber,2));
+        copycomplete(todonumber) = 1
+        fprintf('\n\nCopy complete for subject number %d,\n\n',todonumber);
     catch
-        todocomplete(todonumber) = 0;
-        fprintf('\n\nICA failed for subject number %d, run number %d\n\n',todoarray(todonumber,1), todoarray(todonumber,2));
+        copycomplete(todonumber) = 0;
+        fprintf('\n\nCopy failed for subject number %d\n\n',todonumber);
     end
 end
 
 % Now run ICA_denoise
-todocomplete = zeros(1,nsubj);
-parfor todonumber = 1:size(todoarray,1)
+ICAcomplete = zeros(1,nsubj);
+parfor todonumber = 1:nsubj
     this_input_fname = [Participant{todonumber}.name '.mat']
     this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/']
     try
         Preprocessing_mainfunction('ICA_artifacts',this_input_fname,p,pathstem, [], this_output_folder_tail,todonumber)
-        todocomplete(todonumber) = 1
-        fprintf('\n\nICA complete for subject number %d, run number %d\n\n',todoarray(todonumber,1), todoarray(todonumber,2));
+        ICAcomplete(todonumber) = 1
+        fprintf('\n\nICA complete for subject number %d,\n\n',todonumber);
     catch
-        todocomplete(todonumber) = 0;
-        fprintf('\n\nICA failed for subject number %d, run number %d\n\n',todoarray(todonumber,1), todoarray(todonumber,2));
+        ICAcomplete(todonumber) = 0;
+        fprintf('\n\nICA failed for subject number %d\n\n',todonumber);
     end
 end
 
-[preproc_path Participant{1}.groupfolder '/' Participant{1}.name '/' Participant{1}.name '.mat']
+% Now run Holly's preprocessing
+Preprocesscomplete = zeros(1,nsubj);
+parfor todonumber = 1:nsubj
+    try
+        preproc_this_participant([pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'], ['M' Participant{todonumber}.name])
+        Preprocesscomplete(todonumber) = 1
+        fprintf('\n\nPreprocessing complete for subject number %d,\n\n',todonumber);
+    catch
+        Preprocesscomplete(todonumber) = 0;
+        fprintf('\n\nPreprocessing failed for subject number %d\n\n',todonumber);
+    end
+end

@@ -1497,7 +1497,7 @@ switch step
         
         files = prevStep1;
         
-        fprintf([ '\n\Copying ' files ' to ' filePath '...\n\n' ]);
+        fprintf([ '\n\n Copying ' files ' to ' filePath '...\n\n' ]);
         S.D = files;
         S.outfile = [filePath dates];
         spm_eeg_copy(S);
