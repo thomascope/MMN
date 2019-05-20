@@ -115,19 +115,24 @@ parfor todonumber = 1:size(fullpath,2)
     thesepaths = Participant{todonumber+old_nsubj}.MF
     subjfolder = [pathstem 'MCI/'];
     this_participant_name = [Participant{todonumber+old_nsubj}.name]
+    Participant{todonumber+old_nsubj}.namepostmerge = Participant{todonumber+old_nsubj}.name;
+    Participant{todonumber+old_nsubj}.name = {};
+    repeatmaxfilter = 0;
     try
-        maxfilter_this_participant(thesepaths,subjfolder,this_participant_name)
+        if maxfilterworkedcorrectly(todonumber) == 0
+            Participant{todonumber+old_nsubj}.name = maxfilter_this_participant(thesepaths,subjfolder,this_participant_name,repeatmaxfilter)
+        end
         maxfilterworkedcorrectly(todonumber) = 1
-        fprintf('\n\nCopy complete for subject number %d,\n\n',todonumber);
+        fprintf('\n\nMaxfilter and convert complete for subject number %d,\n\n',todonumber);
     catch
         maxfilterworkedcorrectly(todonumber) = 0;
-        fprintf('\n\nCopy failed for subject number %d\n\n',todonumber);
+        fprintf('\n\nMaxfilter and convert failed for subject number %d\n\n',todonumber);
     end
 end
 
 %% Then copy other subjects' maxfiltered data to new folder
-copycomplete = zeros(1,nsubj);
-parfor todonumber = 1:nsubj
+copycomplete = zeros(1,old_nsubj);
+parfor todonumber = 1:old_nsubj
     this_input_full_fname = [preproc_path Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.name '.mat']
     this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/']
     try
@@ -143,24 +148,40 @@ end
 %% Now run ICA_denoise
 ICAcomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
-    this_input_fname = [Participant{todonumber}.name '.mat']
-    this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/']
-    try
-        Preprocessing_mainfunction('ICA_artifacts',this_input_fname,p,pathstem, [], this_output_folder_tail,todonumber)
-        ICAcomplete(todonumber) = 1
-        fprintf('\n\nICA complete for subject number %d,\n\n',todonumber);
-    catch
-        ICAcomplete(todonumber) = 0;
-        fprintf('\n\nICA failed for subject number %d\n\n',todonumber);
+    if iscell(Participant{todonumber}.name)
+        for this_file = 1:length(Participant{todonumber}.name)
+            this_input_fname = [Participant{todonumber}.name{this_file} '.mat']
+            this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/']
+            try
+                Preprocessing_mainfunction('ICA_artifacts',this_input_fname,p,pathstem, [], this_output_folder_tail,todonumber)
+                ICAcomplete(todonumber) = 1
+                fprintf('\n\nICA complete for subject number %d file %d,\n\n',todonumber,this_file);
+            catch
+                ICAcomplete(todonumber) = 0;
+                fprintf('\n\nICA failed for subject number %d file %d,\n\n',todonumber,this_file);
+            end
+        end
+    else
+        this_input_fname = [Participant{todonumber}.name '.mat']
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/']
+        try
+            Preprocessing_mainfunction('ICA_artifacts',this_input_fname,p,pathstem, [], this_output_folder_tail,todonumber)
+            ICAcomplete(todonumber) = 1
+            fprintf('\n\nICA complete for subject number %d,\n\n',todonumber);
+        catch
+            ICAcomplete(todonumber) = 0;
+            fprintf('\n\nICA failed for subject number %d,\n\n',todonumber);
+        end
     end
 end
+
 
 %% Now run Holly's preprocessing
 startagain = 1; %If want to repeat this step
 Preprocesscomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     try
-        preproc_this_participant([pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'], ['M' Participant{todonumber}.name],startagain)
+        % ZZZ NEED TO FIX FOR MERGING preproc_this_participant([pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'], ['M' Participant{todonumber}.name], Participant{todonumber}.namepostmerge, startagain)
         Preprocesscomplete(todonumber) = 1
         fprintf('\n\nPreprocessing complete for subject number %d,\n\n',todonumber);
     catch
