@@ -1,9 +1,9 @@
-function preproc_this_participant(subjfolder,denoisedfilename)
+function preproc_this_participant(subjfolder,denoisedfilename,startagain)
 % e.g. preproc_this_participant(ss,[pathstem Participant{ss}.groupfolder '/' Participant{ss}.name '/M' Participant{ss}.name '.mat'])
 
 %% Add paths
 
-addpath(genpath('/imaging/hp02/spm12b'));
+% addpath(genpath('/imaging/hp02/spm12b'));
 addpath(genpath('/imaging/local/software/mne'));
 addpath('/imaging/hp02/finger_tapping08/analysis_spm/new_functions');
 addpath('/imaging/hp02/pnfa_mmn/');
@@ -12,6 +12,15 @@ addpath('/imaging/hp02/pnfa_mmn/');
 % script that holds all the participant's maxfilter locations and folder
 % names
 cd(subjfolder)
+
+if startagain
+    delete f*
+    delete d*
+    delete e*
+    delete P*
+    delete r*
+    delete w*
+end
 
 D.fname = denoisedfilename;
 
@@ -178,7 +187,7 @@ S.circularise = false;
 S.prefix = 'm';
 % D = spm_eeg_average(S);
 
-if ~exist(sprintf('fmraedfff%s.mat',denoisedfilename), 'file')
+if ~exist(sprintf('mraedfff%s.mat',denoisedfilename), 'file')
     D = spm_eeg_average(S);
 else
     D = spm_eeg_load(sprintf('mraedfff%s.mat',denoisedfilename));
@@ -214,7 +223,7 @@ S.label = {'std-dvt'};
 S.weighted = 1;
 S.prefix = 'w';
 %     D = spm_eeg_contrast(S);
-if ~exist(sprintf('wfmraedfff%s.mat',denoisedfilename), 'file')
+if ~exist(sprintf('Pwfmraedfff%s.mat',denoisedfilename), 'file')
     D = spm_eeg_contrast(S);
 else
     D = spm_eeg_load(sprintf('wfmraedfff%s.mat',denoisedfilename));
@@ -237,7 +246,6 @@ D = spm_eeg_combineplanar(S);
 
 %% Delete files to keep space usage down
 
-delete Mm*
 delete fM*
 delete ff*
 delete df*

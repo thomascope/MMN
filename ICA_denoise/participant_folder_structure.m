@@ -687,9 +687,22 @@ Participant{i}.MRI = 'vp12_Structural';
 Participant{i}.MF = '140506/vespa_mmn_raw_trans1stdef.fif';
 i=i+1;
 
-
-%% for folders
-
-for pp = 1:length(Participant)
-    
-end
+% %MCIs
+% addpath('/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans');
+% copy_mci_mris;% This script was used to copy mris, but it also contains mri info useful to quickly make MCI struct
+% for pp = 1:length(mci_pats)
+%     Participant{i}.name = mci_pats{pp,1};
+%     Participant{i}.groupfolder = 'MCI';
+%     Participant{i}.diag = 'MCI';
+%     
+%     [mri_path, mri_name, mri_ext] = fileparts(pp_mri_path{pp,1})
+%     Participant{i}.MRI = mri_name;
+%     %Participant{i}.MF = not sure what these names are yet
+%     i = i+1;
+% end
+% 
+% %% for folders
+% 
+% for pp = 1:length(Participant)
+%     
+% end

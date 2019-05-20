@@ -1,4 +1,4 @@
-%Make sure correct version of SPM running
+%%Make sure correct version of SPM running
 spmpath = '/group/language/data/thomascope/spm12_fil_r6906/';
 addpath(spmpath)
 spm eeg
@@ -9,19 +9,93 @@ script_dir = '/group/language/data/thomascope/MMN/ICA_denoise/';
 pathstem = '/imaging/tc02/Holly_MMN/ICA_denoise/';
 data_definition_dir = '/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/';
 folder_structure_file_maindata = 'participant_folder_structure.m';
+mridirectory = '/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/';
 
 addpath(script_dir)
 
 % Define data location
-run([data_definition_dir folder_structure_file_maindata]);
+%run([data_definition_dir folder_structure_file_maindata]);
+run(folder_structure_file_maindata);
+
+% Define MCI data location
+MCI_subjs_dir = '/megdata/cbu/camcan_f/';
+all_MCI_subjs = dir([MCI_subjs_dir '*pp*']);
+fullpath = {};
+errored_subjs = {};
+MCI_fnames = {};
+for i = 1:size(all_MCI_subjs)
+    subdir = ls([MCI_subjs_dir all_MCI_subjs(i).name]);
+    try
+        fullpath{i} = ls([MCI_subjs_dir all_MCI_subjs(i).name '/' deblank(subdir) '/*mmn*.fif']);
+        if ~cellfun('isempty',fullpath(i))
+            MCI_fnames{end+1} = all_MCI_subjs(i).name;
+        end
+    catch
+        errored_subjs{i} = [MCI_subjs_dir all_MCI_subjs(i).name '/' deblank(subdir) '/'];
+    end
+end
+%All errors seem to be missing data so:
+fullpath = fullpath(~cellfun('isempty',fullpath));
+
+%Now add MCI participants to the existing path structure
+%First check they aren't already there (e.g. if script run again without
+%clearing workspace)
+for i = 1:size(Participant,2)
+    if strcmp(Participant{i}.diag,'MCI')
+        error('Already some MCI patients in the Participant structure!')
+    end
+end
 nsubj = size(Participant,2);
+dicomsneedconverting = {};
+for todonumber = 1:size(fullpath,2)
+    Participant{todonumber+nsubj}.name = MCI_fnames{todonumber};
+    Participant{todonumber+nsubj}.groupfolder = 'MCI';
+    Participant{todonumber+nsubj}.diag = 'MCI';
+    
+    try
+    mri_path = dir(['/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/MCI/' MCI_fnames{todonumber} '/*.nii']);
+    
+    if size(mri_path,1) ~= 1
+        error(['more than one MRI found for subject ' num2str(todonumber)])
+    else
+        [~,mri_name,~] = fileparts(mri_path.name);
+    end
+    catch
+        try
+            mri_path = dir(['/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/MCI/' MCI_fnames{todonumber} '/*.dcm']);
+            if size(mri_path,1) ~= 1
+                error(['more than one MRI found for subject ' num2str(todonumber)])
+            else
+                [~,mri_name,~] = fileparts(mri_path.name);
+            end
+            dicomsneedconverting{end+1} = mri_path;
+        catch
+            mri_name = 'single_subj_T1'; %for template
+        end
+    end
+        
+    Participant{todonumber+nsubj}.MRI = mri_name;
+    thesepaths = strsplit(fullpath{todonumber});
+    thesepaths = thesepaths(~(cellfun('isempty',thesepaths)));
+    Participant{todonumber+nsubj}.MF = thesepaths
+end
+    
+
+    thesepaths = strsplit(fullpath{todonumber})
+    thesepaths = thesepaths(~(cellfun('isempty',thesepaths)))
+
+
+
+nsubj = size(Participant,2)+size(fullpath,2);
+
+
 
 % Specify parameters
 %p.mod = {'MEGMAG' 'MEGPLANAR' 'EEG'}; % imaging modality (used by 'convert','convert+epoch','image','smooth','mask','firstlevel' steps) NB: EEG MUST ALWAYS BE LISTED LAST!!
 p.mod = {'MEGMAG' 'MEGPLANAR'}; % imaging modality (used by 'convert','convert+epoch','image','smooth','mask','firstlevel' steps) NB: EEG MUST ALWAYS BE LISTED LAST!!
 p.ref_chans = {'EOG061','EOG062','ECG063'};
 
-%Open parallel pool
+%% Open parallel pool
 try
     if ~isempty(gcp('nocreate'))
         delete(gcp)
@@ -39,7 +113,24 @@ else
     cbupool(92,'--mem-per-cpu=8G --time=167:00:00')
 end
 
-%First copy Holly's data to new folder
+%% First maxfilter and convert MCI/AD data
+maxfilterworkedcorrectly = zeros(1,size(fullpath,2));
+parfor todonumber = 1:size(fullpath,2)
+    thesepaths = strsplit(fullpath{todonumber})
+    thesepaths = thesepaths(~(cellfun('isempty',thesepaths)))
+    subjfolder = [pathstem 'MCI/'];
+    this_filename = [Participant{todonumber}.name '.mat']
+    try
+        maxfilter_this_participant(thesepaths,subjfolder,this_filename)
+        maxfilterworkedcorrectly(todonumber) = 1
+        fprintf('\n\nCopy complete for subject number %d,\n\n',todonumber);
+    catch
+        maxfilterworkedcorrectly(todonumber) = 0;
+        fprintf('\n\nCopy failed for subject number %d\n\n',todonumber);
+    end
+end
+
+%% Then copy other subjects' maxfiltered data to new folder
 copycomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     this_input_full_fname = [preproc_path Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.name '.mat']
@@ -54,7 +145,7 @@ parfor todonumber = 1:nsubj
     end
 end
 
-% Now run ICA_denoise
+%% Now run ICA_denoise
 ICAcomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     this_input_fname = [Participant{todonumber}.name '.mat']
@@ -69,11 +160,12 @@ parfor todonumber = 1:nsubj
     end
 end
 
-% Now run Holly's preprocessing
+%% Now run Holly's preprocessing
+startagain = 1; %If want to repeat this step
 Preprocesscomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     try
-        preproc_this_participant([pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'], ['M' Participant{todonumber}.name])
+        preproc_this_participant([pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'], ['M' Participant{todonumber}.name],startagain)
         Preprocesscomplete(todonumber) = 1
         fprintf('\n\nPreprocessing complete for subject number %d,\n\n',todonumber);
     catch
@@ -81,3 +173,17 @@ parfor todonumber = 1:nsubj
         fprintf('\n\nPreprocessing failed for subject number %d\n\n',todonumber);
     end
 end
+
+%% Now specify forward model
+forwardmodelcomplete = zeros(1,nsubj);
+parfor todonumber = 1:nsubj
+    try
+        forward_model_this_subj({[pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/fmraedfffM' Participant{todonumber}.name '.mat']},{[mridirectory Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.MRI '.nii']})
+        forwardmodelcomplete(todonumber) = 1
+        fprintf('\n\Forward modelling complete for subject number %d,\n\n',todonumber);
+    catch
+        forwardmodelcomplete(todonumber) = 0;
+        fprintf('\n\nForward modelling failed for subject number %d\n\n',todonumber);
+    end
+end
+forward_model_this_subj(megpath, mripath)
