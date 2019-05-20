@@ -47,6 +47,7 @@ for i = 1:size(Participant,2)
 end
 nsubj = size(Participant,2);
 dicomsneedconverting = {};
+nomri = {};
 for todonumber = 1:size(fullpath,2)
     Participant{todonumber+nsubj}.name = MCI_fnames{todonumber};
     Participant{todonumber+nsubj}.groupfolder = 'MCI';
@@ -71,24 +72,18 @@ for todonumber = 1:size(fullpath,2)
             dicomsneedconverting{end+1} = mri_path;
         catch
             mri_name = 'single_subj_T1'; %for template
+            nomri{end+1} = MCI_fnames{todonumber};
         end
     end
         
     Participant{todonumber+nsubj}.MRI = mri_name;
     thesepaths = strsplit(fullpath{todonumber});
     thesepaths = thesepaths(~(cellfun('isempty',thesepaths)));
-    Participant{todonumber+nsubj}.MF = thesepaths
+    Participant{todonumber+nsubj}.MF = thesepaths;
 end
-    
-
-    thesepaths = strsplit(fullpath{todonumber})
-    thesepaths = thesepaths(~(cellfun('isempty',thesepaths)))
-
-
-
-nsubj = size(Participant,2)+size(fullpath,2);
-
-
+disp(['Added ' num2str(size(Participant,2)-nsubj) ' MCI patients, of whom ' num2str(size(Participant,2)-nsubj-size(nomri,2)) ' have MRIs'])
+old_nsubj = nsubj;
+nsubj = size(Participant,2);
 
 % Specify parameters
 %p.mod = {'MEGMAG' 'MEGPLANAR' 'EEG'}; % imaging modality (used by 'convert','convert+epoch','image','smooth','mask','firstlevel' steps) NB: EEG MUST ALWAYS BE LISTED LAST!!
@@ -115,13 +110,13 @@ end
 
 %% First maxfilter and convert MCI/AD data
 maxfilterworkedcorrectly = zeros(1,size(fullpath,2));
+assert((size(fullpath,2)+old_nsubj)==nsubj,'There don''t seem to be the right number of Participants in the definition files')
 parfor todonumber = 1:size(fullpath,2)
-    thesepaths = strsplit(fullpath{todonumber})
-    thesepaths = thesepaths(~(cellfun('isempty',thesepaths)))
+    thesepaths = Participant{todonumber+old_nsubj}.MF
     subjfolder = [pathstem 'MCI/'];
-    this_filename = [Participant{todonumber}.name '.mat']
+    this_participant_name = [Participant{todonumber+old_nsubj}.name]
     try
-        maxfilter_this_participant(thesepaths,subjfolder,this_filename)
+        maxfilter_this_participant(thesepaths,subjfolder,this_participant_name)
         maxfilterworkedcorrectly(todonumber) = 1
         fprintf('\n\nCopy complete for subject number %d,\n\n',todonumber);
     catch
