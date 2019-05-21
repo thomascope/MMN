@@ -1,4 +1,4 @@
-function preproc_this_participant(subjfolder,denoisedfilename,startagain)
+function preproc_this_participant(subjfolder,rawfilenames,startagain)
 % e.g. preproc_this_participant(ss,[pathstem Participant{ss}.groupfolder '/' Participant{ss}.name '/M' Participant{ss}.name '.mat'])
 
 %% Add paths
@@ -22,12 +22,13 @@ if startagain
     delete w*
 end
 
-if ~iscell(denoisedfilename)
-    denoisedfilename = {denoisedfilename};
+if ~iscell(rawfilenames)
+    rawfilenames = {rawfilenames};
 end
 
-for i = 1:length(denoisedfilename)
-    D.fname = denoisedfilename{i};
+for i = 1:length(rawfilenames)
+    clear D
+    D.fname = ['M' rawfilenames{i}];
     
     %% Notch filter
     S = [];
@@ -39,10 +40,10 @@ for i = 1:length(denoisedfilename)
     S.order = 5;
     S.prefix = 'f';
     
-    if ~exist(sprintf('ff%s.mat',denoisedfilename), 'file')
+    if ~exist(sprintf('ffM%s.mat',rawfilenames{i}), 'file')
         D = spm_eeg_filter(S);
     else
-        D = spm_eeg_load(sprintf('f%s.mat',denoisedfilename));
+        D = spm_eeg_load(sprintf('fM%s.mat',rawfilenames{i}));
     end
     
     
@@ -57,10 +58,10 @@ for i = 1:length(denoisedfilename)
     S.order = 5;
     S.prefix = 'f';
     
-    if ~exist(sprintf('fff%s.mat',denoisedfilename), 'file')
+    if ~exist(sprintf('fffM%s.mat',rawfilenames{i}), 'file')
         D = spm_eeg_filter(S);
     else
-        D = spm_eeg_load(sprintf('ff%s.mat',denoisedfilename));
+        D = spm_eeg_load(sprintf('ffM%s.mat',rawfilenames{i}));
     end%
     
     
@@ -74,10 +75,10 @@ for i = 1:length(denoisedfilename)
     S.order = 5;
     S.prefix = 'f';
     
-    if ~exist(sprintf('dfff%s.mat',denoisedfilename), 'file')
+    if ~exist(sprintf('dfffM%s.mat',rawfilenames{i}), 'file')
         D = spm_eeg_filter(S);
     else
-        D = spm_eeg_load(sprintf('fff%s.mat',denoisedfilename));
+        D = spm_eeg_load(sprintf('fffM%s.mat',rawfilenames{i}));
     end
     %% Holly added: Downsampling:
     
@@ -86,10 +87,10 @@ for i = 1:length(denoisedfilename)
     S.fsample_new = 250;
     %D = spm_eeg_downsample(S);
     
-    if ~exist(sprintf('edfff%s.mat',denoisedfilename), 'file')
+    if ~exist(sprintf('edfffM%s.mat',rawfilenames{i}), 'file')
         D = spm_eeg_downsample(S);
     else
-        D = spm_eeg_load(sprintf('dfff%s.mat',denoisedfilename));
+        D = spm_eeg_load(sprintf('dfffM%s.mat',rawfilenames{i}));
     end
     
     
@@ -117,10 +118,10 @@ for i = 1:length(denoisedfilename)
     S.eventpadding = 0;
     %D = spm_eeg_epochs(S);
     
-    if ~exist(sprintf('aedfff%s.mat',denoisedfilename), 'file')
+    if ~exist(sprintf('aedfffM%s.mat',rawfilenames{i}), 'file')
         D = spm_eeg_epochs(S);
     else
-        D = spm_eeg_load(sprintf('edfff%s.mat',denoisedfilename));
+        D = spm_eeg_load(sprintf('edfffM%s.mat',rawfilenames{i}));
     end
     
     %% Artifact rejection
@@ -147,10 +148,10 @@ for i = 1:length(denoisedfilename)
     
     %D = spm_eeg_artefact(S);
     
-    if ~exist(sprintf('raedfff%s.mat',denoisedfilename), 'file')
+    if ~exist(sprintf('raedfffM%s.mat',rawfilenames{i}), 'file')
         D = spm_eeg_artefact(S);
     else
-        D = spm_eeg_load(sprintf('aedfff%s.mat',denoisedfilename))
+        D = spm_eeg_load(sprintf('aedfffM%s.mat',rawfilenames{i}))
     end
     
     
@@ -172,16 +173,35 @@ for i = 1:length(denoisedfilename)
     S.prefix = 'r';
     
     %D = spm_eeg_remove_bad_trials(S);
-    if ~exist(sprintf('mraedfff%s.mat',denoisedfilename), 'file')
+    if ~exist(sprintf('mraedfffM%s.mat',rawfilenames{i}), 'file')
         D = spm_eeg_remove_bad_trials(S);
     else
-        D = spm_eeg_load(sprintf('raedfff%s.mat',denoisedfilename));
+        D = spm_eeg_load(sprintf('raedfffM%s.mat',rawfilenames{i}));
     end
     
 end
 
 %% Merge
+if length(rawfilenames)>1 && ~exist(sprintf('mraedfffM%s.mat',rawfilenames{1}(1:end-2)), 'file')
+   basename = D.fname;
+   basename = basename(1:end-6); % Assume fewer than 10 files to merge and naming convention _x
+   S = [];
+   S.D = {};
+   for i = 1:length(rawfilenames)
+       S.D{i} = [basename '_' num2str(i) '.mat'];
+   end
+   S.D = char(S.D);
+   D = spm_eeg_merge(S);
+   postmerge_fname = D.fname;
+   S.D = postmerge_fname;
+   S.outfile = [basename '.mat'];
+   D = spm_eeg_copy(S);
+   delete([postmerge_fname(1:end-4) '*'])
+end
 
+if length(rawfilenames)>1
+    rawfilenames = {rawfilenames{1}(1:end-2)};
+end
 
 %% Robust averaging
 S = [];
@@ -194,10 +214,10 @@ S.circularise = false;
 S.prefix = 'm';
 % D = spm_eeg_average(S);
 
-if ~exist(sprintf('mraedfff%s.mat',denoisedfilename), 'file')
+if ~exist(sprintf('mraedfffM%s.mat',rawfilenames{1}), 'file')
     D = spm_eeg_average(S);
 else
-    D = spm_eeg_load(sprintf('mraedfff%s.mat',denoisedfilename));
+    D = spm_eeg_load(sprintf('mraedfffM%s.mat',rawfilenames{1}));
 end
 
 
@@ -212,10 +232,10 @@ S.order = 5;
 S.prefix = 'f';
 %         D = spm_eeg_filter(S);
 
-if ~exist(sprintf('wfmraedfff%s.mat',denoisedfilename), 'file')
+if ~exist(sprintf('wfmraedfffM%s.mat',rawfilenames{1}), 'file')
     D = spm_eeg_filter(S);
 else
-    D = spm_eeg_load(sprintf('fmraedfff%s.mat',denoisedfilename));
+    D = spm_eeg_load(sprintf('fmraedfffM%s.mat',rawfilenames{1}));
 end
 
 %% Compute Contrasts
@@ -230,10 +250,10 @@ S.label = {'std-dvt'};
 S.weighted = 1;
 S.prefix = 'w';
 %     D = spm_eeg_contrast(S);
-if ~exist(sprintf('Pwfmraedfff%s.mat',denoisedfilename), 'file')
+if ~exist(sprintf('PwfmraedfffM%s.mat',rawfilenames{1}), 'file')
     D = spm_eeg_contrast(S);
 else
-    D = spm_eeg_load(sprintf('wfmraedfff%s.mat',denoisedfilename));
+    D = spm_eeg_load(sprintf('wfmraedfffM%s.mat',rawfilenames{1}));
 end
 
 %% Combine Planars for MMN
@@ -247,7 +267,7 @@ D = spm_eeg_combineplanar(S);
 %% Combine Planars for std and dvt
 
 S = [];
-S.D = sprintf('fmraedfff%s.mat',denoisedfilename);
+S.D = sprintf('fmraedfffM%s.mat',rawfilenames{1});
 S.mode = 'replace';
 D = spm_eeg_combineplanar(S);
 

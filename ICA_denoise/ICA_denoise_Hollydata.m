@@ -177,11 +177,15 @@ end
 
 
 %% Now run Holly's preprocessing
-startagain = 1; %If want to repeat this step
+startagain = 0; %If want to repeat this step
 Preprocesscomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     try
-        % ZZZ NEED TO FIX FOR MERGING preproc_this_participant([pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'], ['M' Participant{todonumber}.name], Participant{todonumber}.namepostmerge, startagain)
+        if iscell(Participant{todonumber}.name)
+            preproc_this_participant([pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'], Participant{todonumber}.name, startagain)
+        else
+            preproc_this_participant([pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'], Participant{todonumber}.name, startagain)
+        end
         Preprocesscomplete(todonumber) = 1
         fprintf('\n\nPreprocessing complete for subject number %d,\n\n',todonumber);
     catch
