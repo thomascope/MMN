@@ -214,7 +214,7 @@ S.circularise = false;
 S.prefix = 'm';
 % D = spm_eeg_average(S);
 
-if ~exist(sprintf('mraedfffM%s.mat',rawfilenames{1}), 'file')
+if ~exist(sprintf('fmraedfffM%s.mat',rawfilenames{1}), 'file')
     D = spm_eeg_average(S);
 else
     D = spm_eeg_load(sprintf('mraedfffM%s.mat',rawfilenames{1}));

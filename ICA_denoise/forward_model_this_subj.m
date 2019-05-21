@@ -7,9 +7,9 @@ addpath(genpath('/imaging/hp02/mmn_08/analysis_spm/new_spm_functions'));
 
 % % the inversion methods to be performed
 inver_meth_path = { ''};%, 'MEGgrad_MSP/', 'MEGgrad_sLoreta/', 'MEGgrad_Beamf/' };%, 'MEGgrad_Beam/'};
-inv_meth        = { 'IID'};%,               'GS',          'LOR', 'EBB' };
-time_wind_path  = { '150_250'};
-windows         = { [150 250]};
+inv_meth        = { 'IID', 'LOR'};%,               'GS',          'LOR', 'EBB' };
+time_wind_path  = { '-100_500' '150 250'};
+windows         = { [-100 500], [150 250]};
 inv_trls        = {'STD', 'DVT'};
 
 %% Define steps to be done
@@ -63,16 +63,17 @@ for inv_cnt = 1:length(inv_meth)
     clear D
     if forward_modeling == 1
         for ss = 1:nr_subs
-                        
+            
             % Make sure in right starting place:
+            [sourceloc_path, megfname, ~] = fileparts(megpath{ss});
             cd(sourceloc_path)
             
             D = spm_eeg_load(megpath{ss});
             
             % Initialise... (if want to be safe!)
-            D.inv = {struct('mesh', [], 'gainmat', [])};
-
             val = inv_cnt;
+            D.inv{val} = {struct('mesh', [], 'gainmat', [])};
+
             
             %% MRI processing and coregistration
             if redoreg_flag == 1 || ~isfield(D.inv{1},'mesh') || ~isfield(D.inv{1},'datareg')
@@ -85,9 +86,9 @@ for inv_cnt = 1:length(inv_meth)
                 D.inv{val}.forward = [];
                 
                 % Locations/names of MRIs
-                assert(exist(mripath,'file'),['The MRI does not exist at ' mripath ])
+                assert(exist(mripath,'file')>0,['The MRI does not exist at ' mripath ])
                 D.inv{val}.mesh.sMRI = mripath;
-                                               
+                
                 %% Normalise sMRI (if not done already), and create inverse-normalised surfaces
                 D.inv{val}.mesh = spm_eeg_inv_mesh(D.inv{val}.mesh.sMRI, mesh_size);
                 if display_flag, spm_eeg_inv_checkmeshes(D); end
@@ -128,7 +129,7 @@ for inv_cnt = 1:length(inv_meth)
             end % if redoreg_flag...
             
             %% Computing forward model/leadfield
-            if redoformod_flag == 1 || ~isfield(D.inv{1},'forward') || ~exist(D.inv{1}.gainmat)
+            if redoformod_flag == 1 || ~isfield(D.inv{1},'forward') || ~isfield(D.inv{1}, 'gainmat')
                 
                 fprintf(1, 'Creating forward model\n');
                 %% Create forward model (BEM) (could conditionalise this bit on modality inverted...)
@@ -167,70 +168,66 @@ for inv_cnt = 1:length(inv_meth)
         end
     end
 end
-            
+
 for inv_cnt = 1:length(inv_meth)
     
     % Define Analysis Parameters
     % Which inversion method to use
     inv_typ = inv_meth{inv_cnt};   % Minimum Norm Least-Squares %inv_typ = 'GS';   % (MSP)
-    
+    val = inv_cnt;
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Source localisation
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     clear D
     if forward_modeling == 1
-        for ss = 1:nr_subs            
+        for ss = 1:nr_subs
             %% Invert & Contrast
-            if DoInv_contrast ==1
-
+            if DoInv_contrast == 1
+                
                 for wind_cnt = 1:length(time_wind_path)
-                    S.D = D.fname
-                    S.outfile - filename for the new dataset
-                    spm_eeg_copy(
-                % Make a copy of the forward model file and rename for each
-                % time window:
-                %file parts
-                [filepath,name,ext] = fileparts(subjects{ss});
-                
-                copyfile(subjects{ss}, [filepath '/' 's_' time_wind_path{wind_cnt} '_' name '.mat']);
-                copyfile(subjects_dotdat{ss}, [filepath '/' 's_' time_wind_path{wind_cnt} '_' name '.dat']);
-                
-                D=spm_eeg_load([filepath '/' 's_' time_wind_path{wind_cnt} '_' name '.mat'] );
-                D = fname(D, ['s_' time_wind_path{wind_cnt} '_' name '.mat']);
-                
-                
-                D.inv{val}.inverse = [];   % Clear to be safe!
-                D.inv{val}.inverse.trials = inv_trls;
-                D.inv{val}.inverse.type   = inv_typ;
-                
-                D.inv{val}.inverse.woi    = [windows{wind_cnt}(1) windows{wind_cnt}(2)];
-                %D.inv{val}.inverse.lpf    = freq_start;
-                %D.inv{val}.inverse.hpf    = freq_end;
-                
-                D.inv{val}.inverse.modality = inv_mods;
-                
-                D = spm_eeg_invert(D);
-                
-                
-                D.inv{val}.contrast.woi  = [windows{wind_cnt}(1) windows{wind_cnt}(2)];
-                %D.inv{val}.contrast.fboi = [freq_start freq_end];
-                D.inv{val}.contrast.type = 'evoked';
-                
-                D = spm_eeg_inv_results(D);
-                
-                %% Create images for stats for different smoothing:
-                
-                
-                % Write result to SPM volumes
-                if write3Dflag
-                    D.inv{val}.contrast.smoothing = 8;%sm*4;
+                    % Make a copy of the forward model file and rename for each
+                    % time window:
+                    [filepath,name,ext] = fileparts(megpath{ss});
+                    S.D = megpath{ss};
+                    S.outfile = [filepath '/' 's_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_' name];
+                    D = spm_eeg_copy(S);
                     
-                    D = spm_eeg_inv_Mesh2Voxels(D);
-                    %SourceImgs{val}{ss} = strvcat(D.inv{val}.contrast.fname);
+                    
+                    D.inv{val}.inverse = [];   % Clear to be safe!
+                    D.inv{val}.inverse.trials = inv_trls;
+                    D.inv{val}.inverse.type   = inv_typ;
+                    
+                    D.inv{val}.inverse.woi    = [windows{wind_cnt}(1) windows{wind_cnt}(2)];
+                    %D.inv{val}.inverse.lpf    = freq_start;
+                    %D.inv{val}.inverse.hpf    = freq_end;
+                    
+                    D.inv{val}.inverse.modality = inv_mods;
+                    
+                    D = spm_eeg_invert(D);
+                    
+                    
+                    
+                    D.inv{val}.contrast.woi  = [windows{wind_cnt}(1) windows{wind_cnt}(2)];
+                    %D.inv{val}.contrast.fboi = [freq_start freq_end];
+                    D.inv{val}.contrast.type = 'evoked';
+                    
+                    D = spm_eeg_inv_results(D);
+                    
+                    
+                    %% Create images for stats for different smoothing:
+                    
+                    
+                    % Write result to SPM volumes
+                    if write3Dflag
+                        D.inv{val}.contrast.smoothing = 8;%sm*4;
+                        
+                        D = spm_eeg_inv_Mesh2Voxels(D);
+                        %SourceImgs{val}{ss} = strvcat(D.inv{val}.contrast.fname);
+                    end
+                    
+                    
+                    D.save;
                 end
-                
-                
-                D.save;
             end
         end
     end

@@ -85,6 +85,23 @@ disp(['Added ' num2str(size(Participant,2)-nsubj) ' MCI patients, of whom ' num2
 old_nsubj = nsubj;
 nsubj = size(Participant,2);
 
+missing_scan_name = {};
+missing_scan_diag = {};
+missing_scan_subjnum = [];
+for todonumber = 1:136
+    if strcmp(Participant{todonumber}.MRI,'single_subj_T1')
+        missing_scan_name{end+1} = Participant{todonumber}.name;
+        missing_scan_diag{end+1} = Participant{todonumber}.diag;
+        missing_scan_subjnum(end+1) = todonumber;
+        if ~exist([mridirectory Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.MRI '.nii'],'file')
+            try
+                copyfile('/group/language/data/thomascope/spm12_fil_r6906/canonical/single_subj_T1.nii',[mridirectory Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.MRI '.nii'])
+            end
+        end
+        
+    end
+end
+
 % Specify parameters
 %p.mod = {'MEGMAG' 'MEGPLANAR' 'EEG'}; % imaging modality (used by 'convert','convert+epoch','image','smooth','mask','firstlevel' steps) NB: EEG MUST ALWAYS BE LISTED LAST!!
 p.mod = {'MEGMAG' 'MEGPLANAR'}; % imaging modality (used by 'convert','convert+epoch','image','smooth','mask','firstlevel' steps) NB: EEG MUST ALWAYS BE LISTED LAST!!
@@ -194,11 +211,35 @@ parfor todonumber = 1:nsubj
     end
 end
 
+
 %% Now specify forward model
 forwardmodelcomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     try
-        forward_model_this_subj({[pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/fmraedfffM' Participant{todonumber}.name '.mat']},{[mridirectory Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.MRI '.nii']})
+        Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+    end
+    megpaths = {[pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/fmraedfffM' Participant{todonumber}.name '.mat'],
+                [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/raedfffM' Participant{todonumber}.name '.mat']
+                };
+    mripath = [mridirectory Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.MRI '.nii'];
+    if ~exist(mripath,'file') && strcmp(Participant{todonumber}.MRI,'single_subj_T1')
+        mripath = ['/group/language/data/thomascope/spm12_fil_r6906/canonical/single_subj_T1.nii'];
+    end
+    newmripath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/MRI/'];
+    if ~exist(newmripath,'dir')
+        mkdir(newmripath)
+    end
+    try
+        copyfile(mripath, newmripath)
+    catch
+        mripath = ['/group/language/data/thomascope/spm12_fil_r6906/canonical/single_subj_T1.nii'];
+        warning(['Scan missing for subject ' num2str(todonumber) ' using template instead.']);
+        copyfile(mripath, newmripath);
+        Participant{todonumber}.MRI = 'single_subj_T1';
+    end
+    newmripath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/MRI/' Participant{todonumber}.MRI '.nii'];
+    try
+        forward_model_this_subj(megpaths,newmripath)
         forwardmodelcomplete(todonumber) = 1
         fprintf('\n\Forward modelling complete for subject number %d,\n\n',todonumber);
     catch
@@ -206,4 +247,4 @@ parfor todonumber = 1:nsubj
         fprintf('\n\nForward modelling failed for subject number %d\n\n',todonumber);
     end
 end
-forward_model_this_subj(megpath, mripath)
+
