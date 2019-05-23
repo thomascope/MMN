@@ -13,6 +13,13 @@ mridirectory = '/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scan
 
 addpath(script_dir)
 
+% Define source reconstruction parameters
+
+inv_meth        = { 'IID', 'LOR'};%,               'GS',          'LOR', 'EBB' };
+time_wind_path  = { '-100_500' '150 250'};
+windows         = { [-100 500], [150 250]};
+wind_cnt        = 1; %Which time window for LFP extraction
+
 % Define data location
 %run([data_definition_dir folder_structure_file_maindata]);
 run(folder_structure_file_maindata);
@@ -239,12 +246,35 @@ parfor todonumber = 1:nsubj
     end
     newmripath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/MRI/' Participant{todonumber}.MRI '.nii'];
     try
-        forward_model_this_subj(megpaths,newmripath)
-        forwardmodelcomplete(todonumber) = 1
-        fprintf('\n\Forward modelling complete for subject number %d,\n\n',todonumber);
+        forward_model_this_subj(megpaths,newmripath, inv_meth, time_wind_path, windows)
+        forwardmodelcomplete(todonumber) = 1;
+        fprintf('\n\nForward modelling complete for subject number %d,\n\n',todonumber);
     catch
         forwardmodelcomplete(todonumber) = 0;
         fprintf('\n\nForward modelling failed for subject number %d\n\n',todonumber);
     end
 end
 
+%% Now extract the LFPs
+LFPExtractioncomplete = zeros(1,nsubj);
+parfor todonumber = 1:nsubj
+    for inv_cnt = 1:length(inv_meth)
+        megpaths = {[pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' 's_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_fmraedfffM' Participant{todonumber}.name '.mat'],
+            [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' 's_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_raedfffM' Participant{todonumber}.name '.mat']
+            };
+        outpath = [pathstem 'LFPs'];
+        for thismeg = 1:length(megpaths)
+            try
+                
+                [~] = Fullpipeline_extraction(megpaths{thismeg},Participant{todonumber}.diag,outpath,inv_cnt);
+                LFPExtractioncomplete(todonumber) = LFPExtractioncomplete(todonumber)+1;
+                
+                
+                fprintf('\n\n LFP extraction complete for subject number %d,\n\n',todonumber);
+            catch
+                %LFPExtractioncomplete(inv_cnt,thismeg,todonumber) = 0;
+                fprintf('\n\n LFP extraction failed for subject number %d,\n\n',todonumber);
+            end
+        end
+    end
+end

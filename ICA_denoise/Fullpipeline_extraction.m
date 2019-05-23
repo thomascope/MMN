@@ -1,4 +1,4 @@
-function D = DoExtractmTA_TEC(D,folder,outfolder, val)
+function D = Fullpipeline_extraction(D,folder,outfolder, val)
 
 
 Lpos = [-42, -22, 7;
@@ -21,6 +21,10 @@ Sname = {'left A1';
     
 [f1,f2,f3] = fileparts(D);
 fn = sprintf('%s/%s/%dLFP_%s%s',outfolder,folder, length(Sname), f2, f3);
+[destfolder,~,~] = fileparts(fn);
+if ~exist(destfolder)
+    mkdir(destfolder)
+end
 
 % specify:
 m{1}.spm.meeg.source.extract.D(1) = {D};

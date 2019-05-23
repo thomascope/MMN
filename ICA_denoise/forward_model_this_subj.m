@@ -1,4 +1,4 @@
-function forward_model_this_subj(megpath, mripath)
+function forward_model_this_subj(megpath, mripath, inv_meth, time_wind_path, windows)
 %forward models a cellstring of megpaths against a cellstring of mripaths
 addpath(genpath('/imaging/local/software/mne'));
 addpath(genpath('/imaging/hp02/mmn_08/analysis_spm/new_spm_functions'));
@@ -7,9 +7,6 @@ addpath(genpath('/imaging/hp02/mmn_08/analysis_spm/new_spm_functions'));
 
 % % the inversion methods to be performed
 inver_meth_path = { ''};%, 'MEGgrad_MSP/', 'MEGgrad_sLoreta/', 'MEGgrad_Beamf/' };%, 'MEGgrad_Beam/'};
-inv_meth        = { 'IID', 'LOR'};%,               'GS',          'LOR', 'EBB' };
-time_wind_path  = { '-100_500' '150 250'};
-windows         = { [-100 500], [150 250]};
 inv_trls        = {'STD', 'DVT'};
 
 %% Define steps to be done
@@ -129,7 +126,7 @@ for inv_cnt = 1:length(inv_meth)
             end % if redoreg_flag...
             
             %% Computing forward model/leadfield
-            if redoformod_flag == 1 || ~isfield(D.inv{1},'forward') || ~isfield(D.inv{1}, 'gainmat')
+            if redoformod_flag == 1 || ~isfield(D.inv{val},'forward') || ~isfield(D.inv{val}, 'gainmat')
                 
                 fprintf(1, 'Creating forward model\n');
                 %% Create forward model (BEM) (could conditionalise this bit on modality inverted...)
@@ -150,7 +147,7 @@ for inv_cnt = 1:length(inv_meth)
                 end
                 
                 fprintf(1, 'Computing leadfield\n');
-                D = spm_eeg_inv_forward(D);
+                D = spm_eeg_inv_forward(D,val);
                 
                 %             if display_flag
                 %                 for ind = 1%:length(D.inv{val}.datareg) % !!!!!!!!!!just MEG, not EEG
@@ -185,10 +182,15 @@ for inv_cnt = 1:length(inv_meth)
             if DoInv_contrast == 1
                 
                 for wind_cnt = 1:length(time_wind_path)
+                    S={};
                     % Make a copy of the forward model file and rename for each
                     % time window:
                     [filepath,name,ext] = fileparts(megpath{ss});
-                    S.D = megpath{ss};
+                    if inv_cnt == 1
+                        S.D = megpath{ss};
+                    else
+                        S.D = [filepath '/' 's_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt-1} '_' name];
+                    end
                     S.outfile = [filepath '/' 's_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_' name];
                     D = spm_eeg_copy(S);
                     
@@ -203,8 +205,12 @@ for inv_cnt = 1:length(inv_meth)
                     
                     D.inv{val}.inverse.modality = inv_mods;
                     
-                    D = spm_eeg_invert(D);
-                    
+%                     try
+                        D = spm_eeg_invert(D,val);
+%                     catch
+%                         D.inv{val}.inverse.modality = {'MEGPLANAR'} % Sometimes fails if there are insufficient spatial modes in the MEGMAGs after maxfilter
+%                         D = spm_eeg_invert(D,val)
+%                     end
                     
                     
                     D.inv{val}.contrast.woi  = [windows{wind_cnt}(1) windows{wind_cnt}(2)];
