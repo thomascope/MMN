@@ -278,3 +278,12 @@ parfor todonumber = 1:nsubj
         end
     end
 end
+
+%% Now plot the LFPs for sanity check
+prefix = 'fmraedfffM';
+val = 2; 
+p.time_wind_path = time_wind_path;
+p.wind_cnt = wind_cnt;
+p.inv_meth = inv_meth;
+p.inv_cnt = 2; %for LORETA
+plot_all_LFPs(Participant,pathstem,p,prefix)
