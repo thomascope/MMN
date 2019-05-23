@@ -1,4 +1,4 @@
-function stdshade_TEC(amatrix,alpha,acolor,F,smth,steflag)
+function linehandle = stdshade_TEC(amatrix,alpha,acolor,F,smth,steflag)
 % usage: stdshading(amatrix,alpha,acolor,F,smth,steflag)
 % plot mean and sem/std coming from a matrix of data, at which each row is an
 % observation. sem/std is shown as shading.
@@ -39,16 +39,17 @@ end
     
 
 if exist('alpha','var')==0 || isempty(alpha) 
-    fill([F fliplr(F)],[amean+astd fliplr(amean-astd)],acolor,'linestyle','none','HandleVisibility','off');
+    fill([F fliplr(F)],[amean+astd fliplr(amean-astd)],acolor,'linestyle','none');
     acolor='k';
-else fill([F fliplr(F)],[amean+astd fliplr(amean-astd)],acolor, 'FaceAlpha', alpha,'linestyle','none','HandleVisibility','off');    
+else fill([F fliplr(F)],[amean+astd fliplr(amean-astd)],acolor, 'FaceAlpha', alpha,'linestyle','none');    
 end
 
 if ishold==0
     check=true; else check=false;
 end
 
-hold on;plot(F,amean,acolor,'linewidth',1.5); %% change color or linewidth to adjust mean line
+hold on;
+linehandle = plot(F,amean,'color',acolor,'linewidth',1.5); %% change color or linewidth to adjust mean line
 
 if check
     hold off;

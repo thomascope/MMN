@@ -287,3 +287,12 @@ p.wind_cnt = wind_cnt;
 p.inv_meth = inv_meth;
 p.inv_cnt = 2; %for LORETA
 plot_all_LFPs(Participant,pathstem,p,prefix)
+
+%% Now run Granger Causality and Imaginary Coherence
+p.start_times = 0;
+p.end_times = 500;
+prefix = 'fmraedfffM';
+for method = {'granger','coh'}
+    p.method = char(method);
+    Coherence_Connectivity(Participant,pathstem,p,prefix)
+end
