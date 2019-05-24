@@ -292,7 +292,8 @@ plot_all_LFPs(Participant,pathstem,p,prefix)
 p.start_times = 0;
 p.end_times = 500;
 prefix = 'fmraedfffM';
+decompositionworkedcorrectly = {};
 for method = {'granger','coh'}
     p.method = char(method);
-    Coherence_Connectivity(Participant,pathstem,p,prefix)
+    decompositionworkedcorrectly{end+1} = Coherence_Connectivity(Participant,pathstem,p,prefix);
 end

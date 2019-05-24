@@ -1,4 +1,4 @@
-function Coherence_Connectivity(Participant,pathstem,p,prefix)
+function decompositionworkedcorrectly = Coherence_Connectivity(Participant,pathstem,p,prefix)
 %method = 'granger';
 %method = 'coh';
 
@@ -45,6 +45,7 @@ fft_method = 'mtmfft'; % 'wavelet' for morlet; can leave blank for multitaper.
 
 [groupstodo,~, all_subjs] = unique(diagnosis,'stable');
 
+decompositionworkedcorrectly = zeros(1,length(Participant));
 parfor subj = 1:length(Participant)
     warning('off','all')
     if strcmp(method,'coh')
@@ -64,9 +65,15 @@ parfor subj = 1:length(Participant)
         end
         uptohere = max(this_file_num)+1;
         disp(['Resuming at file ' num2str(uptohere)])
-        parallel_MMN_coherence_granger_resume(fn{ss},[],this_outdir,all_subjs(subj,:),start_times,end_times,fft_method,method,uptohere)
+        try
+        parallel_MMN_coherence_granger_resume(fn{subj},[],this_outdir,subj,start_times,end_times,fft_method,method,uptohere)
+        decompositionworkedcorrectly(subj) = 1;
+        end
     else
         disp(['job started on worker ' num2str(subj)])
-        parallel_MMN_coherence_granger(fn{ss},[],this_outdir,all_subjs(subj,:),start_times,end_times,fft_method,method)
+        try
+        parallel_MMN_coherence_granger(fn{subj},[],this_outdir,subj,start_times,end_times,fft_method,method)
+        decompositionworkedcorrectly(subj) = 1;
+        end
     end
 end
