@@ -20,6 +20,8 @@ time_wind_path  = { '-100_500' '150 250'};
 windows         = { [-100 500], [150 250]};
 wind_cnt        = 1; %Which time window for LFP extraction
 
+p.windows = cell2mat(windows');
+
 % Define data location
 %run([data_definition_dir folder_structure_file_maindata]);
 run(folder_structure_file_maindata);
@@ -114,6 +116,37 @@ end
 p.mod = {'MEGMAG' 'MEGPLANAR'}; % imaging modality (used by 'convert','convert+epoch','image','smooth','mask','firstlevel' steps) NB: EEG MUST ALWAYS BE LISTED LAST!!
 p.ref_chans = {'EOG061','EOG062','ECG063'};
 
+% set time frequency decomposition parameters
+%p.method = 'mtmconvol'; p.freqs = [30:2:90]; p.timeres = 200; p.timestep = 20; p.freqres = 30;
+p.freqs = [4:2:80]; %Vector of frequencies of interest
+p.method = 'morlet'; %method
+p.ncycles = 7; %number of wavelet cycles
+p.phase = 0; %save phase information too? (prefixed with tph)
+p.tf_chans = 'All'; %cell array of channel names. Can include generic wildcards: 'All', 'EEG', 'MEG' etc.
+p.timewin = [-100 500]; %time window of interest
+p.preBase_tf = -100; %TF baseline correct period with below (I don't know why this isn't a two element vector - don't blame me.)
+p.postBase_tf = 0;
+p.tf.method = 'LogR'; %'LogR', 'Diff', 'Rel', 'Log', 'Sqrt', 'None'
+p.tf.subsample = 5; %subsample by a factor of 5 - mainly to save disk space and speed up subsequent processing. Without this, produced a file of 20-40Gb for each subject!
+p.robust = 1; %Robust averaging?
+p.preImageMask = -100; % pre image time (ms)
+p.postImageMask = 500; % post image time (ms)
+% for image smoothing
+p.xSmooth = 10; % smooth for x dimension (mm)
+p.ySmooth = 10; % smooth for y dimension (mm)
+p.zSmooth = 10; % smooth for z (time) dimension (ms)
+% define conditions
+p.conditions = {'STD, DVT'};
+
+p.contrast_labels = {'STD-DVT';'DVT-STD'};
+p.contrast_weights = [1,-1;-1,1]; 
+
+all_diagnoses = cell(1,nsubj);
+for todonumber = 1:nsubj
+    all_diagnoses{todonumber} = Participant{todonumber}.diag;
+end
+[p.diagnosis_list, ~, p.group] = unique(all_diagnoses,'stable');
+
 %% Open parallel pool
 try
     if ~isempty(gcp('nocreate'))
@@ -206,9 +239,9 @@ Preprocesscomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     try
         if iscell(Participant{todonumber}.name)
-            preproc_this_participant([pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'], Participant{todonumber}.name, startagain)
+            preproc_this_participant([pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'], Participant{todonumber}.name, startagain,p)
         else
-            preproc_this_participant([pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'], Participant{todonumber}.name, startagain)
+            preproc_this_participant([pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'], Participant{todonumber}.name, startagain,p)
         end
         Preprocesscomplete(todonumber) = 1
         fprintf('\n\nPreprocessing complete for subject number %d,\n\n',todonumber);
@@ -291,9 +324,241 @@ plot_all_LFPs(Participant,pathstem,p,prefix)
 %% Now run Granger Causality and Imaginary Coherence
 p.start_times = 0;
 p.end_times = 500;
-prefix = 'fmraedfffM';
+prefix = 'raedfffM';
 decompositionworkedcorrectly = {};
 for method = {'granger','coh'}
     p.method = char(method);
     decompositionworkedcorrectly{end+1} = Coherence_Connectivity(Participant,pathstem,p,prefix);
 end
+
+%% Now do a time-frequency analysis
+prefix = 'raedfffM';
+TFdecompositioncomplete = zeros(1,nsubj);
+megpath = [];
+parfor todonumber = 1:nsubj
+    megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
+    if iscell(Participant{todonumber}.name)
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
+    else
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
+    end
+    try
+        Preprocessing_mainfunction('TF',megpath,p,pathstem, [], this_output_folder_tail,todonumber);
+        TFdecompositioncomplete(todonumber) = 1;
+    catch
+        TFdecompositioncomplete(todonumber) = 0;
+    end
+end
+
+prefix = 'tf_raedfffM';
+TFaveragecomplete = zeros(1,nsubj);
+megpath = [];
+parfor todonumber = 1:nsubj
+    megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
+    if iscell(Participant{todonumber}.name)
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
+    else
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
+    end
+    try
+        Preprocessing_mainfunction('average',megpath,p,pathstem, [], this_output_folder_tail,todonumber);
+        TFaveragecomplete(todonumber) = 1;
+    catch
+        TFaveragecomplete(todonumber) = 0;
+    end
+end
+
+prefix = 'mtf_raedfffM';
+TFrescalecomplete = zeros(1,nsubj);
+megpath = [];
+parfor todonumber = 1:nsubj
+    megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
+    if iscell(Participant{todonumber}.name)
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
+    else
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
+    end
+    try
+        Preprocessing_mainfunction('TF_rescale',megpath,p,pathstem, [], this_output_folder_tail,todonumber);
+        TFrescalecomplete(todonumber) = 1;
+    catch
+        TFrescalecomplete(todonumber) = 0;
+    end
+end
+
+prefix = 'rmtf_raedfffM';
+TFweightcomplete = zeros(1,nsubj);
+megpath = [];
+parfor todonumber = 1:nsubj
+    megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
+    if iscell(Participant{todonumber}.name)
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
+    else
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
+    end
+    try
+        Preprocessing_mainfunction('weight',megpath,p,pathstem, [], this_output_folder_tail,todonumber);
+        TFweightcomplete(todonumber) = 1;
+    catch
+        TFweightcomplete(todonumber) = 0;
+    end
+end
+
+prefix = 'rmtf_raedfffM';
+TFimagecomplete = zeros(1,nsubj);
+megpath = [];
+parfor todonumber = 1:nsubj
+    megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
+    if iscell(Participant{todonumber}.name)
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
+    else
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
+    end
+    try
+        Preprocessing_mainfunction('image',megpath,p,pathstem, [], this_output_folder_tail,todonumber);
+        TFimagecomplete(todonumber) = 1;
+    catch
+        TFimagecomplete(todonumber) = 0;
+    end
+end
+
+prefix = 'rmtf_raedfffM';
+TFsmoothcomplete = zeros(1,nsubj);
+megpath = [];
+parfor todonumber = 1:nsubj
+    megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
+    if iscell(Participant{todonumber}.name)
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
+    else
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
+    end
+    try
+        Preprocessing_mainfunction('smooth',megpath,p,pathstem, [], this_output_folder_tail,todonumber);
+        TFsmoothcomplete(todonumber) = 1;
+    catch
+        TFsmoothcomplete(todonumber) = 0;
+    end
+end
+
+prefix = 'rmtf_raedfffM';
+TFmaskcomplete = zeros(1,1);
+megpath = [];
+for todonumber = 1:1 % Only need 1 mask
+    megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
+    if iscell(Participant{todonumber}.name)
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
+    else
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
+    end
+    try
+        Preprocessing_mainfunction('mask',megpath,p,pathstem, [], this_output_folder_tail,todonumber);
+        TFmaskcomplete(todonumber) = 1;
+    catch
+        TFmaskcomplete(todonumber) = 0;
+    end
+end
+
+%% Now do TF grand averages 
+
+prefix = 'wrmtf_raedfffM*.mat';
+TFweightedgrandaveragecomplete = zeros(1,1);
+for todonumber = 1:nsubj
+    if iscell(Participant{todonumber}.name)
+        this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
+    else
+        this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
+    end
+end
+try
+    Preprocessing_mainfunction('grand_average',prefix,p,pathstem, [], this_output_folder_tail,todonumber);
+    TFweightedgrandaveragecomplete(1) = 1;
+catch
+    TFweightedgrandaveragecomplete(1) = 0;
+end
+if ~exist([pathstem 'TF_grand_averages'])
+    mkdir([pathstem 'TF_grand_averages'])
+end
+filestomove = dir([pathstem '*weighted_grandmean*.mat']);
+for i = 1:length(filestomove)
+S.D = [pathstem filestomove(i).name];
+S.outfile = [pathstem 'TF_grand_averages/' filestomove(i).name];
+spm_eeg_copy(S)
+end
+delete([pathstem '*weighted_grandmean*'])
+
+prefix = 'rmtf_raedfffM*.mat';
+TFgrandaveragecomplete = zeros(1,1);
+for todonumber = 1:nsubj
+    if iscell(Participant{todonumber}.name)
+        this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
+    else
+        this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
+    end
+end
+try
+    Preprocessing_mainfunction('grand_average',prefix,p,pathstem, [], this_output_folder_tail,todonumber);
+    TFgrandaveragecomplete(1) = 1;
+catch
+    TFgrandaveragecomplete(1) = 0;
+end
+filestomove = dir([pathstem '*_grandmean*.mat']);
+for i = 1:length(filestomove)
+S.D = [pathstem filestomove(i).name];
+S.outfile = [pathstem 'ERP_grand_averages/' filestomove(i).name];
+spm_eeg_copy(S)
+end
+delete([pathstem '*_grandmean*'])
+
+
+%% Also grand average the non-TF data
+prefix = 'wfmraedfffM*.mat';
+weightedgrandaveragecomplete = zeros(1,1);
+for todonumber = 1:nsubj
+    if iscell(Participant{todonumber}.name)
+        this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
+    else
+        this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
+    end
+end
+try
+    Preprocessing_mainfunction('grand_average',prefix,p,pathstem, [], this_output_folder_tail,todonumber);
+    TFweightedgrandaveragecomplete(1) = 1;
+catch
+    TFweightedgrandaveragecomplete(1) = 0;
+end
+
+if ~exist([pathstem 'ERP_grand_averages'])
+    mkdir([pathstem 'ERP_grand_averages'])
+end
+filestomove = dir([pathstem '*weighted_grandmean*.mat']);
+for i = 1:length(filestomove)
+S.D = [pathstem filestomove(i).name];
+S.outfile = [pathstem 'ERP_grand_averages/' filestomove(i).name];
+spm_eeg_copy(S)
+end
+delete([pathstem '*weighted_grandmean*'])
+
+prefix = 'rfmraedfffM*.mat';
+grandaveragecomplete = zeros(1,1);
+for todonumber = 1:nsubj
+    if iscell(Participant{todonumber}.name)
+        this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
+    else
+        this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
+    end
+end
+try
+    Preprocessing_mainfunction('grand_average',prefix,p,pathstem, [], this_output_folder_tail,todonumber);
+    TFweightedgrandaveragecomplete(1) = 1;
+catch
+    TFweightedgrandaveragecomplete(1) = 0;
+end
+filestomove = dir([pathstem '*_grandmean*.mat']);
+for i = 1:length(filestomove)
+S.D = [pathstem filestomove(i).name];
+S.outfile = [pathstem 'ERP_grand_averages/' filestomove(i).name];
+spm_eeg_copy(S)
+end
+delete([pathstem '*_grandmean*'])
+
+

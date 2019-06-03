@@ -1,5 +1,8 @@
-function Preprocessing_mainfunction_follow_up(step,prevStep,p,pathstem,maxfilteredpathstem, subjects,subjcnt,dates,blocksin,blocksout,rawpathstem,badeeg,badmeg,runtodo)
+function Preprocessing_mainfunction(step,prevStep,p,pathstem,maxfilteredpathstem, subjects,subjcnt,dates,blocksin,blocksout,rawpathstem,badeeg,badmeg,runtodo)
 
+if iscell(prevStep)
+    prevStep1 = prevStep;
+else
 switch prevStep
     % Here you specify the filenames that you search for after each step.
     case 'maxfilter'
@@ -66,6 +69,7 @@ catch
 end
 if strcmp(prevStep1,prevStep2)
     prevStep2 = 'neverfindthis';
+end
 end
 
 switch step
@@ -1144,7 +1148,7 @@ switch step
         end
         
         fprintf('\n\nData copied!\n\n');
-               
+        
     case 'ICA_artifacts'
         
         p.interpolatebadforICA = 0; % ZZZ HACK - I am not confident that the interpolation is working properly
@@ -1486,7 +1490,7 @@ switch step
             D = spm_eeg_montage(S);
         end
         
-    case 'Holly_data_copy'      
+    case 'Holly_data_copy'
         % change to output directory
         originaldir = pwd;
         filePath = [pathstem subjects];
@@ -1924,12 +1928,10 @@ switch step
         
     case 'grand_average' % assumes merged files (i.e. one per subject)
         
-        addpath('/group/language/data/thomascope/vespa/SPM12version/Standalone preprocessing pipeline')
+        addpath('/group/language/data/thomascope/vespa/SPM12version/Standalone preprocessing pipeline', '-end')
         % set input files for averaging
-        controls2average = {};
-        patients2average = {};
-        controls_fup_2average = {};
-        patients_fup_2average = {};
+        thisgroup2average = cell(1,length(p.group));
+        
         for s=1:size(subjects,2) % for multiple subjects
             
             fprintf([ '\n\nCurrent subject = ' subjects{s} '...\n\n' ]);
@@ -1941,124 +1943,44 @@ switch step
             % search for input files
             files = [dir(prevStep1); dir(prevStep2)];
             
+            if length(files)~=1
+                error(['\n\n' num2str(length(files)) ' files found for subject ' subjects{s} ' instead of the expected 1.\n\n'])
+            end
+            
             fprintf([ '\n\nProcessing ' files.name '...\n\n' ]);
             
-            if p.group(s) == 1
-                fprintf([ '\nIdentified as a control baseline. \n' ]);
-                controls2average{end+1} = [filePath '/' files.name];
-                
-            elseif p.group(s) == 2
-                fprintf([ '\nIdentified as a patient baseline. \n' ]);
-                patients2average{end+1} = [filePath '/' files.name];
-            elseif p.group(s) == 3
-                fprintf([ '\nIdentified as a control followup. \n' ]);
-                controls_fup_2average{end+1} = [filePath '/' files.name];
-                
-            elseif p.group(s) == 4
-                fprintf([ '\nIdentified as a patient followup. \n' ]);
-                patients_fup_2average{end+1} = [filePath '/' files.name];
-            end
+            fprintf([ '\nIdentified as a %s. \n' ],p.diagnosis_list{p.group(s)});
+            thisgroup2average{s} = [filePath '/' files.name];
             
         end
         
-        parfor groups = 1:4
-            if groups == 1
-                
-                S = [];
-                % parameters for SPM function
-                S.weighted = 0;
-                % set input files
-                S.D = char(controls2average);
-                
-                % setup output filename (have to do this despite what grandmean()
-                % documentation says!)
-                if strncmpi(prevStep1,'w',1)
-                    S.outfile = ['controls_baseline_weighted_grandmean'];
-                else
-                    S.outfile = ['controls_baseline_grandmean'];
-                end
-                if strncmpi(prevStep1,'wBc',3)
-                    S.outfile = ['controls_baseline_weighted_beamformed_grandmean'];
-                elseif strncmpi(prevStep1,'Bc',2)
-                    S.outfile = ['controls_baseline_beamformed_grandmean'];
-                end
-                % main process
-                fprintf('\nAveraging controls baseline\n');
-                spm_eeg_grandmean_vladedit(S);
-                
-            elseif groups == 2
-                
-                S = [];
-                % parameters for SPM function
-                S.weighted = 0;
-                % set input files
-                S.D = char(patients2average);
-                
-                % setup output filename (have to do this despite what grandmean()
-                % documentation says!)
-                if strncmpi(prevStep1,'w',1)
-                    S.outfile = ['patients_baseline_weighted_grandmean'];
-                else
-                    S.outfile = ['patients_baseline_grandmean'];
-                end
-                if strncmpi(prevStep1,'wBc',3)
-                    S.outfile = ['patients_baseline_weighted_beamformed_grandmean'];
-                elseif strncmpi(prevStep1,'Bc',2)
-                    S.outfile = ['patients_baseline_beamformed_grandmean'];
-                end
-                % main process
-                fprintf('\nAveraging patients baseline\n');
-                spm_eeg_grandmean_vladedit(S);
-                
-            elseif groups == 3
-                
-                S = [];
-                % parameters for SPM function
-                S.weighted = 0;
-                % set input files
-                S.D = char(controls_fup_2average);
-                
-                % setup output filename (have to do this despite what grandmean()
-                % documentation says!)
-                if strncmpi(prevStep1,'w',1)
-                    S.outfile = ['controls_followup_weighted_grandmean'];
-                else
-                    S.outfile = ['controls_followup_grandmean'];
-                end
-                if strncmpi(prevStep1,'wBc',3)
-                    S.outfile = ['controls_followup_weighted_beamformed_grandmean'];
-                elseif strncmpi(prevStep1,'Bc',2)
-                    S.outfile = ['controls_followup_beamformed_grandmean'];
-                end
-                % main process
-                fprintf('\nAveraging controls followup\n');
-                spm_eeg_grandmean_vladedit(S);
-                
-            elseif groups == 4
-                
-                S = [];
-                % parameters for SPM function
-                S.weighted = 0;
-                % set input files
-                S.D = char(patients_fup_2average);
-                
-                % setup output filename (have to do this despite what grandmean()
-                % documentation says!)
-                if strncmpi(prevStep1,'w',1)
-                    S.outfile = ['patients_followup_weighted_grandmean'];
-                else
-                    S.outfile = ['patients_followup_grandmean'];
-                end
-                if strncmpi(prevStep1,'wBc',3)
-                    S.outfile = ['patients_followup_weighted_beamformed_grandmean'];
-                elseif strncmpi(prevStep1,'Bc',2)
-                    S.outfile = ['patients_followup_beamformed_grandmean'];
-                end
-                % main process
-                fprintf('\nAveraging patients followup\n');
-                spm_eeg_grandmean_vladedit(S);
+        parfor groups = 1:length(p.diagnosis_list)
+            
+            S = [];
+            % parameters for SPM function
+            S.weighted = 0;
+            % set input files
+            S.D = char(thisgroup2average{p.group==groups});
+            
+            % setup output filename (have to do this despite what grandmean()
+            % documentation says!)
+            if strncmpi(prevStep1,'w',1)
+                S.outfile = [pathstem p.diagnosis_list{groups} '_weighted_grandmean'];
+            else
+                S.outfile = [pathstem p.diagnosis_list{groups} '_grandmean'];
             end
+            if strncmpi(prevStep1,'wBc',3)
+                S.outfile = [pathstem p.diagnosis_list{groups} '_grandmean'];
+            elseif strncmpi(prevStep1,'Bc',2)
+                S.outfile = [pathstem p.diagnosis_list{groups} '_beamformed_grandmean'];
+            end
+            % main process
+            fprintf(['\nAveraging ' p.diagnosis_list{groups} '\n']);
+            spm_eeg_grandmean_vladedit(S);
+            
+            
         end
+        
         
         fprintf('\n\nData grand averaged!\n\n');
         

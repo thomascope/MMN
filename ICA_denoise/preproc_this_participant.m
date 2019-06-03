@@ -1,4 +1,4 @@
-function preproc_this_participant(subjfolder,rawfilenames,startagain)
+function preproc_this_participant(subjfolder,rawfilenames,startagain,p)
 % e.g. preproc_this_participant(ss,[pathstem Participant{ss}.groupfolder '/' Participant{ss}.name '/M' Participant{ss}.name '.mat'])
 
 %% Add paths
