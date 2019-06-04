@@ -6,7 +6,8 @@ spm eeg
 %This script ICA denoises the data for MMN analysis
 
 script_dir = '/group/language/data/thomascope/MMN/ICA_denoise/';
-pathstem = '/imaging/tc02/Holly_MMN/ICA_denoise/';
+%pathstem = '/imaging/tc02/Holly_MMN/ICA_denoise/';
+pathstem = '/imaging/tc02/Holly_MMN/ICA_denoise_longwindow/';
 data_definition_dir = '/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/';
 folder_structure_file_maindata = 'participant_folder_structure.m';
 mridirectory = '/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/';
@@ -123,7 +124,7 @@ p.method = 'morlet'; %method
 p.ncycles = 7; %number of wavelet cycles
 p.phase = 0; %save phase information too? (prefixed with tph)
 p.tf_chans = 'All'; %cell array of channel names. Can include generic wildcards: 'All', 'EEG', 'MEG' etc.
-p.timewin = [-100 500]; %time window of interest
+p.timewin = [-600 1000]; %time window of interest
 p.preBase_tf = -100; %TF baseline correct period with below (I don't know why this isn't a two element vector - don't blame me.)
 p.postBase_tf = 0;
 p.tf.method = 'LogR'; %'LogR', 'Diff', 'Rel', 'Log', 'Sqrt', 'None'
@@ -203,6 +204,8 @@ parfor todonumber = 1:old_nsubj
 end
 
 %% Now run ICA_denoise
+copyfile('/imaging/tc02/Holly_MMN/ICA_denoise/MEGArtifactTemplateTopographies.mat',[pathstem 'MEGArtifactTemplateTopographies.mat'])
+copyfile('/imaging/tc02/Holly_MMN/ICA_denoise/tec_montage_all.mat',[pathstem 'tec_montage_all.mat'])
 ICAcomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     if iscell(Participant{todonumber}.name)
@@ -504,7 +507,7 @@ end
 filestomove = dir([pathstem '*_grandmean*.mat']);
 for i = 1:length(filestomove)
 S.D = [pathstem filestomove(i).name];
-S.outfile = [pathstem 'ERP_grand_averages/' filestomove(i).name];
+S.outfile = [pathstem 'TF_grand_averages/' filestomove(i).name];
 spm_eeg_copy(S)
 end
 delete([pathstem '*_grandmean*'])
@@ -538,7 +541,7 @@ spm_eeg_copy(S)
 end
 delete([pathstem '*weighted_grandmean*'])
 
-prefix = 'rfmraedfffM*.mat';
+prefix = 'fmraedfffM*.mat';
 grandaveragecomplete = zeros(1,1);
 for todonumber = 1:nsubj
     if iscell(Participant{todonumber}.name)

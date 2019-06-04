@@ -100,15 +100,47 @@ for i = 1:length(rawfilenames)
     
     S = [];
     S.D = D.fname;
-    S.timewin = [-100 500];
+    S.timewin = p.timewin;
     S.trialdef(1).conditionlabel = 'STD';
     S.trialdef(1).eventvalue = 11; % select the MEG/EEG trigger codes which correspond to the stimuli/response you want to epoch around
     
     S.trialdef(2).conditionlabel = 'DVT';
     S.trialdef(2).eventvalue = [1,2,3,4,5,6,7,8];
     
+    S.trialdef(3).conditionlabel = 'location';
+    S.trialdef(3).eventvalue = [7,8];
     
-    for c=1:2
+    S.trialdef(4).conditionlabel = 'intensity';
+    S.trialdef(4).eventvalue = [5,6];
+    
+    S.trialdef(5).conditionlabel = 'duration';
+    S.trialdef(5).eventvalue = 1;
+    
+    S.trialdef(6).conditionlabel = 'gap';
+    S.trialdef(6).eventvalue = 4;
+    
+    S.trialdef(7).conditionlabel = 'frequency';
+    S.trialdef(7).eventvalue = [2,3];
+    
+    S.trialdef(8).conditionlabel = 'location_L';
+    S.trialdef(8).eventvalue = 7;
+    
+    S.trialdef(9).conditionlabel = 'frequency_high';
+    S.trialdef(9).eventvalue = 3;
+    
+    S.trialdef(10).conditionlabel = 'intensity_high';
+    S.trialdef(10).eventvalue = 6;
+    
+    S.trialdef(11).conditionlabel = 'location_R';
+    S.trialdef(11).eventvalue = 8;
+    
+    S.trialdef(12).conditionlabel = 'intensity_low';
+    S.trialdef(12).eventvalue = 5;
+    
+    S.trialdef(13).conditionlabel = 'frequency_low';
+    S.trialdef(13).eventvalue = 2;
+    
+    for c=1:length(S.trialdef)
         S.trialdef(c).eventtype = 'STI101_up'; % look for rising signal in trigger channel for event times
         S.trialdef(c).trlshift = 0;
     end
