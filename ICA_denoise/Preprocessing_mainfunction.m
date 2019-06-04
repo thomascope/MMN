@@ -2601,6 +2601,7 @@ switch step
                         try
                             spm_eeg_mask(S)
                         catch
+                            S.outfile = [pathstem sprintf([modality{m} '_TF_mask_%d_%dms.img'],S.timewin(1),S.timewin(2))];
                             spm_eeg_mask_TF_tc(S)
                         end
                         
@@ -2632,6 +2633,7 @@ switch step
                     try
                         spm_eeg_mask(S)
                     catch
+                        S.outfile = [pathstem sprintf([modality{m} '_TF_mask_%d_%dms.img'],S.timewin(1),S.timewin(2))];
                         spm_eeg_mask_TF_tc(S)
                     end
                 end

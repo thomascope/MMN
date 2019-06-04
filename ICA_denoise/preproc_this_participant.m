@@ -305,13 +305,13 @@ D = spm_eeg_combineplanar(S);
 
 %% Delete files to keep space usage down
 
-delete fM*
-delete ff*
-delete df*
-delete ed*
-delete ae*
-delete mr*
-delete df*
+% delete fM*
+% delete ff*
+% delete df*
+% delete ed*
+% delete ae*
+% delete mr*
+% delete df*
 
 
 cd ../

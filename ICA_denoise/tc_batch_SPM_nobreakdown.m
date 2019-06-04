@@ -1,4 +1,4 @@
-function tc_batch_SPM(filetype,subjects,pathstem,p)
+function tc_batch_SPM_nobreakdown(filetype,subjects,pathstem,p)
 
 %% Initialise path and subject definitions
 
@@ -17,8 +17,8 @@ function tc_batch_SPM(filetype,subjects,pathstem,p)
 % Freq_lo = 12
 % Int_lo = 13
 
-conditions = {'STD','DVT','Loc','Int','Dur','Gap','Freq','Loc_L','Freq_hi','Int_hi','Loc_R','Freq_lo','Int_lo'};
-ncond = 13;
+conditions = {'STD','DVT'};
+ncond = 2;
 
 
 %% Configure
@@ -43,10 +43,10 @@ outputstem = '/imaging/tc02/Holly_MMN/ICA_denoise/ERP_stats';
 contrasts = {};
 cnt = 0;
 
-all_group_combinations = flipud(unique(perms([1, -1, zeros(1,length(p.diagnosis_list)-2)]),'rows','stable'));
-all_condition_combinations = flipud(unique(perms([-1, zeros(1,4)]),'rows','stable'));
-all_condition_combinations = [ones(size(all_condition_combinations,1),1),zeros(size(all_condition_combinations,1),1),all_condition_combinations,zeros(size(all_condition_combinations,1),ncond-2-size(all_condition_combinations,2))];
-all_condition_combinations = [all_condition_combinations; -all_condition_combinations];
+% all_group_combinations = flipud(unique(perms([1, -1, zeros(1,length(p.diagnosis_list)-2)]),'rows','stable'));
+% all_condition_combinations = flipud(unique(perms([-1, zeros(1,4)]),'rows','stable'));
+% all_condition_combinations = [ones(size(all_condition_combinations,1),1),zeros(size(all_condition_combinations,1),1),all_condition_combinations,zeros(size(all_condition_combinations,1),ncond-2-size(all_condition_combinations,2))];
+% all_condition_combinations = [all_condition_combinations; -all_condition_combinations];
 
 vs_control_combinations = [ones(length(p.diagnosis_list)-1,1),-eye(length(p.diagnosis_list)-1)];
 vs_control_combinations = [vs_control_combinations;-vs_control_combinations];
@@ -55,10 +55,10 @@ for this_grp = 1:size(vs_control_combinations,1)
     vs_control_combinations_strings{this_grp} = sprintf('%s minus %s',p.diagnosis_list{vs_control_combinations(this_grp,:)==1},p.diagnosis_list{vs_control_combinations(this_grp,:)==-1});
 end
 
-all_condition_combinations_strings = cell(1,size(all_condition_combinations,1));
-for this_cond = 1:size(all_condition_combinations,1)
-    all_condition_combinations_strings{this_cond} = sprintf('%s minus %s',conditions{all_condition_combinations(this_cond,:)==1},conditions{all_condition_combinations(this_cond,:)==-1});
-end
+% all_condition_combinations_strings = cell(1,size(all_condition_combinations,1));
+% for this_cond = 1:size(all_condition_combinations,1)
+%     all_condition_combinations_strings{this_cond} = sprintf('%s minus %s',conditions{all_condition_combinations(this_cond,:)==1},conditions{all_condition_combinations(this_cond,:)==-1});
+% end
 
 
 %% Contrasts (Combined SPM for patients/controls)
@@ -90,21 +90,21 @@ for this_grp = 1:size(vs_control_combinations,1)
     contrasts{cnt}.type = 'T';
 end
 
-for this_cond = 1:size(all_condition_combinations,1)
-    cnt = cnt + 1;
-    contrasts{cnt}.name = [all_condition_combinations_strings{this_cond} ' controls vs eachgroup'];
-    contrasts{cnt}.c = kron(vs_control_combinations(1:size(vs_control_combinations,1)/2,:),all_condition_combinations(this_cond));
-    contrasts{cnt}.type = 'F';
-end
-
-for this_grp = 1:size(vs_control_combinations,1)
-    for this_cond = 1:size(all_condition_combinations,1)
-        cnt = cnt + 1;
-        contrasts{cnt}.name = [all_condition_combinations_strings{this_cond} '; ' vs_control_combinations_strings{this_grp}];
-        contrasts{cnt}.c = kron(vs_control_combinations(this_grp,:),all_condition_combinations(this_cond));
-        contrasts{cnt}.type = 'T';
-    end
-end
+% for this_cond = 1:size(all_condition_combinations,1)
+%     cnt = cnt + 1;
+%     contrasts{cnt}.name = [all_condition_combinations_strings{this_cond} ' controls vs eachgroup'];
+%     contrasts{cnt}.c = kron(vs_control_combinations(1:size(vs_control_combinations,1)/2,:),all_condition_combinations(this_cond));
+%     contrasts{cnt}.type = 'F';
+% end
+% 
+% for this_grp = 1:size(vs_control_combinations,1)
+%     for this_cond = 1:size(all_condition_combinations,1)
+%         cnt = cnt + 1;
+%         contrasts{cnt}.name = [all_condition_combinations_strings{this_cond} '; ' vs_control_combinations_strings{this_grp}];
+%         contrasts{cnt}.c = kron(vs_control_combinations(this_grp,:),all_condition_combinations(this_cond));
+%         contrasts{cnt}.type = 'T';
+%     end
+% end
 
 
 %% Estimate models
@@ -147,10 +147,9 @@ for wind = 1
                     end
                 end
             end
-            
-            
+                       
         end
-        
+    
         for this_grp = 1:length(p.diagnosis_list)
             files{this_grp} = files{this_grp}(~cellfun(@isempty,files{this_grp}));
         end
@@ -165,6 +164,10 @@ for wind = 1
             %mskname = [pathstem modality{m}(6:end)
             %'_1D_mask_0_800ms.img']; No need for mask - images created
             %with restricted time window
+        elseif ~isempty(strfind(files{1}{1}{1},'tf_'))
+            mskname = [pathstem modality{m} sprintf(['_TF_mask_%d_%dms.img'],p.windows(wind,1),p.windows(wind,2))];
+            outputfullpath = [outputstem imagetype{img} '/TF_combined_' num2str(p.windows(wind,1)) '_' num2str(p.windows(wind,2)) '_' modality{m}];
+            S.outdir = outputfullpath;
         else
             mskname = [pathstem modality{m} sprintf(['_mask_%d_%dms.img'],p.windows(wind,1),p.windows(wind,2))];
             %mskname = [pathstem modality{m} '_mask_-100_800ms.img'];

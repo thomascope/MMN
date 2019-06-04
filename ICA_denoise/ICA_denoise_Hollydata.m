@@ -509,6 +509,7 @@ end
 
 prefix = 'wrmtf_raedfffM*.mat';
 TFweightedgrandaveragecomplete = zeros(1,1);
+this_output_folder_tail = {};
 for todonumber = 1:nsubj
     if iscell(Participant{todonumber}.name)
         this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
@@ -535,6 +536,7 @@ delete([pathstem '*weighted_grandmean*'])
 
 prefix = 'rmtf_raedfffM*.mat';
 TFgrandaveragecomplete = zeros(1,1);
+this_output_folder_tail = {};
 for todonumber = 1:nsubj
     if iscell(Participant{todonumber}.name)
         this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
@@ -560,6 +562,7 @@ delete([pathstem '*_grandmean*'])
 %% Also grand average the non-TF data
 prefix = 'wfmraedfffM*.mat';
 weightedgrandaveragecomplete = zeros(1,1);
+this_output_folder_tail = {};
 for todonumber = 1:nsubj
     if iscell(Participant{todonumber}.name)
         this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
@@ -569,9 +572,9 @@ for todonumber = 1:nsubj
 end
 try
     Preprocessing_mainfunction('grand_average',prefix,p,pathstem, [], this_output_folder_tail,todonumber);
-    TFweightedgrandaveragecomplete(1) = 1;
+    weightedgrandaveragecomplete(1) = 1;
 catch
-    TFweightedgrandaveragecomplete(1) = 0;
+    weightedgrandaveragecomplete(1) = 0;
 end
 
 if ~exist([pathstem 'ERP_grand_averages'])
@@ -587,6 +590,7 @@ delete([pathstem '*weighted_grandmean*'])
 
 prefix = 'fmraedfffM*.mat';
 grandaveragecomplete = zeros(1,1);
+this_output_folder_tail = {};
 for todonumber = 1:nsubj
     if iscell(Participant{todonumber}.name)
         this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
@@ -596,9 +600,9 @@ for todonumber = 1:nsubj
 end
 try
     Preprocessing_mainfunction('grand_average',prefix,p,pathstem, [], this_output_folder_tail,todonumber);
-    TFweightedgrandaveragecomplete(1) = 1;
+    grandaveragecomplete(1) = 1;
 catch
-    TFweightedgrandaveragecomplete(1) = 0;
+    grandaveragecomplete(1) = 0;
 end
 filestomove = dir([pathstem '*_grandmean*.mat']);
 for i = 1:length(filestomove)
@@ -608,4 +612,98 @@ spm_eeg_copy(S)
 end
 delete([pathstem '*_grandmean*'])
 
+%% Create images for statistical analysis on the non-TF data
 
+p.mod = {'MEGMAG', 'MEGCOMB'};
+prefix = 'PfmraedfffM';
+imagecomplete = zeros(1,nsubj);
+megpath = [];
+parfor todonumber = 1:nsubj
+    megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
+    if iscell(Participant{todonumber}.name)
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
+    else
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
+    end
+    try
+        Preprocessing_mainfunction('image',megpath,p,pathstem, [], this_output_folder_tail,todonumber);
+        imagecomplete(todonumber) = 1;
+    catch
+        imagecomplete(todonumber) = 0;
+    end
+end
+
+prefix = 'PfmraedfffM';
+smoothcomplete = zeros(1,nsubj);
+megpath = [];
+parfor todonumber = 1:nsubj
+    megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
+    if iscell(Participant{todonumber}.name)
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
+    else
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
+    end
+    try
+        Preprocessing_mainfunction('smooth',megpath,p,pathstem, [], this_output_folder_tail,todonumber);
+        smoothcomplete(todonumber) = 1;
+    catch
+        smoothcomplete(todonumber) = 0;
+    end
+end
+
+prefix = 'PfmraedfffM';
+maskcomplete = zeros(1,1);
+megpath = [];
+for todonumber = 1:1 % Only need 1 mask
+    megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
+    if iscell(Participant{todonumber}.name)
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
+    else
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
+    end
+    try
+        Preprocessing_mainfunction('mask',megpath,p,pathstem, [], this_output_folder_tail,todonumber);
+        maskcomplete(todonumber) = 1;
+    catch
+        maskcomplete(todonumber) = 0;
+    end
+end
+
+%% Now do second level analysis on the non-TF data
+
+prefix = 'PfmraedfffM';
+secondlevelcomplete = zeros(1,1);
+this_output_folder_tail = {};
+p.mod = {'MEGMAG', 'MEGCOMB'};
+for todonumber = 1:nsubj
+    if iscell(Participant{todonumber}.name)
+        this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
+    else
+        this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
+    end
+end
+try
+    tc_batch_SPM(prefix,this_output_folder_tail,pathstem,p);
+    secondlevelcomplete(1) = 1;
+catch
+    secondlevelcomplete(1) = 0;
+end
+
+%% Now do second level analysis on the TF data
+prefix = 'rmtf_raedfffM';
+TFsecondlevelcomplete = zeros(1,1);
+this_output_folder_tail = {};
+p.mod = {'MEGMAG', 'MEGPLANAR'};
+for todonumber = 1:nsubj
+    if iscell(Participant{todonumber}.name)
+        this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
+    else
+        this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
+    end
+end
+try
+    tc_batch_SPM(prefix,this_output_folder_tail,pathstem,p);
+    TFsecondlevelcomplete(1) = 1;
+catch
+    TFsecondlevelcomplete(1) = 0;
+end
