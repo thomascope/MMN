@@ -166,43 +166,87 @@ else
     cbupool(92,'--mem-per-cpu=8G --time=167:00:00')
 end
 
-%% First maxfilter and convert MCI/AD data
-maxfilterworkedcorrectly = zeros(1,size(fullpath,2));
-assert((size(fullpath,2)+old_nsubj)==nsubj,'There don''t seem to be the right number of Participants in the definition files')
-parfor todonumber = 1:size(fullpath,2)
-    thesepaths = Participant{todonumber+old_nsubj}.MF
-    subjfolder = [pathstem 'MCI/'];
-    this_participant_name = [Participant{todonumber+old_nsubj}.name]
-    Participant{todonumber+old_nsubj}.namepostmerge = Participant{todonumber+old_nsubj}.name;
-    Participant{todonumber+old_nsubj}.name = {};
-    repeatmaxfilter = 0;
-    try
-        if maxfilterworkedcorrectly(todonumber) == 0
-            Participant{todonumber+old_nsubj}.name = maxfilter_this_participant(thesepaths,subjfolder,this_participant_name,repeatmaxfilter)
+% %% First maxfilter and convert MCI/AD data
+% maxfilterworkedcorrectly = zeros(1,size(fullpath,2));
+% assert((size(fullpath,2)+old_nsubj)==nsubj,'There don''t seem to be the right number of Participants in the definition files')
+% parfor todonumber = 1:size(fullpath,2)
+%     thesepaths = Participant{todonumber+old_nsubj}.MF
+%     subjfolder = [pathstem 'MCI/'];
+%     this_participant_name = [Participant{todonumber+old_nsubj}.name]
+%     Participant{todonumber+old_nsubj}.namepostmerge = Participant{todonumber+old_nsubj}.name;
+%     Participant{todonumber+old_nsubj}.name = {};
+%     repeatmaxfilter = 0;
+%     try
+%         if maxfilterworkedcorrectly(todonumber) == 0
+%             Participant{todonumber+old_nsubj}.name = maxfilter_this_participant(thesepaths,subjfolder,this_participant_name,repeatmaxfilter)
+%         end
+%         maxfilterworkedcorrectly(todonumber) = 1
+%         fprintf('\n\nMaxfilter and convert complete for subject number %d,\n\n',todonumber);
+%     catch
+%         maxfilterworkedcorrectly(todonumber) = 0;
+%         fprintf('\n\nMaxfilter and convert failed for subject number %d\n\n',todonumber);
+%     end
+% end
+% 
+% %% Then copy other subjects' maxfiltered data to new folder
+% copycomplete = zeros(1,old_nsubj);
+% parfor todonumber = 1:old_nsubj
+%     this_input_full_fname = [preproc_path Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.name '.mat']
+%     this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/']
+%     try
+%         Preprocessing_mainfunction('Holly_data_copy',this_input_full_fname,p,pathstem, [], this_output_folder_tail,todonumber,[Participant{todonumber}.name '.mat'])
+%         copycomplete(todonumber) = 1
+%         fprintf('\n\nCopy complete for subject number %d,\n\n',todonumber);
+%     catch
+%         copycomplete(todonumber) = 0;
+%         fprintf('\n\nCopy failed for subject number %d\n\n',todonumber);
+%     end
+% end
+
+%% ensure naming convention is as desired, if maxfilter step has not run
+for todonumber = 1:nsubj
+    if iscell(Participant{todonumber}.MF) && size(Participant{todonumber}.MF,2) > 1 && ~iscell(Participant{todonumber}.name)
+        this_participant_name = [Participant{todonumber}.name];
+        Participant{todonumber}.namepostmerge = Participant{todonumber}.name;
+        Participant{todonumber}.name = {};
+        for i = 1:size(Participant{todonumber}.MF,2)
+            Participant{todonumber}.name{i} = [this_participant_name '_' num2str(i)];
         end
-        maxfilterworkedcorrectly(todonumber) = 1
-        fprintf('\n\nMaxfilter and convert complete for subject number %d,\n\n',todonumber);
-    catch
-        maxfilterworkedcorrectly(todonumber) = 0;
-        fprintf('\n\nMaxfilter and convert failed for subject number %d\n\n',todonumber);
     end
 end
 
-%% Then copy other subjects' maxfiltered data to new folder
+%% Copy maxfiltered data to new directory structure
+preproc_path_tc = '/imaging/tc02/Holly_MMN/ICA_denoise/';
 copycomplete = zeros(1,old_nsubj);
-parfor todonumber = 1:old_nsubj
-    this_input_full_fname = [preproc_path Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.name '.mat']
-    this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/']
-    try
-        Preprocessing_mainfunction('Holly_data_copy',this_input_full_fname,p,pathstem, [], this_output_folder_tail,todonumber,[Participant{todonumber}.name '.mat'])
-        copycomplete(todonumber) = 1
-        fprintf('\n\nCopy complete for subject number %d,\n\n',todonumber);
-    catch
-        copycomplete(todonumber) = 0;
-        fprintf('\n\nCopy failed for subject number %d\n\n',todonumber);
+parfor todonumber = 1:nsubj
+    if iscell(Participant{todonumber}.name)
+        for this_file = 1:length(Participant{todonumber}.name)
+            this_input_full_fname = [preproc_path_tc Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/' Participant{todonumber}.name{this_file} '.mat']
+            this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/']
+            try
+                Preprocessing_mainfunction('Holly_data_copy',this_input_full_fname,p,pathstem, [], this_output_folder_tail,todonumber,[Participant{todonumber}.name{this_file} '.mat'])
+                copycomplete(todonumber) = 1
+                fprintf('\n\nCopy complete for subject number %d,\n\n',todonumber);
+            catch
+                copycomplete(todonumber) = 0;
+                fprintf('\n\nCopy failed for subject number %d\n\n',todonumber);
+            end
+        end
+    else
+        
+        this_input_full_fname = [preproc_path_tc Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.name '.mat']
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/']
+        try
+            %Preprocessing_mainfunction('Holly_data_copy',this_input_full_fname,p,pathstem, [], this_output_folder_tail,todonumber,[Participant{todonumber}.name '.mat'])
+            copycomplete(todonumber) = 1
+            fprintf('\n\nCopy complete for subject number %d,\n\n',todonumber);
+        catch
+            copycomplete(todonumber) = 0;
+            fprintf('\n\nCopy failed for subject number %d\n\n',todonumber);
+        end
     end
 end
-
+   
 %% Now run ICA_denoise
 copyfile('/imaging/tc02/Holly_MMN/ICA_denoise/MEGArtifactTemplateTopographies.mat',[pathstem 'MEGArtifactTemplateTopographies.mat'])
 copyfile('/imaging/tc02/Holly_MMN/ICA_denoise/tec_montage_all.mat',[pathstem 'tec_montage_all.mat'])
