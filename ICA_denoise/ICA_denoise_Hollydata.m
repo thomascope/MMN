@@ -137,10 +137,13 @@ p.xSmooth = 10; % smooth for x dimension (mm)
 p.ySmooth = 10; % smooth for y dimension (mm)
 p.zSmooth = 10; % smooth for z (time) dimension (ms)
 % define conditions
-p.conditions = {'STD, DVT'};
+%p.conditions = {'STD, DVT'};
+p.conditions = {'STD','DVT','Loc','Int','Dur','Gap','Freq','Loc_L','Freq_hi','Int_hi','Loc_R','Freq_lo','Int_lo'};
+p.preBase = -100; %TF baseline correct period with below (I don't know why this isn't a two element vector - don't blame me.)
+p.postBase = 0;
 
-p.contrast_labels = {'STD-DVT';'DVT-STD'};
-p.contrast_weights = [1,-1;-1,1]; 
+p.contrast_labels = {'STD-DVT';'DVT-STD';'STD-Loc';'STD-Int';'STD-Dur';'STD-Gap';'STD-Freq'};
+p.contrast_weights = [1,-1,0,0,0,0,0;-1,1,0,0,0,0,0;1,0,-1,0,0,0,0;1,0,0,-1,0,0,0;1,0,0,0,-1,0,0;1,0,0,0,0,-1,0;1,0,0,0,0,0,-1]; 
 
 all_diagnoses = cell(1,nsubj);
 for todonumber = 1:nsubj
@@ -281,7 +284,7 @@ end
 
 
 %% Now run Holly's preprocessing
-startagain = 0; %If want to repeat this step
+startagain = 1; %If want to repeat this step
 Preprocesscomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     try
@@ -305,8 +308,8 @@ parfor todonumber = 1:nsubj
     try
         Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
     end
-    megpaths = {[pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/fmraedfffM' Participant{todonumber}.name '.mat'],
-                [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/raedfffM' Participant{todonumber}.name '.mat']
+    megpaths = {[pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/fmbraedfffM' Participant{todonumber}.name '.mat'],
+                [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/braedfffM' Participant{todonumber}.name '.mat']
                 };
     mripath = [mridirectory Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.MRI '.nii'];
     if ~exist(mripath,'file') && strcmp(Participant{todonumber}.MRI,'single_subj_T1')
@@ -339,8 +342,8 @@ end
 LFPExtractioncomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     for inv_cnt = 1:length(inv_meth)
-        megpaths = {[pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' 's_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_fmraedfffM' Participant{todonumber}.name '.mat'],
-            [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' 's_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_raedfffM' Participant{todonumber}.name '.mat']
+        megpaths = {[pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' 's_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_fmbraedfffM' Participant{todonumber}.name '.mat'],
+            [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' 's_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_braedfffM' Participant{todonumber}.name '.mat']
             };
         outpath = [pathstem 'LFPs'];
         for thismeg = 1:length(megpaths)
@@ -360,7 +363,7 @@ parfor todonumber = 1:nsubj
 end
 
 %% Now plot the LFPs for sanity check
-prefix = 'fmraedfffM';
+prefix = 'fmbraedfffM';
 val = 2; 
 p.time_wind_path = time_wind_path;
 p.wind_cnt = wind_cnt;
@@ -379,7 +382,7 @@ for method = {'granger','coh'}
 end
 
 %% Now do a time-frequency analysis
-prefix = 'raedfffM';
+prefix = 'braedfffM';
 TFdecompositioncomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
@@ -397,7 +400,7 @@ parfor todonumber = 1:nsubj
     end
 end
 
-prefix = 'tf_raedfffM';
+prefix = 'tf_braedfffM';
 TFaveragecomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
@@ -415,7 +418,7 @@ parfor todonumber = 1:nsubj
     end
 end
 
-prefix = 'mtf_raedfffM';
+prefix = 'mtf_braedfffM';
 TFrescalecomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
@@ -433,7 +436,7 @@ parfor todonumber = 1:nsubj
     end
 end
 
-prefix = 'rmtf_raedfffM';
+prefix = 'rmtf_braedfffM';
 TFweightcomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
@@ -451,7 +454,7 @@ parfor todonumber = 1:nsubj
     end
 end
 
-prefix = 'rmtf_raedfffM';
+prefix = 'rmtf_braedfffM';
 TFimagecomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
@@ -469,7 +472,7 @@ parfor todonumber = 1:nsubj
     end
 end
 
-prefix = 'rmtf_raedfffM';
+prefix = 'rmtf_braedfffM';
 TFsmoothcomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
@@ -487,7 +490,7 @@ parfor todonumber = 1:nsubj
     end
 end
 
-prefix = 'rmtf_raedfffM';
+prefix = 'rmtf_braedfffM';
 TFmaskcomplete = zeros(1,1);
 megpath = [];
 for todonumber = 1:1 % Only need 1 mask
@@ -507,7 +510,7 @@ end
 
 %% Now do TF grand averages 
 
-prefix = 'wrmtf_raedfffM*.mat';
+prefix = 'wrmtf_braedfffM*.mat';
 TFweightedgrandaveragecomplete = zeros(1,1);
 this_output_folder_tail = {};
 for todonumber = 1:nsubj
@@ -534,7 +537,7 @@ spm_eeg_copy(S)
 end
 delete([pathstem '*weighted_grandmean*'])
 
-prefix = 'rmtf_raedfffM*.mat';
+prefix = 'rmtf_braedfffM*.mat';
 TFgrandaveragecomplete = zeros(1,1);
 this_output_folder_tail = {};
 for todonumber = 1:nsubj
@@ -560,7 +563,7 @@ delete([pathstem '*_grandmean*'])
 
 
 %% Also grand average the non-TF data
-prefix = 'wfmraedfffM*.mat';
+prefix = 'wfmbraedfffM*.mat';
 weightedgrandaveragecomplete = zeros(1,1);
 this_output_folder_tail = {};
 for todonumber = 1:nsubj
@@ -588,7 +591,7 @@ spm_eeg_copy(S)
 end
 delete([pathstem '*weighted_grandmean*'])
 
-prefix = 'fmraedfffM*.mat';
+prefix = 'fmbraedfffM*.mat';
 grandaveragecomplete = zeros(1,1);
 this_output_folder_tail = {};
 for todonumber = 1:nsubj
@@ -615,7 +618,7 @@ delete([pathstem '*_grandmean*'])
 %% Create images for statistical analysis on the non-TF data
 
 p.mod = {'MEGMAG', 'MEGCOMB'};
-prefix = 'PfmraedfffM';
+prefix = 'PfmbraedfffM';
 imagecomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
@@ -633,7 +636,7 @@ parfor todonumber = 1:nsubj
     end
 end
 
-prefix = 'PfmraedfffM';
+prefix = 'PfmbraedfffM';
 smoothcomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
@@ -651,7 +654,7 @@ parfor todonumber = 1:nsubj
     end
 end
 
-prefix = 'PfmraedfffM';
+prefix = 'PfmbraedfffM';
 maskcomplete = zeros(1,1);
 megpath = [];
 for todonumber = 1:1 % Only need 1 mask
@@ -671,7 +674,7 @@ end
 
 %% Now do second level analysis on the non-TF data
 
-prefix = 'PfmraedfffM';
+prefix = 'PfmbraedfffM';
 secondlevelcomplete = zeros(1,1);
 this_output_folder_tail = {};
 p.mod = {'MEGMAG', 'MEGCOMB'};
@@ -690,7 +693,7 @@ catch
 end
 
 %% Now do second level analysis on the TF data
-prefix = 'rmtf_raedfffM';
+prefix = 'rmtf_braedfffM';
 TFsecondlevelcomplete = zeros(1,1);
 this_output_folder_tail = {};
 p.mod = {'MEGMAG', 'MEGPLANAR'};

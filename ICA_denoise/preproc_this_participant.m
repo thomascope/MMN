@@ -13,13 +13,24 @@ addpath('/imaging/hp02/pnfa_mmn/');
 % names
 cd(subjfolder)
 
+% if startagain
+%     delete f*
+%     delete d*
+%     delete e*
+%     delete P*
+%     delete r*
+%     delete w*
+%     delete s*
+%     delete mr*
+%     delete a*
+% end
 if startagain
-    delete f*
-    delete d*
-    delete e*
-    delete P*
-    delete r*
-    delete w*
+    delete Pwfmra*
+    delete fmra*
+    delete mra*
+    delete wfmra*
+    delete s*
+    delete SPM*
 end
 
 if ~iscell(rawfilenames)
@@ -205,16 +216,22 @@ for i = 1:length(rawfilenames)
     S.prefix = 'r';
     
     %D = spm_eeg_remove_bad_trials(S);
-    if ~exist(sprintf('mraedfffM%s.mat',rawfilenames{i}), 'file')
+    if ~exist(sprintf('braedfffM%s.mat',rawfilenames{i}), 'file')
         D = spm_eeg_remove_bad_trials(S);
     else
         D = spm_eeg_load(sprintf('raedfffM%s.mat',rawfilenames{i}));
     end
     
+    %% Baseline correct
+    S = [];
+    S.time = [p.preBase p.postBase];
+    S.D = D.fname;
+    S.prefix = 'b';
+    D = spm_eeg_bc(S);    
 end
 
 %% Merge
-if length(rawfilenames)>1 && ~exist(sprintf('mraedfffM%s.mat',rawfilenames{1}(1:end-2)), 'file')
+if length(rawfilenames)>1 && ~exist(sprintf('mbraedfffM%s.mat',rawfilenames{1}(1:end-2)), 'file')
    basename = D.fname;
    basename = basename(1:end-6); % Assume fewer than 10 files to merge and naming convention _x
    S = [];
@@ -246,10 +263,10 @@ S.circularise = false;
 S.prefix = 'm';
 % D = spm_eeg_average(S);
 
-if ~exist(sprintf('fmraedfffM%s.mat',rawfilenames{1}), 'file')
+if ~exist(sprintf('fmbraedfffM%s.mat',rawfilenames{1}), 'file')
     D = spm_eeg_average(S);
 else
-    D = spm_eeg_load(sprintf('mraedfffM%s.mat',rawfilenames{1}));
+    D = spm_eeg_load(sprintf('mbraedfffM%s.mat',rawfilenames{1}));
 end
 
 
@@ -264,28 +281,30 @@ S.order = 5;
 S.prefix = 'f';
 %         D = spm_eeg_filter(S);
 
-if ~exist(sprintf('wfmraedfffM%s.mat',rawfilenames{1}), 'file')
+if ~exist(sprintf('wfmbraedfffM%s.mat',rawfilenames{1}), 'file')
     D = spm_eeg_filter(S);
 else
-    D = spm_eeg_load(sprintf('fmraedfffM%s.mat',rawfilenames{1}));
+    D = spm_eeg_load(sprintf('fmbraedfffM%s.mat',rawfilenames{1}));
 end
 
 %% Compute Contrasts
 S = [];
 S.D = D.fname;
-S.c = [1 -1];
+%S.c = [1 -1];
+S.c = p.contrast_weights;
+S.label = p.contrast_labels;
 
-S.label = {'std-dvt'};
+%S.label = {'std-dvt'};
 
 
 
 S.weighted = 1;
 S.prefix = 'w';
 %     D = spm_eeg_contrast(S);
-if ~exist(sprintf('PwfmraedfffM%s.mat',rawfilenames{1}), 'file')
+if ~exist(sprintf('PwfmbraedfffM%s.mat',rawfilenames{1}), 'file')
     D = spm_eeg_contrast(S);
 else
-    D = spm_eeg_load(sprintf('wfmraedfffM%s.mat',rawfilenames{1}));
+    D = spm_eeg_load(sprintf('wfmbraedfffM%s.mat',rawfilenames{1}));
 end
 
 %% Combine Planars for MMN
@@ -299,7 +318,7 @@ D = spm_eeg_combineplanar(S);
 %% Combine Planars for std and dvt
 
 S = [];
-S.D = sprintf('fmraedfffM%s.mat',rawfilenames{1});
+S.D = sprintf('fmbraedfffM%s.mat',rawfilenames{1});
 S.mode = 'replace';
 D = spm_eeg_combineplanar(S);
 
