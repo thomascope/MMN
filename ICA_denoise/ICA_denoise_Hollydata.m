@@ -285,9 +285,10 @@ end
 
 %% Now run Holly's preprocessing
 startagain = 1; %If want to repeat this step
-Preprocesscomplete = zeros(1,nsubj);
+%Preprocesscomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     try
+        if Preprocesscomplete(todonumber)~=1
         if iscell(Participant{todonumber}.name)
             preproc_this_participant([pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'], Participant{todonumber}.name, startagain,p)
         else
@@ -295,6 +296,7 @@ parfor todonumber = 1:nsubj
         end
         Preprocesscomplete(todonumber) = 1
         fprintf('\n\nPreprocessing complete for subject number %d,\n\n',todonumber);
+        end
     catch
         Preprocesscomplete(todonumber) = 0;
         fprintf('\n\nPreprocessing failed for subject number %d\n\n',todonumber);
@@ -305,62 +307,86 @@ end
 %% Now specify forward model
 forwardmodelcomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
-    try
-        Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
-    end
-    megpaths = {[pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/fmbraedfffM' Participant{todonumber}.name '.mat'],
-                [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/braedfffM' Participant{todonumber}.name '.mat']
-                };
-    mripath = [mridirectory Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.MRI '.nii'];
-    if ~exist(mripath,'file') && strcmp(Participant{todonumber}.MRI,'single_subj_T1')
-        mripath = ['/group/language/data/thomascope/spm12_fil_r6906/canonical/single_subj_T1.nii'];
-    end
-    newmripath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/MRI/'];
-    if ~exist(newmripath,'dir')
-        mkdir(newmripath)
-    end
-    try
-        copyfile(mripath, newmripath)
-    catch
-        mripath = ['/group/language/data/thomascope/spm12_fil_r6906/canonical/single_subj_T1.nii'];
-        warning(['Scan missing for subject ' num2str(todonumber) ' using template instead.']);
-        copyfile(mripath, newmripath);
-        Participant{todonumber}.MRI = 'single_subj_T1';
-    end
-    newmripath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/MRI/' Participant{todonumber}.MRI '.nii'];
-    try
-        forward_model_this_subj(megpaths,newmripath, inv_meth, time_wind_path, windows)
-        forwardmodelcomplete(todonumber) = 1;
-        fprintf('\n\nForward modelling complete for subject number %d,\n\n',todonumber);
-    catch
-        forwardmodelcomplete(todonumber) = 0;
-        fprintf('\n\nForward modelling failed for subject number %d\n\n',todonumber);
+    if forwardmodelcomplete(todonumber)~=1
+        
+        try
+            Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+        end
+        megpaths = {[pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/fmbraedfffM' Participant{todonumber}.name '.mat'],
+            [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/braedfffM' Participant{todonumber}.name '.mat']
+            };
+        mripath = [mridirectory Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.MRI '.nii'];
+        if ~exist(mripath,'file') && strcmp(Participant{todonumber}.MRI,'single_subj_T1')
+            mripath = ['/group/language/data/thomascope/spm12_fil_r6906/canonical/single_subj_T1.nii'];
+        end
+        newmripath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/MRI/'];
+        if ~exist(newmripath,'dir')
+            mkdir(newmripath)
+        end
+        try
+            copyfile(mripath, newmripath)
+        catch
+            mripath = ['/group/language/data/thomascope/spm12_fil_r6906/canonical/single_subj_T1.nii'];
+            warning(['Scan missing for subject ' num2str(todonumber) ' using template instead.']);
+            copyfile(mripath, newmripath);
+            Participant{todonumber}.MRI = 'single_subj_T1';
+        end
+        newmripath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/MRI/' Participant{todonumber}.MRI '.nii'];
+        try
+            forward_model_this_subj(megpaths,newmripath, inv_meth, time_wind_path, windows)
+            forwardmodelcomplete(todonumber) = 1;
+            fprintf('\n\nForward modelling complete for subject number %d,\n\n',todonumber);
+        catch
+            forwardmodelcomplete(todonumber) = 0;
+            fprintf('\n\nForward modelling failed for subject number %d\n\n',todonumber);
+        end
     end
 end
 
 %% Now extract the LFPs
 LFPExtractioncomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
-    for inv_cnt = 1:length(inv_meth)
-        megpaths = {[pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' 's_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_fmbraedfffM' Participant{todonumber}.name '.mat'],
-            [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' 's_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_braedfffM' Participant{todonumber}.name '.mat']
-            };
-        outpath = [pathstem 'LFPs'];
-        for thismeg = 1:length(megpaths)
-            try
-                
-                [~] = Fullpipeline_extraction(megpaths{thismeg},Participant{todonumber}.diag,outpath,inv_cnt);
-                LFPExtractioncomplete(todonumber) = LFPExtractioncomplete(todonumber)+1;
-                
-                
-                fprintf('\n\n LFP extraction complete for subject number %d,\n\n',todonumber);
-            catch
-                %LFPExtractioncomplete(inv_cnt,thismeg,todonumber) = 0;
-                fprintf('\n\n LFP extraction failed for subject number %d,\n\n',todonumber);
+    if LFPExtractioncomplete(todonumber)~=4
+        for inv_cnt = 1:length(inv_meth)
+            megpaths = {[pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' 's_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_fmbraedfffM' Participant{todonumber}.name '.mat'],
+                [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' 's_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_braedfffM' Participant{todonumber}.name '.mat']
+                };
+            outpath = [pathstem 'LFPs'];
+            for thismeg = 1:length(megpaths)
+                try
+                    
+                    [~] = Fullpipeline_extraction(megpaths{thismeg},Participant{todonumber}.diag,outpath,inv_cnt);
+                    LFPExtractioncomplete(todonumber) = LFPExtractioncomplete(todonumber)+1;
+                    
+                    
+                    fprintf('\n\n LFP extraction complete for subject number %d,\n\n',todonumber);
+                catch
+                    %LFPExtractioncomplete(inv_cnt,thismeg,todonumber) = 0;
+                    fprintf('\n\n LFP extraction failed for subject number %d,\n\n',todonumber);
+                end
             end
         end
     end
 end
+
+% %% Now baseline correct the LFPs
+% for ss = 1:length(Participant)
+%     try
+%         Participant{ss}.name = Participant{ss}.namepostmerge;
+%     end
+%     megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.name '/' 's_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_' prefix Participant{ss}.name '.mat'];
+%     megpath_bc{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.name '/' 'bs_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_' prefix Participant{ss}.name '.mat'];
+%     
+%     diagnosis{ss} = Participant{ss}.diag;
+%     
+%     [f1,f2,f3] = fileparts(megpath_bc{ss});
+%     fn{ss} = sprintf('%s/%s/%dLFP_%s%s',[pathstem 'LFPs'],diagnosis{ss}, length(Sname), f2, f3);
+%     
+% end
+% 
+% parfor ss = 1:length(Participant)
+%     
+% end
 
 %% Now plot the LFPs for sanity check
 prefix = 'fmbraedfffM';
@@ -374,10 +400,10 @@ plot_all_LFPs(Participant,pathstem,p,prefix)
 %% Now run Granger Causality and Imaginary Coherence
 p.start_times = 0;
 p.end_times = 500;
-prefix = 'raedfffM';
+prefix = 'braedfffM';
 decompositionworkedcorrectly = {};
 for method = {'granger','coh'}
-    p.method = char(method);
+    p.decompmethod = char(method);
     decompositionworkedcorrectly{end+1} = Coherence_Connectivity(Participant,pathstem,p,prefix);
 end
 
@@ -561,6 +587,26 @@ spm_eeg_copy(S)
 end
 delete([pathstem '*_grandmean*'])
 
+%% Now do second level analysis on the TF data
+prefix = 'rmtf_braedfffM';
+TFsecondlevelcomplete = zeros(1,1);
+this_output_folder_tail = {};
+p.mod = {'MEGMAG', 'MEGPLANAR'};
+for todonumber = 1:nsubj
+    if iscell(Participant{todonumber}.name)
+        this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
+    else
+        this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
+    end
+end
+try
+    tc_batch_SPM(prefix,this_output_folder_tail,pathstem,p);
+    TFsecondlevelcomplete(1) = 1;
+catch
+    TFsecondlevelcomplete(1) = 0;
+end
+
+
 
 %% Also grand average the non-TF data
 prefix = 'wfmbraedfffM*.mat';
@@ -692,21 +738,3 @@ catch
     secondlevelcomplete(1) = 0;
 end
 
-%% Now do second level analysis on the TF data
-prefix = 'rmtf_braedfffM';
-TFsecondlevelcomplete = zeros(1,1);
-this_output_folder_tail = {};
-p.mod = {'MEGMAG', 'MEGPLANAR'};
-for todonumber = 1:nsubj
-    if iscell(Participant{todonumber}.name)
-        this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
-    else
-        this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
-    end
-end
-try
-    tc_batch_SPM(prefix,this_output_folder_tail,pathstem,p);
-    TFsecondlevelcomplete(1) = 1;
-catch
-    TFsecondlevelcomplete(1) = 0;
-end

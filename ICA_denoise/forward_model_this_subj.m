@@ -64,7 +64,8 @@ for inv_cnt = 1:length(inv_meth)
             % Make sure in right starting place:
             [sourceloc_path, megfname, ~] = fileparts(megpath{ss});
             cd(sourceloc_path)
-            
+            delete s*
+            delete SPM*
             D = spm_eeg_load(megpath{ss});
             
             % Initialise... (if want to be safe!)

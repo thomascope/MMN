@@ -1572,7 +1572,7 @@ switch step
     case 'baseline' % baseline correct data
         
         % parameters for SPM function
-        S.time = [p.preBase p.postBase];
+        S.timewin = [p.preBase p.postBase];
         
         for s=1:size(subjects,1)
             

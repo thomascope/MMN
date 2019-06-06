@@ -24,13 +24,22 @@ cd(subjfolder)
 %     delete mr*
 %     delete a*
 % end
+% if startagain
+%     delete Pwfmra*
+%     delete fmra*
+%     delete mra*
+%     delete wfmra*
+%     delete s*
+%     delete SPM*
+% end
 if startagain
-    delete Pwfmra*
-    delete fmra*
-    delete mra*
-    delete wfmra*
+    delete Pwfmbra*
+    delete fmbra*
+    delete mbra*
+    delete wfmbra*
     delete s*
     delete SPM*
+    delete tf*
 end
 
 if ~iscell(rawfilenames)
@@ -224,7 +233,7 @@ for i = 1:length(rawfilenames)
     
     %% Baseline correct
     S = [];
-    S.time = [p.preBase p.postBase];
+    S.timewin = [p.preBase p.postBase];
     S.D = D.fname;
     S.prefix = 'b';
     D = spm_eeg_bc(S);    

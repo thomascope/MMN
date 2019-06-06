@@ -11,6 +11,9 @@ Sname = {'left A1';
     'right IPC'};
 
 for ss = 1:length(Participant)
+    try
+        Participant{ss}.name = Participant{ss}.namepostmerge;
+    end
     megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.name '/' 's_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_' prefix Participant{ss}.name '.mat'];
     diagnosis{ss} = Participant{ss}.diag;
     

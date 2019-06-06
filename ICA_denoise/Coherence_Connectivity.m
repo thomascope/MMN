@@ -20,7 +20,7 @@ outdir = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_ICA/';
 start_times = p.start_times;
 end_times = p.end_times;
 
-method = p.method;
+method = p.decompmethod;
 
 %
 Sname = {'left A1';
