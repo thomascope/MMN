@@ -33,6 +33,7 @@ cd(subjfolder)
 %     delete SPM*
 % end
 if startagain
+    delete Pfmbra*
     delete Pwfmbra*
     delete fmbra*
     delete mbra*
@@ -40,6 +41,7 @@ if startagain
     delete s*
     delete SPM*
     delete tf*
+    delete bra*
 end
 
 if ~iscell(rawfilenames)

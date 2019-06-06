@@ -285,7 +285,7 @@ end
 
 %% Now run Holly's preprocessing
 startagain = 1; %If want to repeat this step
-%Preprocesscomplete = zeros(1,nsubj);
+Preprocesscomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     try
         if Preprocesscomplete(todonumber)~=1
@@ -369,27 +369,38 @@ parfor todonumber = 1:nsubj
     end
 end
 
-% %% Now baseline correct the LFPs
-% for ss = 1:length(Participant)
-%     try
-%         Participant{ss}.name = Participant{ss}.namepostmerge;
-%     end
-%     megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.name '/' 's_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_' prefix Participant{ss}.name '.mat'];
-%     megpath_bc{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.name '/' 'bs_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_' prefix Participant{ss}.name '.mat'];
-%     
-%     diagnosis{ss} = Participant{ss}.diag;
-%     
-%     [f1,f2,f3] = fileparts(megpath_bc{ss});
-%     fn{ss} = sprintf('%s/%s/%dLFP_%s%s',[pathstem 'LFPs'],diagnosis{ss}, length(Sname), f2, f3);
-%     
-% end
-% 
-% parfor ss = 1:length(Participant)
-%     
-% end
+%% Now baseline correct the LFPs
+LFPBaselinecomplete = zeros(1,nsubj);
+parfor todonumber = 1:nsubj
+    try
+        Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+    end
+    this_input_fname = ['s_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_' prefix Participant{todonumber}.name '.mat'];
+    this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/']
+    try
+        Preprocessing_mainfunction('baseline',this_input_fname,p,pathstem, [], this_output_folder_tail,todonumber)
+        inputfile = ['b' this_input_fname]
+        outputfile = ['s_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_b' prefix Participant{todonumber}.name '.mat'];
+        spm_parallel_eeg_copy(inputfile,outputfile);
+        LFPBaselinecomplete(todonumber) = 1
+        fprintf('\n\nICA complete for subject number %d,\n\n',todonumber);
+    catch
+        LFPBaselinecomplete(todonumber) = 0;
+        fprintf('\n\nICA failed for subject number %d,\n\n',todonumber);
+    end
+end
 
 %% Now plot the LFPs for sanity check
 prefix = 'fmbraedfffM';
+val = 2; 
+p.time_wind_path = time_wind_path;
+p.wind_cnt = wind_cnt;
+p.inv_meth = inv_meth;
+p.inv_cnt = 2; %for LORETA
+plot_all_LFPs(Participant,pathstem,p,prefix)
+
+%% Now plot the baseline corrected LFPs for sanity check
+prefix = 'bfmbraedfffM';
 val = 2; 
 p.time_wind_path = time_wind_path;
 p.wind_cnt = wind_cnt;
