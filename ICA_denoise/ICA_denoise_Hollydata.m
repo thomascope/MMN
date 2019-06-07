@@ -305,7 +305,7 @@ end
 
 
 %% Now specify forward model
-forwardmodelcomplete = zeros(1,nsubj);
+%forwardmodelcomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     if forwardmodelcomplete(todonumber)~=1
         
@@ -344,7 +344,7 @@ parfor todonumber = 1:nsubj
 end
 
 %% Now extract the LFPs
-LFPExtractioncomplete = zeros(1,nsubj);
+%LFPExtractioncomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     if LFPExtractioncomplete(todonumber)~=4
         for inv_cnt = 1:length(inv_meth)
@@ -383,30 +383,36 @@ parfor todonumber = 1:nsubj
         outputfile = ['s_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_b' prefix Participant{todonumber}.name '.mat'];
         spm_parallel_eeg_copy(inputfile,outputfile);
         LFPBaselinecomplete(todonumber) = 1
-        fprintf('\n\nICA complete for subject number %d,\n\n',todonumber);
+        fprintf('\n\nLFP Baseline complete for subject number %d,\n\n',todonumber);
     catch
         LFPBaselinecomplete(todonumber) = 0;
-        fprintf('\n\nICA failed for subject number %d,\n\n',todonumber);
+        fprintf('\n\nLFP Baseline failed for subject number %d,\n\n',todonumber);
     end
 end
 
 %% Now plot the LFPs for sanity check
+for todonumber = 1:nsubj
+        try
+        Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+        end
+end
 prefix = 'fmbraedfffM';
 val = 2; 
 p.time_wind_path = time_wind_path;
 p.wind_cnt = wind_cnt;
 p.inv_meth = inv_meth;
 p.inv_cnt = 2; %for LORETA
-plot_all_LFPs(Participant,pathstem,p,prefix)
-
-%% Now plot the baseline corrected LFPs for sanity check
-prefix = 'bfmbraedfffM';
-val = 2; 
-p.time_wind_path = time_wind_path;
-p.wind_cnt = wind_cnt;
-p.inv_meth = inv_meth;
-p.inv_cnt = 2; %for LORETA
-plot_all_LFPs(Participant,pathstem,p,prefix)
+%plot_all_LFPs(Participant,pathstem,p,prefix)
+plot_MMN_bytype_LFP(Participant,pathstem,p,prefix)
+% 
+% %% Now plot the baseline corrected LFPs for sanity check
+% prefix = 'bfmbraedfffM';
+% val = 2; 
+% p.time_wind_path = time_wind_path;
+% p.wind_cnt = wind_cnt;
+% p.inv_meth = inv_meth;
+% p.inv_cnt = 2; %for LORETA
+% plot_all_LFPs(Participant,pathstem,p,prefix)
 
 %% Now run Granger Causality and Imaginary Coherence
 p.start_times = 0;
