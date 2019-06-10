@@ -55,8 +55,8 @@ parfor subj = 1:length(Participant)
     end
     
     if exist([this_outdir 's' num2str(all_subjs(subj,:)) '_grangerdata_highfreq_averagesubtracted_100_' num2str(start_times) '_' num2str(end_times) '_z' num2str(1) '.mat'],'file')
-        disp(['Found some existing files for subject s' num2str(all_subjs(subj,:))])
-        existing_files = dir([this_outdir 's' num2str(all_subjs(subj,:)) '_grangerdata_highfreq_averagesubtracted_100_' num2str(start_times) '_' num2str(end_times) '_z*'])
+        disp(['Found some existing files for subject s' num2str(subj)])
+        existing_files = dir([this_outdir 's' num2str(subj) '_grangerdata_highfreq_averagesubtracted_100_' num2str(start_times) '_' num2str(end_times) '_z*'])
         this_file_num = [];
         for i = 1:length(existing_files)
         temp_files = strsplit(existing_files(i).name,'z');
