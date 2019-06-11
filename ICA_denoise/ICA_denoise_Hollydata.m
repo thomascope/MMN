@@ -397,11 +397,12 @@ for todonumber = 1:nsubj
         end
 end
 prefix = 'fmbraedfffM';
-val = 2; 
+val = 2; %for LORETA
+%val = 1 %for IID
 p.time_wind_path = time_wind_path;
 p.wind_cnt = wind_cnt;
 p.inv_meth = inv_meth;
-p.inv_cnt = 2; %for LORETA
+p.inv_cnt = val;
 %plot_all_LFPs(Participant,pathstem,p,prefix)
 plot_MMN_bytype_LFP(Participant,pathstem,p,prefix)
 % 
@@ -419,8 +420,13 @@ p.start_times = 0;
 p.end_times = 500;
 prefix = 'braedfffM';
 decompositionworkedcorrectly = {};
-%p.inv_cnt = 2; %for LORETA
-p.inv_cnt = 1; %for IID
+val = 2; %for LORETA
+%val = 1 %for IID
+p.time_wind_path = time_wind_path;
+p.wind_cnt = wind_cnt;
+p.inv_meth = inv_meth;
+p.inv_cnt = val; 
+
 for todonumber = 1:nsubj
         try
         Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
