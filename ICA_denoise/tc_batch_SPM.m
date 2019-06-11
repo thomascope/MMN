@@ -17,9 +17,8 @@ function tc_batch_SPM(filetype,subjects,pathstem,p)
 % Freq_lo = 12
 % Int_lo = 13
 
-conditions = {'STD','DVT','Loc','Int','Dur','Gap','Freq','Loc_L','Freq_hi','Int_hi','Loc_R','Freq_lo','Int_lo'};
+conditions = {'STD','DVT','location','intensity','duration','gap','frequency','location_L','frequency_high','intensity_high','location_R','frequency_low','intensity_low'};
 ncond = 13;
-
 
 %% Configure
 
@@ -37,7 +36,7 @@ elseif exist('rejecteeg','var')&&any(ismember(modality,'EEG'))
 end
 rejecteeg = num2cell(rejecteeg);
 
-outputstem = '/imaging/tc02/Holly_MMN/ICA_denoise/ERP_stats';
+outputstem = [pathstem '/ERP_stats'];
 
 % Contrasts (don't specify if not needed)
 contrasts = {};

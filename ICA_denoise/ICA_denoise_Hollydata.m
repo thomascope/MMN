@@ -419,16 +419,30 @@ p.start_times = 0;
 p.end_times = 500;
 prefix = 'braedfffM';
 decompositionworkedcorrectly = {};
+%p.inv_cnt = 2; %for LORETA
+p.inv_cnt = 1; %for IID
+for todonumber = 1:nsubj
+        try
+        Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+        end
+end
 for method = {'granger','coh'}
     p.decompmethod = char(method);
     decompositionworkedcorrectly{end+1} = Coherence_Connectivity(Participant,pathstem,p,prefix);
 end
 
 %% Now do a time-frequency analysis
+for todonumber = 1:nsubj
+        try
+        Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+        end
+end
+
 prefix = 'braedfffM';
 TFdecompositioncomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
+    if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 && todonumber ~= 136 ; continue; end
     megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
     if iscell(Participant{todonumber}.name)
         this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
@@ -447,6 +461,8 @@ prefix = 'tf_braedfffM';
 TFaveragecomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
+        if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
+
     megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
     if iscell(Participant{todonumber}.name)
         this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
@@ -465,6 +481,8 @@ prefix = 'mtf_braedfffM';
 TFrescalecomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
+        if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
+
     megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
     if iscell(Participant{todonumber}.name)
         this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
@@ -483,6 +501,8 @@ prefix = 'rmtf_braedfffM';
 TFweightcomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
+        if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
+
     megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
     if iscell(Participant{todonumber}.name)
         this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
@@ -501,6 +521,8 @@ prefix = 'rmtf_braedfffM';
 TFimagecomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
+        if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
+
     megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
     if iscell(Participant{todonumber}.name)
         this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
@@ -519,6 +541,8 @@ prefix = 'rmtf_braedfffM';
 TFsmoothcomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
+        if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
+
     megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
     if iscell(Participant{todonumber}.name)
         this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
