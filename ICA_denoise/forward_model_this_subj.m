@@ -1,4 +1,4 @@
-function forward_model_this_subj(megpath, mripath, inv_meth, time_wind_path, windows)
+function forward_model_this_subj(megpath, mripath, p)
 %forward models a cellstring of megpaths against a cellstring of mripaths
 addpath(genpath('/imaging/local/software/mne'));
 addpath(genpath('/imaging/hp02/mmn_08/analysis_spm/new_spm_functions'));
@@ -7,7 +7,10 @@ addpath(genpath('/imaging/hp02/mmn_08/analysis_spm/new_spm_functions'));
 
 % % the inversion methods to be performed
 inver_meth_path = { ''};%, 'MEGgrad_MSP/', 'MEGgrad_sLoreta/', 'MEGgrad_Beamf/' };%, 'MEGgrad_Beam/'};
-inv_trls        = {'STD', 'DVT'};
+inv_trls        = p.conditions;
+windows         = p.windows;
+time_wind_path  = p.time_wind_path;
+inv_meth        = p.inv_meth;
 
 %% Define steps to be done
 forward_modeling = 1;
@@ -36,7 +39,7 @@ for_typ{1} = 'Single Shell'; % MEG (mags+grads)
 for_typ{2} = 'EEG BEM'; % EEG
 
 % Which sensor types to use
-inv_mods = {'MEGMAG';'MEGPLANAR'};   % Not EEG - sunbalanced acquisition by group
+inv_mods = p.mod;   % Not EEG - sunbalanced acquisition by group
 
 % Cortical surface option
 mesh_size = 2;   % [1-3] for coarse-normal-fine
@@ -200,7 +203,7 @@ for inv_cnt = 1:length(inv_meth)
                     D.inv{val}.inverse.trials = inv_trls;
                     D.inv{val}.inverse.type   = inv_typ;
                     
-                    D.inv{val}.inverse.woi    = [windows{wind_cnt}(1) windows{wind_cnt}(2)];
+                    D.inv{val}.inverse.woi    = [windows(wind_cnt,1) windows(wind_cnt,2)];
                     %D.inv{val}.inverse.lpf    = freq_start;
                     %D.inv{val}.inverse.hpf    = freq_end;
                     
@@ -214,7 +217,7 @@ for inv_cnt = 1:length(inv_meth)
 %                     end
                     
                     
-                    D.inv{val}.contrast.woi  = [windows{wind_cnt}(1) windows{wind_cnt}(2)];
+                    D.inv{val}.contrast.woi  = [windows(wind_cnt,1) windows(wind_cnt,2)];
                     %D.inv{val}.contrast.fboi = [freq_start freq_end];
                     D.inv{val}.contrast.type = 'evoked';
                     

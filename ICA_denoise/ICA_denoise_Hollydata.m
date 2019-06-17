@@ -1,4 +1,5 @@
 %%Make sure correct version of SPM running
+rmpath(genpath('/imaging/local/software/spm_cbu_svn/releases/spm12_latest/'));
 spmpath = '/group/language/data/thomascope/spm12_fil_r6906/';
 addpath(spmpath)
 spm eeg
@@ -21,6 +22,8 @@ time_wind_path  = { '-100_500' '150 250'};
 windows         = { [-100 500], [150 250]};
 wind_cnt        = 1; %Which time window for LFP extraction
 
+p.time_wind_path = time_wind_path;
+p.inv_meth = inv_meth;
 p.windows = cell2mat(windows');
 
 % Define data location
@@ -138,7 +141,8 @@ p.ySmooth = 10; % smooth for y dimension (mm)
 p.zSmooth = 10; % smooth for z (time) dimension (ms)
 % define conditions
 %p.conditions = {'STD, DVT'};
-p.conditions = {'STD','DVT','Loc','Int','Dur','Gap','Freq','Loc_L','Freq_hi','Int_hi','Loc_R','Freq_lo','Int_lo'};
+%p.conditions = {'STD','DVT','Loc','Int','Dur','Gap','Freq','Loc_L','Freq_hi','Int_hi','Loc_R','Freq_lo','Int_lo'};
+p.conditions = {'STD','DVT','location','intensity','duration','gap','frequency','location_L','frequency_high','intensity_high','location_R','frequency_low','intensity_low'};
 p.preBase = -100; %TF baseline correct period with below (I don't know why this isn't a two element vector - don't blame me.)
 p.postBase = 0;
 
@@ -305,7 +309,7 @@ end
 
 
 %% Now specify forward model
-%forwardmodelcomplete = zeros(1,nsubj);
+forwardmodelcomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     if forwardmodelcomplete(todonumber)~=1
         
@@ -333,7 +337,7 @@ parfor todonumber = 1:nsubj
         end
         newmripath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/MRI/' Participant{todonumber}.MRI '.nii'];
         try
-            forward_model_this_subj(megpaths,newmripath, inv_meth, time_wind_path, windows)
+            forward_model_this_subj(megpaths,newmripath, p)
             forwardmodelcomplete(todonumber) = 1;
             fprintf('\n\nForward modelling complete for subject number %d,\n\n',todonumber);
         catch
@@ -344,7 +348,7 @@ parfor todonumber = 1:nsubj
 end
 
 %% Now extract the LFPs
-%LFPExtractioncomplete = zeros(1,nsubj);
+LFPExtractioncomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     if LFPExtractioncomplete(todonumber)~=4
         for inv_cnt = 1:length(inv_meth)
@@ -784,4 +788,14 @@ try
 catch
     secondlevelcomplete(1) = 0;
 end
+
+%% Now plot the whole scalp ERPs for sanity check
+for todonumber = 1:nsubj
+        try
+        Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+        end
+end
+prefix = 'PfmbraedfffM';
+%plot_all_LFPs(Participant,pathstem,p,prefix)
+plot_ERP_bytype(Participant,pathstem,p,prefix)
 

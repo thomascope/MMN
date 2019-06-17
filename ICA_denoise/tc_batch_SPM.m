@@ -17,7 +17,8 @@ function tc_batch_SPM(filetype,subjects,pathstem,p)
 % Freq_lo = 12
 % Int_lo = 13
 
-conditions = {'STD','DVT','location','intensity','duration','gap','frequency','location_L','frequency_high','intensity_high','location_R','frequency_low','intensity_low'};
+%conditions = {'STD','DVT','location','intensity','duration','gap','frequency','location_L','frequency_high','intensity_high','location_R','frequency_low','intensity_low'};
+conditions = p.conditions;
 ncond = 13;
 
 %% Configure
@@ -92,7 +93,7 @@ end
 for this_cond = 1:size(all_condition_combinations,1)
     cnt = cnt + 1;
     contrasts{cnt}.name = [all_condition_combinations_strings{this_cond} ' controls vs eachgroup'];
-    contrasts{cnt}.c = kron(vs_control_combinations(1:size(vs_control_combinations,1)/2,:),all_condition_combinations(this_cond));
+    contrasts{cnt}.c = kron(vs_control_combinations(1:size(vs_control_combinations,1)/2,:),all_condition_combinations(this_cond,:));
     contrasts{cnt}.type = 'F';
 end
 
@@ -100,7 +101,7 @@ for this_grp = 1:size(vs_control_combinations,1)
     for this_cond = 1:size(all_condition_combinations,1)
         cnt = cnt + 1;
         contrasts{cnt}.name = [all_condition_combinations_strings{this_cond} '; ' vs_control_combinations_strings{this_grp}];
-        contrasts{cnt}.c = kron(vs_control_combinations(this_grp,:),all_condition_combinations(this_cond));
+        contrasts{cnt}.c = kron(vs_control_combinations(this_grp,:),all_condition_combinations(this_cond,:));
         contrasts{cnt}.type = 'T';
     end
 end

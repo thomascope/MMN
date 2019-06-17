@@ -1,5 +1,6 @@
 function plot_all_LFPs(Participant,pathstem,p,prefix)
 % A function for plotting my extracted LFPs
+addpath(['/group/language/data/thomascope/MMN/ICA_denoise/stdshade']);
 
 Sname = {'left A1';
     'left STG';
@@ -25,7 +26,7 @@ end
 [groups,~, group_inds] = unique(diagnosis,'stable');
 
 for ss = 1:length(Participant)
-    D{ss} = spm_eeg_load(megpath{ss});
+    D{ss} = spm_eeg_load(fn{ss});
     for i = 1:8
        all_STD(i,ss,:)=D{ss}(i,:,1);
        all_DEV(i,ss,:)=D{ss}(i,:,2);
