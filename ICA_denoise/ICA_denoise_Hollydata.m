@@ -782,12 +782,22 @@ for todonumber = 1:nsubj
         this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
     end
 end
+p.all_conditions = p.conditions;
+p.conditions = {'STD','DVT'};
 try
     tc_batch_SPM(prefix,this_output_folder_tail,pathstem,p);
     secondlevelcomplete(1) = 1;
 catch
     secondlevelcomplete(1) = 0;
 end
+p.conditions = {'STD','location','intensity','duration','gap','frequency'};
+try
+    tc_batch_SPM(prefix,this_output_folder_tail,pathstem,p);
+    secondlevelcomplete(1) = 1;
+catch
+    secondlevelcomplete(1) = 0;
+end
+p.conditions = p.all_conditions;
 
 %% Now plot the whole scalp ERPs for sanity check
 for todonumber = 1:nsubj

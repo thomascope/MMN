@@ -19,7 +19,7 @@ function tc_batch_SPM(filetype,subjects,pathstem,p)
 
 %conditions = {'STD','DVT','location','intensity','duration','gap','frequency','location_L','frequency_high','intensity_high','location_R','frequency_low','intensity_low'};
 conditions = p.conditions;
-ncond = 13;
+ncond = length(conditions);
 
 %% Configure
 
@@ -44,8 +44,13 @@ contrasts = {};
 cnt = 0;
 
 all_group_combinations = flipud(unique(perms([1, -1, zeros(1,length(p.diagnosis_list)-2)]),'rows','stable'));
-all_condition_combinations = flipud(unique(perms([-1, zeros(1,4)]),'rows','stable'));
-all_condition_combinations = [ones(size(all_condition_combinations,1),1),zeros(size(all_condition_combinations,1),1),all_condition_combinations,zeros(size(all_condition_combinations,1),ncond-2-size(all_condition_combinations,2))];
+all_group_combinations_strings = cell(1,size(all_group_combinations,1));
+for this_grp = 1:size(all_group_combinations,1)
+    all_group_combinations_strings{this_grp} = sprintf('%s minus %s',p.diagnosis_list{all_group_combinations(this_grp,:)==1},p.diagnosis_list{all_group_combinations(this_grp,:)==-1});
+end
+% all_condition_combinations = flipud(unique(perms([-1, zeros(1,4)]),'rows','stable'));
+% all_condition_combinations = [ones(size(all_condition_combinations,1),1),zeros(size(all_condition_combinations,1),1),all_condition_combinations,zeros(size(all_condition_combinations,1),ncond-2-size(all_condition_combinations,2))];
+all_condition_combinations = [ones(length(conditions)-1,1),-eye(length(conditions)-1)];
 all_condition_combinations = [all_condition_combinations; -all_condition_combinations];
 
 vs_control_combinations = [ones(length(p.diagnosis_list)-1,1),-eye(length(p.diagnosis_list)-1)];
@@ -63,6 +68,7 @@ end
 
 %% Contrasts (Combined SPM for patients/controls)
 
+if length(conditions)==2
 cnt = cnt + 1;
 contrasts{cnt}.name = 'Mismatch response (All)';
 contrasts{cnt}.c = kron(ones(1,length(p.diagnosis_list)),[1,-1,zeros(1,ncond-2)]);
@@ -82,29 +88,40 @@ cnt = cnt + 1;
 contrasts{cnt}.name = ['Mismatch response controls vs eachgroup'];
 contrasts{cnt}.c = kron(vs_control_combinations(1:size(vs_control_combinations,1)/2,:),[1,-1,zeros(1,ncond-2)]);
 contrasts{cnt}.type = 'F';
-
-for this_grp = 1:size(vs_control_combinations,1)
-    cnt = cnt + 1;
-    contrasts{cnt}.name = ['Mismatch response ' vs_control_combinations_strings{this_grp}];
-    contrasts{cnt}.c = kron(vs_control_combinations(this_grp,:),[1,-1,zeros(1,ncond-2)]);
-    contrasts{cnt}.type = 'T';
 end
 
-for this_cond = 1:size(all_condition_combinations,1)
-    cnt = cnt + 1;
-    contrasts{cnt}.name = [all_condition_combinations_strings{this_cond} ' controls vs eachgroup'];
-    contrasts{cnt}.c = kron(vs_control_combinations(1:size(vs_control_combinations,1)/2,:),all_condition_combinations(this_cond,:));
-    contrasts{cnt}.type = 'F';
-end
-
-for this_grp = 1:size(vs_control_combinations,1)
+for this_grp = 1:size(all_group_combinations,1)
     for this_cond = 1:size(all_condition_combinations,1)
         cnt = cnt + 1;
-        contrasts{cnt}.name = [all_condition_combinations_strings{this_cond} '; ' vs_control_combinations_strings{this_grp}];
-        contrasts{cnt}.c = kron(vs_control_combinations(this_grp,:),all_condition_combinations(this_cond,:));
+        contrasts{cnt}.name = [all_condition_combinations_strings{this_cond} '; ' all_group_combinations_strings{this_grp}];
+        contrasts{cnt}.c = kron(all_group_combinations(this_grp,:),all_condition_combinations(this_cond,:));
         contrasts{cnt}.type = 'T';
     end
 end
+
+% 
+% for this_grp = 1:size(vs_control_combinations,1)
+%     cnt = cnt + 1;
+%     contrasts{cnt}.name = ['Mismatch response ' vs_control_combinations_strings{this_grp}];
+%     contrasts{cnt}.c = kron(vs_control_combinations(this_grp,:),[1,-1,zeros(1,ncond-2)]);
+%     contrasts{cnt}.type = 'T';
+% end
+% 
+% for this_cond = 1:size(all_condition_combinations,1)
+%     cnt = cnt + 1;
+%     contrasts{cnt}.name = [all_condition_combinations_strings{this_cond} ' controls vs eachgroup'];
+%     contrasts{cnt}.c = kron(vs_control_combinations(1:size(vs_control_combinations,1)/2,:),all_condition_combinations(this_cond,:));
+%     contrasts{cnt}.type = 'F';
+% end
+% 
+% for this_grp = 1:size(vs_control_combinations,1)
+%     for this_cond = 1:size(all_condition_combinations,1)
+%         cnt = cnt + 1;
+%         contrasts{cnt}.name = [all_condition_combinations_strings{this_cond} '; ' vs_control_combinations_strings{this_grp}];
+%         contrasts{cnt}.c = kron(vs_control_combinations(this_grp,:),all_condition_combinations(this_cond,:));
+%         contrasts{cnt}.type = 'T';
+%     end
+% end
 
 
 %% Estimate models
@@ -113,18 +130,15 @@ end
 %for img=1:length(imagetype)
 img = 1;
 %for wind = 1:length(p.windows)
-files = {};
+
 for wind = 1
     for m=1:length(modality)
+        files = {};
         %for m = 3
         for s=1:length(subjects)
             this_subj_id = strsplit(subjects{s},'/');
             this_subj_id = this_subj_id{2};
-            outputfullpath = [outputstem imagetype{img} '/' p.diagnosis_list{p.group(s)} '_' num2str(p.windows(wind,1)) '_' num2str(p.windows(wind,2)) '_' modality{m}];
-            if ~exist(outputfullpath)
-                mkdir(outputfullpath);
-            end
-            
+
             for c=1:length(conditions)
                 if strcmp(modality{m},'EEG')
                     if rejecteeg{s} == 1
@@ -157,7 +171,10 @@ for wind = 1
         
         % set up input structure for batch_spm_anova_vES
         S.imgfiles = files;
-        outputfullpath = [outputstem imagetype{img} '/combined_' num2str(p.windows(wind,1)) '_' num2str(p.windows(wind,2)) '_' modality{m}];
+        outputfullpath = [outputstem imagetype{img} '/combined_' strjoin(p.conditions,'_') num2str(p.windows(wind,1)) '_' num2str(p.windows(wind,2)) '_' modality{m}];
+        if ~exist(outputfullpath)
+            mkdir(outputfullpath);
+        end
         S.outdir = outputfullpath;
         S.uUFp = 1; % for M/EEG only
         %S.nsph_flag = 0;
@@ -175,6 +192,7 @@ for wind = 1
         
         % estimate model and compute contrasts
         batch_spm_anova_es(S);
+        %pause
     end
 end
 
