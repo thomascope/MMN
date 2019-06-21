@@ -171,21 +171,27 @@ for wind = 1
         
         % set up input structure for batch_spm_anova_vES
         S.imgfiles = files;
-        outputfullpath = [outputstem imagetype{img} '/combined_' strjoin(p.conditions,'_') num2str(p.windows(wind,1)) '_' num2str(p.windows(wind,2)) '_' modality{m}];
+        if ~isempty(strfind(S.imgfiles{1}{1}{1},'tf_'))
+            outputfullpath = [outputstem imagetype{img} '/TF_combined_' strjoin(p.conditions,'_') num2str(p.windows(wind,1)) '_' num2str(p.windows(wind,2)) '_' modality{m}];
+            mskname = [pathstem modality{m} sprintf(['_TF_mask_%d_%dms.img'],p.windows(wind,1),p.windows(wind,2))];
+        else
+            outputfullpath = [outputstem imagetype{img} '/combined_' strjoin(p.conditions,'_') num2str(p.windows(wind,1)) '_' num2str(p.windows(wind,2)) '_' modality{m}];
+            mskname = [pathstem modality{m} sprintf(['_mask_%d_%dms.img'],p.windows(wind,1),p.windows(wind,2))];
+        end
         if ~exist(outputfullpath)
             mkdir(outputfullpath);
         end
         S.outdir = outputfullpath;
         S.uUFp = 1; % for M/EEG only
         %S.nsph_flag = 0;
-        if strncmp(modality{m},'time_',5)
-            %mskname = [pathstem modality{m}(6:end)
-            %'_1D_mask_0_800ms.img']; No need for mask - images created
-            %with restricted time window
-        else
-            mskname = [pathstem modality{m} sprintf(['_mask_%d_%dms.img'],p.windows(wind,1),p.windows(wind,2))];
-            %mskname = [pathstem modality{m} '_mask_-100_800ms.img'];
-        end
+%         if strncmp(modality{m},'time_',5)
+%             %mskname = [pathstem modality{m}(6:end)
+%             %'_1D_mask_0_800ms.img']; No need for mask - images created
+%             %with restricted time window
+%         else
+%             
+%             %mskname = [pathstem modality{m} '_mask_-100_800ms.img'];
+%         end
         if exist('mskname'); S.maskimg = mskname; end;
         if exist('contrasts'); S.contrasts = contrasts; end;
         if exist('covariates'); S.user_regs = covariates; end;

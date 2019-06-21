@@ -452,7 +452,7 @@ prefix = 'braedfffM';
 TFdecompositioncomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
-    if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 && todonumber ~= 136 ; continue; end
+    %if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 && todonumber ~= 136 ; continue; end
     megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
     if iscell(Participant{todonumber}.name)
         this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
@@ -471,7 +471,7 @@ prefix = 'tf_braedfffM';
 TFaveragecomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
-        if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
+        %if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
 
     megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
     if iscell(Participant{todonumber}.name)
@@ -491,7 +491,7 @@ prefix = 'mtf_braedfffM';
 TFrescalecomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
-        if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
+        %if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
 
     megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
     if iscell(Participant{todonumber}.name)
@@ -511,7 +511,7 @@ prefix = 'rmtf_braedfffM';
 TFweightcomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
-        if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
+        %if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
 
     megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
     if iscell(Participant{todonumber}.name)
@@ -531,7 +531,7 @@ prefix = 'rmtf_braedfffM';
 TFimagecomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
-        if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
+        %if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
 
     megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
     if iscell(Participant{todonumber}.name)
@@ -551,7 +551,7 @@ prefix = 'rmtf_braedfffM';
 TFsmoothcomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
-        if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
+        %if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
 
     megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
     if iscell(Participant{todonumber}.name)
@@ -650,13 +650,22 @@ for todonumber = 1:nsubj
         this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
     end
 end
+p.all_conditions = p.conditions;
+p.conditions = {'STD','DVT'};
 try
     tc_batch_SPM(prefix,this_output_folder_tail,pathstem,p);
-    TFsecondlevelcomplete(1) = 1;
+    secondlevelcomplete(1) = 1;
 catch
-    TFsecondlevelcomplete(1) = 0;
+    secondlevelcomplete(1) = 0;
 end
-
+p.conditions = {'STD','location','intensity','duration','gap','frequency'};
+try
+    tc_batch_SPM(prefix,this_output_folder_tail,pathstem,p);
+    secondlevelcomplete(1) = 1;
+catch
+    secondlevelcomplete(1) = 0;
+end
+p.conditions = p.all_conditions;
 
 
 %% Also grand average the non-TF data
