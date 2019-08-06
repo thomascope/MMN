@@ -26,67 +26,207 @@ for ss = 1:length(Participant)
 end
 
 cmap = colormap(parula(length(groups)));
+p_thresh = 0.05;
 
 for j = 1:length(conditions)
     addpath('./stdshade')
     
+    
     DEV_plot = figure(20*j);
-
+    
+        
         hold on
         for grp = 1:length(groups)
             linehandle(grp) = stdshade_TEC(squeeze(all_DEV(group_inds==grp,:,j)),0.2,cmap(grp,:),D{1}.time,1,1);
         end
+        % Plot statistically significant difference from control (FDR corrected for multiple comparisons across time)
+        these_ylims = ylim;
+        this_ylim_range = these_ylims(2)-these_ylims(1);
+        for grp = 2:length(groups)
+            for t = 1:size(D{1}.time,2)
+                [h_bytime(t),p_bytime(t)]=ttest2(squeeze(all_DEV(group_inds==1,t,j)),squeeze(all_DEV(group_inds==grp,t,j)));
+            end
+            all_fdr_p = mafdr(p_bytime(D{1}.time>0));
+            all_positive_times = D{1}.time(D{1}.time>0);
+            if any(all_positive_times(all_fdr_p<p_thresh))
+                plot(all_positive_times(all_fdr_p<p_thresh),these_ylims(2)+(grp*this_ylim_range/40),'.','Color',cmap(grp,:))
+            end
+        end
+        ylim([these_ylims(1),these_ylims(2)+(this_ylim_range/8)])
+        
         xlabel('Time (s)')
         xlim([-0.1 0.500])
         plot(D{1}.time,zeros(1,length(D{1}.time)),'k--','LineWidth',2)
         ylabel([conditions{j} ' Response (AU)'])
         set(gca,'FontWeight','bold')
         set(gca,'LineWidth',2)
+        
             legend(linehandle,groups)
+        
     
-    MMN_plot = figure(j);
-
+    
+    Abs_DEV_plot = figure(400*j);
+    
+        
         hold on
         for grp = 1:length(groups)
-            linehandle(grp) = stdshade_TEC(squeeze(all_MMN(group_inds==grp,:,j)),0.2,cmap(grp,:),D{1}.time,1,1);
+            linehandle(grp) = stdshade_TEC(squeeze(abs(all_DEV(group_inds==grp,:,j))),0.2,cmap(grp,:),D{1}.time,1,1);
         end
+        % Plot statistically significant difference from control (FDR corrected for multiple comparisons across time)
+        these_ylims = ylim;
+        this_ylim_range = these_ylims(2)-these_ylims(1);
+        for grp = 2:length(groups)
+            for t = 1:size(D{1}.time,2)
+                [h_bytime(t),p_bytime(t)]=ttest2(squeeze(abs(all_DEV(group_inds==1,t,j))),squeeze(abs(all_DEV(group_inds==grp,t,j))));
+            end
+            all_fdr_p = mafdr(p_bytime(D{1}.time>0));
+            all_positive_times = D{1}.time(D{1}.time>0);
+            if any(all_positive_times(all_fdr_p<p_thresh))
+                plot(all_positive_times(all_fdr_p<p_thresh),these_ylims(2)+(grp*this_ylim_range/40),'.','Color',cmap(grp,:))
+            end
+        end
+        ylim([these_ylims(1),these_ylims(2)+(this_ylim_range/8)])
+        
         xlabel('Time (s)')
         xlim([-0.1 0.500])
         plot(D{1}.time,zeros(1,length(D{1}.time)),'k--','LineWidth',2)
-        ylabel([conditions{j} ' Mismatch Response (AU)'])
+        ylabel([conditions{j} ' Abs Response (AU)'])
         set(gca,'FontWeight','bold')
         set(gca,'LineWidth',2)
+        
             legend(linehandle,groups)
+        
     
-    ABS_MMN_plot = figure(400*j);
-        hold on
-        for grp = 1:length(groups)
-            linehandle(grp) = stdshade_TEC(squeeze(all_abs_MMN(group_inds==grp,:,j)),0.2,cmap(grp,:),D{1}.time,1,1);
-        end
-        xlabel('Time (s)')
-        xlim([-0.1 0.500])
-        plot(D{1}.time,zeros(1,length(D{1}.time)),'k--','LineWidth',2)
-        ylabel([conditions{j} ' Abs Mismatch Response (AU)'])
-        set(gca,'FontWeight','bold')
-        set(gca,'LineWidth',2)
-            legend(linehandle,groups)
+    
+    if j > 1 %Don't do MMN for STDs only
+        MMN_plot = figure(8000*j);
+        
             
-            DEV_indiv_plot = figure(8000*j);
-
-        hold on
-        for grp = 1:length(groups)
-            linehandles{grp} = plot(D{1}.time,squeeze(all_DEV(group_inds==grp,:,j)),'Color',cmap(grp,:));
-        end
-        xlabel('Time (s)')
-        xlim([-0.1 0.500])
-        ylabel([conditions{j} ' Individual Response (AU)'])
-        set(gca,'FontWeight','bold')
-        set(gca,'LineWidth',2)
-        for i = 1:length(linehandles)
-            linehandle(i) = linehandles{i}(1);
-        end
-            legend(linehandle,groups)
+            hold on
+            for grp = 1:length(groups)
+                linehandle(grp) = stdshade_TEC(squeeze(all_MMN(group_inds==grp,:,j)),0.2,cmap(grp,:),D{1}.time,1,1);
+            end
+            % Plot statistically significant difference from control (FDR corrected for multiple comparisons across time)
+            these_ylims = ylim;
+            this_ylim_range = these_ylims(2)-these_ylims(1);
+            for grp = 2:length(groups)
+                for t = 1:size(D{1}.time,2)
+                    [h_bytime(t),p_bytime(t)]=ttest2(squeeze(all_MMN(group_inds==1,t,j)),squeeze(all_MMN(group_inds==grp,t,j)));
+                end
+                all_fdr_p = mafdr(p_bytime(D{1}.time>0));
+                all_positive_times = D{1}.time(D{1}.time>0);
+                if any(all_positive_times(all_fdr_p<p_thresh))
+                    plot(all_positive_times(all_fdr_p<p_thresh),these_ylims(2)+(grp*this_ylim_range/40),'.','Color',cmap(grp,:))
+                end
+            end
+            ylim([these_ylims(1),these_ylims(2)+(this_ylim_range/8)])
+            
+            xlabel('Time (s)')
+            xlim([-0.1 0.500])
+            plot(D{1}.time,zeros(1,length(D{1}.time)),'k--','LineWidth',2)
+            ylabel([conditions{j} ' Mismatch Response (AU)'])
+            set(gca,'FontWeight','bold')
+            set(gca,'LineWidth',2)
+            
+                legend(linehandle,groups)
+            
+        
+        
+        ABS_MMN_plot = figure(160000*j);
+        
+            
+            hold on
+            for grp = 1:length(groups)
+                linehandle(grp) = stdshade_TEC(squeeze(all_abs_MMN(group_inds==grp,:,j)),0.2,cmap(grp,:),D{1}.time,1,1);
+            end
+            % Plot statistically significant difference from control (FDR corrected for multiple comparisons across time)
+            these_ylims = ylim;
+            this_ylim_range = these_ylims(2)-these_ylims(1);
+            for grp = 2:length(groups)
+                for t = 1:size(D{1}.time,2)
+                    [h_bytime(t),p_bytime(t)]=ttest2(squeeze(all_abs_MMN(group_inds==1,t,j)),squeeze(all_abs_MMN(group_inds==grp,t,j)));
+                end
+                all_fdr_p = mafdr(p_bytime(D{1}.time>0));
+                all_positive_times = D{1}.time(D{1}.time>0);
+                if any(all_positive_times(all_fdr_p<p_thresh))
+                    plot(all_positive_times(all_fdr_p<p_thresh),these_ylims(2)+(grp*this_ylim_range/40),'.','Color',cmap(grp,:))
+                end
+            end
+            ylim([these_ylims(1),these_ylims(2)+(this_ylim_range/8)])
+            
+            xlabel('Time (s)')
+            xlim([-0.1 0.500])
+            plot(D{1}.time,zeros(1,length(D{1}.time)),'k--','LineWidth',2)
+            ylabel([conditions{j} ' Abs Mismatch Response (AU)'])
+            set(gca,'FontWeight','bold')
+            set(gca,'LineWidth',2)
+            
+                legend(linehandle,groups)
+            
+        
+    end
     pause
     close all %To prevent Java memory error
+    
+%     DEV_plot = figure(20*j);
+% 
+%         hold on
+%         for grp = 1:length(groups)
+%             linehandle(grp) = stdshade_TEC(squeeze(all_DEV(group_inds==grp,:,j)),0.2,cmap(grp,:),D{1}.time,1,1);
+%         end
+%         xlabel('Time (s)')
+%         xlim([-0.1 0.500])
+%         plot(D{1}.time,zeros(1,length(D{1}.time)),'k--','LineWidth',2)
+%         ylabel([conditions{j} ' Response (AU)'])
+%         set(gca,'FontWeight','bold')
+%         set(gca,'LineWidth',2)
+%             legend(linehandle,groups)
+%             
+%             
+%     
+%     MMN_plot = figure(j);
+% 
+%         hold on
+%         for grp = 1:length(groups)
+%             linehandle(grp) = stdshade_TEC(squeeze(all_MMN(group_inds==grp,:,j)),0.2,cmap(grp,:),D{1}.time,1,1);
+%         end
+%         xlabel('Time (s)')
+%         xlim([-0.1 0.500])
+%         plot(D{1}.time,zeros(1,length(D{1}.time)),'k--','LineWidth',2)
+%         ylabel([conditions{j} ' Mismatch Response (AU)'])
+%         set(gca,'FontWeight','bold')
+%         set(gca,'LineWidth',2)
+%             legend(linehandle,groups)
+%     
+%     ABS_MMN_plot = figure(400*j);
+%         hold on
+%         for grp = 1:length(groups)
+%             linehandle(grp) = stdshade_TEC(squeeze(all_abs_MMN(group_inds==grp,:,j)),0.2,cmap(grp,:),D{1}.time,1,1);
+%         end
+%         xlabel('Time (s)')
+%         xlim([-0.1 0.500])
+%         plot(D{1}.time,zeros(1,length(D{1}.time)),'k--','LineWidth',2)
+%         ylabel([conditions{j} ' Abs Mismatch Response (AU)'])
+%         set(gca,'FontWeight','bold')
+%         set(gca,'LineWidth',2)
+%             legend(linehandle,groups)
+%             
+%             DEV_indiv_plot = figure(8000*j);
+% 
+%         hold on
+%         for grp = 1:length(groups)
+%             linehandles{grp} = plot(D{1}.time,squeeze(all_DEV(group_inds==grp,:,j)),'Color',cmap(grp,:));
+%         end
+%         xlabel('Time (s)')
+%         xlim([-0.1 0.500])
+%         ylabel([conditions{j} ' Individual Response (AU)'])
+%         set(gca,'FontWeight','bold')
+%         set(gca,'LineWidth',2)
+%         for i = 1:length(linehandles)
+%             linehandle(i) = linehandles{i}(1);
+%         end
+%             legend(linehandle,groups)
+%     pause
+%     close all %To prevent Java memory error
 end
 %pause

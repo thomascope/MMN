@@ -818,3 +818,32 @@ prefix = 'PfmbraedfffM';
 %plot_all_LFPs(Participant,pathstem,p,prefix)
 plot_ERP_bytype(Participant,pathstem,p,prefix)
 
+% %% Work in progress - second level analysis on the LFP data
+% 
+% prefix = 'PfmbraedfffM';
+% secondlevelcomplete = zeros(1,1);
+% this_output_folder_tail = {};
+% p.mod = {'LFP'};
+% for todonumber = 1:nsubj
+%     if iscell(Participant{todonumber}.name)
+%         this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
+%     else
+%         this_output_folder_tail{todonumber}  = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'];
+%     end
+% end
+% p.all_conditions = p.conditions;
+% p.conditions = {'STD','DVT'};
+% try
+%     tc_batch_SPM_LFP(prefix,this_output_folder_tail,pathstem,p);
+%     secondlevelcomplete(1) = 1;
+% catch
+%     secondlevelcomplete(1) = 0;
+% end
+% p.conditions = {'STD','location','intensity','duration','gap','frequency'};
+% try
+%     tc_batch_SPM_LFP(prefix,this_output_folder_tail,pathstem,p);
+%     secondlevelcomplete(1) = 1;
+% catch
+%     secondlevelcomplete(1) = 0;
+% end
+% p.conditions = p.all_conditions;
