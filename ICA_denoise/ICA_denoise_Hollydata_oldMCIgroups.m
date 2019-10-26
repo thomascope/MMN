@@ -218,23 +218,6 @@ p.postBase = 0;
 p.contrast_labels = {'STD-DVT';'DVT-STD';'STD-Loc';'STD-Int';'STD-Dur';'STD-Gap';'STD-Freq'};
 p.contrast_weights = [1,-1,0,0,0,0,0;-1,1,0,0,0,0,0;1,0,-1,0,0,0,0;1,0,0,-1,0,0,0;1,0,0,0,-1,0,0;1,0,0,0,0,-1,0;1,0,0,0,0,0,-1]; 
 
-%% Exclude MCIs with unknown or negative biomarker status
-for i = biomarker_positive_mci_indices
-    Participant{i}.diag = 'AD_MCI_pos';
-end
-for i = biomarker_negative_mci_indices
-    Participant{i}.diag = 'MCI_neg';
-end
-for i = biomarker_unknown_mci_indices
-    Participant{i}.diag = 'MCI_unk';
-end
-for i = biomarker_unknown_AD_indices
-    Participant{i}.diag = 'AD_MCI_pos';
-end
-
-Participant([biomarker_negative_mci_indices, biomarker_unknown_mci_indices]) = [];
-nsubj = nsubj - (length(biomarker_negative_mci_indices)+length(biomarker_unknown_mci_indices));
-
 all_diagnoses = cell(1,nsubj);
 for todonumber = 1:nsubj
     all_diagnoses{todonumber} = Participant{todonumber}.diag;
@@ -914,6 +897,18 @@ prefix = 'PfmbraedfffM';
 % for i = biomarker_unknown_AD_indices
 %     Participant{i}.diag = 'AD_unk';
 % end
+for i = biomarker_positive_mci_indices
+    Participant{i}.diag = 'AD_MCI_pos';
+end
+for i = biomarker_negative_mci_indices
+    Participant{i}.diag = 'MCI_neg';
+end
+for i = biomarker_unknown_mci_indices
+    Participant{i}.diag = 'MCI_unk';
+end
+for i = biomarker_unknown_AD_indices
+    Participant{i}.diag = 'AD_MCI_pos';
+end
 thesediagnoses = {'Control','AD_MCI_pos','nfvppa','pca','bvFTD'};
 plot_ERP_bytype(Participant,pathstem,p,prefix,thesediagnoses)
 

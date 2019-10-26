@@ -1,4 +1,4 @@
-function plot_ERP_bytype(Participant,pathstem,p,prefix)
+function plot_ERP_bytype(Participant,pathstem,p,prefix,varargin)
 % A function for plotting my extracted LFPs
 addpath(['/group/language/data/thomascope/MMN/ICA_denoise/stdshade']);
 
@@ -14,6 +14,14 @@ for ss = 1:length(Participant)
 end
 
 [groups,~, group_inds] = unique(diagnosis,'stable');
+
+if ~isempty(varargin)
+    disp(['All groups in dataset'])
+    groups
+    [groups, group_ids, ~]=intersect(groups,varargin{1},'stable');
+    disp(['Groups trimmed to'])
+    groups
+end
 
 for ss = 1:length(Participant)
     D{ss} = spm_eeg_load(megpath{ss});
@@ -37,14 +45,14 @@ for j = 1:length(conditions)
         
         hold on
         for grp = 1:length(groups)
-            linehandle(grp) = stdshade_TEC(squeeze(all_DEV(group_inds==grp,:,j)),0.2,cmap(grp,:),D{1}.time,1,1);
+            linehandle(grp) = stdshade_TEC(squeeze(all_DEV(group_inds==group_ids(grp),:,j)),0.2,cmap(grp,:),D{1}.time,1,1);
         end
         % Plot statistically significant difference from control (FDR corrected for multiple comparisons across time)
         these_ylims = ylim;
         this_ylim_range = these_ylims(2)-these_ylims(1);
         for grp = 2:length(groups)
             for t = 1:size(D{1}.time,2)
-                [h_bytime(t),p_bytime(t)]=ttest2(squeeze(all_DEV(group_inds==1,t,j)),squeeze(all_DEV(group_inds==grp,t,j)));
+                [h_bytime(t),p_bytime(t)]=ttest2(squeeze(all_DEV(group_inds==1,t,j)),squeeze(all_DEV(group_inds==group_ids(grp),t,j)));
             end
             all_fdr_p = mafdr(p_bytime(D{1}.time>0));
             all_positive_times = D{1}.time(D{1}.time>0);
@@ -70,14 +78,14 @@ for j = 1:length(conditions)
         
         hold on
         for grp = 1:length(groups)
-            linehandle(grp) = stdshade_TEC(squeeze(abs(all_DEV(group_inds==grp,:,j))),0.2,cmap(grp,:),D{1}.time,1,1);
+            linehandle(grp) = stdshade_TEC(squeeze(abs(all_DEV(group_inds==group_ids(grp),:,j))),0.2,cmap(grp,:),D{1}.time,1,1);
         end
         % Plot statistically significant difference from control (FDR corrected for multiple comparisons across time)
         these_ylims = ylim;
         this_ylim_range = these_ylims(2)-these_ylims(1);
         for grp = 2:length(groups)
             for t = 1:size(D{1}.time,2)
-                [h_bytime(t),p_bytime(t)]=ttest2(squeeze(abs(all_DEV(group_inds==1,t,j))),squeeze(abs(all_DEV(group_inds==grp,t,j))));
+                [h_bytime(t),p_bytime(t)]=ttest2(squeeze(abs(all_DEV(group_inds==1,t,j))),squeeze(abs(all_DEV(group_inds==group_ids(grp),t,j))));
             end
             all_fdr_p = mafdr(p_bytime(D{1}.time>0));
             all_positive_times = D{1}.time(D{1}.time>0);
@@ -104,14 +112,14 @@ for j = 1:length(conditions)
             
             hold on
             for grp = 1:length(groups)
-                linehandle(grp) = stdshade_TEC(squeeze(all_MMN(group_inds==grp,:,j)),0.2,cmap(grp,:),D{1}.time,1,1);
+                linehandle(grp) = stdshade_TEC(squeeze(all_MMN(group_inds==group_ids(grp),:,j)),0.2,cmap(grp,:),D{1}.time,1,1);
             end
             % Plot statistically significant difference from control (FDR corrected for multiple comparisons across time)
             these_ylims = ylim;
             this_ylim_range = these_ylims(2)-these_ylims(1);
             for grp = 2:length(groups)
                 for t = 1:size(D{1}.time,2)
-                    [h_bytime(t),p_bytime(t)]=ttest2(squeeze(all_MMN(group_inds==1,t,j)),squeeze(all_MMN(group_inds==grp,t,j)));
+                    [h_bytime(t),p_bytime(t)]=ttest2(squeeze(all_MMN(group_inds==1,t,j)),squeeze(all_MMN(group_inds==group_ids(grp),t,j)));
                 end
                 all_fdr_p = mafdr(p_bytime(D{1}.time>0));
                 all_positive_times = D{1}.time(D{1}.time>0);
@@ -137,14 +145,14 @@ for j = 1:length(conditions)
             
             hold on
             for grp = 1:length(groups)
-                linehandle(grp) = stdshade_TEC(squeeze(all_abs_MMN(group_inds==grp,:,j)),0.2,cmap(grp,:),D{1}.time,1,1);
+                linehandle(grp) = stdshade_TEC(squeeze(all_abs_MMN(group_inds==group_ids(grp),:,j)),0.2,cmap(grp,:),D{1}.time,1,1);
             end
             % Plot statistically significant difference from control (FDR corrected for multiple comparisons across time)
             these_ylims = ylim;
             this_ylim_range = these_ylims(2)-these_ylims(1);
             for grp = 2:length(groups)
                 for t = 1:size(D{1}.time,2)
-                    [h_bytime(t),p_bytime(t)]=ttest2(squeeze(all_abs_MMN(group_inds==1,t,j)),squeeze(all_abs_MMN(group_inds==grp,t,j)));
+                    [h_bytime(t),p_bytime(t)]=ttest2(squeeze(all_abs_MMN(group_inds==1,t,j)),squeeze(all_abs_MMN(group_inds==group_ids(grp),t,j)));
                 end
                 all_fdr_p = mafdr(p_bytime(D{1}.time>0));
                 all_positive_times = D{1}.time(D{1}.time>0);
@@ -172,7 +180,7 @@ for j = 1:length(conditions)
 % 
 %         hold on
 %         for grp = 1:length(groups)
-%             linehandle(grp) = stdshade_TEC(squeeze(all_DEV(group_inds==grp,:,j)),0.2,cmap(grp,:),D{1}.time,1,1);
+%             linehandle(grp) = stdshade_TEC(squeeze(all_DEV(group_inds==group_ids(grp),:,j)),0.2,cmap(grp,:),D{1}.time,1,1);
 %         end
 %         xlabel('Time (s)')
 %         xlim([-0.1 0.500])
@@ -188,7 +196,7 @@ for j = 1:length(conditions)
 % 
 %         hold on
 %         for grp = 1:length(groups)
-%             linehandle(grp) = stdshade_TEC(squeeze(all_MMN(group_inds==grp,:,j)),0.2,cmap(grp,:),D{1}.time,1,1);
+%             linehandle(grp) = stdshade_TEC(squeeze(all_MMN(group_inds==group_ids(grp),:,j)),0.2,cmap(grp,:),D{1}.time,1,1);
 %         end
 %         xlabel('Time (s)')
 %         xlim([-0.1 0.500])
@@ -201,7 +209,7 @@ for j = 1:length(conditions)
 %     ABS_MMN_plot = figure(400*j);
 %         hold on
 %         for grp = 1:length(groups)
-%             linehandle(grp) = stdshade_TEC(squeeze(all_abs_MMN(group_inds==grp,:,j)),0.2,cmap(grp,:),D{1}.time,1,1);
+%             linehandle(grp) = stdshade_TEC(squeeze(all_abs_MMN(group_inds==group_ids(grp),:,j)),0.2,cmap(grp,:),D{1}.time,1,1);
 %         end
 %         xlabel('Time (s)')
 %         xlim([-0.1 0.500])
@@ -215,7 +223,7 @@ for j = 1:length(conditions)
 % 
 %         hold on
 %         for grp = 1:length(groups)
-%             linehandles{grp} = plot(D{1}.time,squeeze(all_DEV(group_inds==grp,:,j)),'Color',cmap(grp,:));
+%             linehandles{grp} = plot(D{1}.time,squeeze(all_DEV(group_inds==group_ids(grp),:,j)),'Color',cmap(grp,:));
 %         end
 %         xlabel('Time (s)')
 %         xlim([-0.1 0.500])
