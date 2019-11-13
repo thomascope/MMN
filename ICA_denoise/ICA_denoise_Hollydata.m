@@ -220,7 +220,7 @@ p.contrast_weights = [1,-1,0,0,0,0,0;-1,1,0,0,0,0,0;1,0,-1,0,0,0,0;1,0,0,-1,0,0,
 
 %% Exclude MCIs with unknown or negative biomarker status
 for i = biomarker_positive_mci_indices
-    Participant{i}.diag = 'AD_MCI_pos';
+    Participant{i}.diag = 'ADMCI';
 end
 for i = biomarker_negative_mci_indices
     Participant{i}.diag = 'MCI_neg';
@@ -229,7 +229,7 @@ for i = biomarker_unknown_mci_indices
     Participant{i}.diag = 'MCI_unk';
 end
 for i = biomarker_unknown_AD_indices
-    Participant{i}.diag = 'AD_MCI_pos';
+    Participant{i}.diag = 'ADMCI';
 end
 
 Participant([biomarker_negative_mci_indices, biomarker_unknown_mci_indices]) = [];
@@ -914,7 +914,7 @@ prefix = 'PfmbraedfffM';
 % for i = biomarker_unknown_AD_indices
 %     Participant{i}.diag = 'AD_unk';
 % end
-thesediagnoses = {'Control','AD_MCI_pos','nfvppa','pca','bvFTD'};
+thesediagnoses = {'Control','ADMCI','nfvppa','pca','bvFTD'};
 plot_ERP_bytype(Participant,pathstem,p,prefix,thesediagnoses)
 
 % %% Work in progress - second level analysis on the LFP data
@@ -946,3 +946,7 @@ plot_ERP_bytype(Participant,pathstem,p,prefix,thesediagnoses)
 %     secondlevelcomplete(1) = 0;
 % end
 % p.conditions = p.all_conditions;
+
+%% Bespoke connectivity test scripts
+% TomHollyTA1
+% compare_coherence_connectivity

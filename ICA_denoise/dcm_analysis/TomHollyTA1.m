@@ -3,6 +3,8 @@
 
 %% LABELS ACCORDING TO THE SUBJECT DATA MATRIX (collated with the help of ConStrength_A_README.m and ConStrength_B_README.m:
 
+groups_to_exclude = [6]; %Exclude MCI biomarker negative or unknown
+
 Alab_for1 = {'LA1-LSTG SP->SS' 'RA1-RSTG SP->SS' 'LSTG-LIFG SP->SS' 'RSTG-RIFG SP->SS' 'LSTG-LIPC SP->SS' 'RSTG-RIPC SP->SS' 'LIPC-LIFG SP->SS' 'RIPC-RIFG SP->SS'};
 Alab_for2 = {'LA1-LSTG SP->DP' 'RA1-RSTG SP->DP' 'LSTG-LIFG SP->DP' 'RSTG-RIFG SP->DP' 'LSTG-LIPC SP->DP' 'RSTG-RIPC SP->DP' 'LIPC-LIFG SP->DP' 'RIPC-RIFG SP->DP'};
 Alab_bac1 = {'LSTG-LA1 DP->SP' 'RSTG-RA1 DP->SP' 'LIFG-LSTG DP->SP' 'RIFG-RSTG DP->SP' 'LIPC-LSTG DP->SP' 'RIPC-RSTG DP->SP' 'LIFG-LIPC DP->SP' 'RIFG-RIPC DP->SP'};
@@ -35,6 +37,7 @@ order = {'LA1' 'LSTG' 'LIFG' 'LIPC' 'RA1' 'RSTG' 'RIFG' 'RIPC'};
 
 % first cd to the relevant DCM_params folder, e.g.:
 path_dcm = '/imaging/hp02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/2019_TC_LFPs_customPriors_32models/';
+
 datafit = {'std_dvt', 'std_loc','std_int','std_dur','std_gap','std_frq'};
 
 for dvt = 1:length(datafit)
@@ -45,8 +48,10 @@ for dvt = 1:length(datafit)
     load(fullfile(path_dcm, datafit{dvt}, 'DCM_params', sprintf('con_strength_%s_A.mat', datafit{dvt})));
     load(fullfile(path_dcm, datafit{dvt}, 'DCM_params', sprintf('con_strength_%s_B.mat', datafit{dvt})));
     
-    %% find where each column of the DATA MATRIX should go in the CONNECTION MATRIX :
+    connectivity_EpA(connectivity_EpA(:,2)==groups_to_exclude,:)=[];
+    connectivity_EpB(connectivity_EpB(:,2)==groups_to_exclude,:)=[];
     
+    %% find where each column of the DATA MATRIX should go in the CONNECTION MATRIX :
     % first find the index from the label list above:
     clear Bi Ai_for1 Ai_for2 Ai_bac1 Ai_bac2 Ai_lat1 Ai_lat2 Ai_lat3 Ai_lat4
     for i = 1:length(order)
@@ -174,6 +179,7 @@ for dvt = 1:length(datafit)
                 
                 
                 [p(dvt,this_matrix,from,to),~,~] = eval(['anova1(log(squeeze(' all_matrices{this_matrix} '(' num2str(from) ',' num2str(to) ',:))),connectivity_EpA(:,2),''off'');']);
+                
                 if p(dvt,this_matrix,from,to)<0.01
                     disp([datafit{dvt} ' from ' order{from} ' to ' order{to} ' ' all_matrices{this_matrix} ' p = ' num2str(p(dvt,this_matrix,from,to))])
                     %disp(eval([all_matrices_labels{this_matrix} '(' num2str(sum(sum(~isnan(p(dvt,this_matrix,:,:)))) - sum(sum(p(dvt,this_matrix,:,:)==0)) + 1) ')']));
@@ -205,5 +211,6 @@ for dvt = 1:length(datafit)
         end
     end
 end
+
 % end
 

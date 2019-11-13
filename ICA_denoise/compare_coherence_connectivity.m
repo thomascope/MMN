@@ -3,7 +3,7 @@
 thisdir = pwd;
 
 
-datapathstem = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_ICA_IID/crosshem/'; %With minimum norm source reconstruction
+datapathstem = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_ICA_LOR/crosshem/'; %With minimum norm source reconstruction
 addpath(['/group/language/data/thomascope/vespa/SPM12version/Standalone preprocessing pipeline/tc_source_stats/ojwoodford-export_fig-216b30e']);
 addpath(['/group/language/data/thomascope/MMN/ICA_denoise/stdshade']);
 
@@ -32,8 +32,8 @@ topfreqband = 49;
 
 closeafter = 1;
 
-analysis_type = 'Granger';
-%analysis_type = 'icoh';
+%analysis_type = 'Granger';
+analysis_type = 'icoh';
 
 switch(analysis_type)
     case 'Granger'

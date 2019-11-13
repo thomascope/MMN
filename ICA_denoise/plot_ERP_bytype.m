@@ -70,7 +70,7 @@ for j = 1:length(conditions)
         set(gca,'LineWidth',2)
         
             legend(linehandle,groups)
-        
+        saveas(DEV_plot,['./outputfigures/' conditions{j} ' Response (AU).png']);
     
     
     Abs_DEV_plot = figure(400*j);
@@ -103,7 +103,7 @@ for j = 1:length(conditions)
         set(gca,'LineWidth',2)
         
             legend(linehandle,groups)
-        
+        saveas(Abs_DEV_plot,['./outputfigures/' conditions{j} ' Abs Response (AU).png']);
     
     
     if j > 1 %Don't do MMN for STDs only
@@ -137,7 +137,7 @@ for j = 1:length(conditions)
             set(gca,'LineWidth',2)
             
                 legend(linehandle,groups)
-            
+            saveas(MMN_plot,['./outputfigures/' conditions{j} ' Mismatch Response (AU).png']);
         
         
         ABS_MMN_plot = figure(160000*j);
@@ -170,10 +170,10 @@ for j = 1:length(conditions)
             set(gca,'LineWidth',2)
             
                 legend(linehandle,groups)
-            
+            saveas(ABS_MMN_plot,['./outputfigures/' conditions{j} ' Abs Mismatch Response (AU).png']);
         
     end
-    pause
+    %pause
     close all %To prevent Java memory error
     
 %     DEV_plot = figure(20*j);

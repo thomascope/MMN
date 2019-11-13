@@ -36,10 +36,13 @@ Sname = {'left A1';
 for ss = 1:length(Participant)
     megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.name '/' 's_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_' prefix Participant{ss}.name '.mat'];
     diagnosis{ss} = Participant{ss}.diag;
-    
+        
     [f1,f2,f3] = fileparts(megpath{ss});
-    fn{ss} = sprintf('%s/%s/%dLFP_%s%s',[pathstem 'LFPs'],diagnosis{ss}, length(Sname), f2, f3);
-    
+    if strcmp(diagnosis{ss},'AD_MCI_pos')
+        fn{ss} = sprintf('%s/%s/%dLFP_%s%s',[pathstem 'LFPs'],'MCI', length(Sname), f2, f3);
+    else
+        fn{ss} = sprintf('%s/%s/%dLFP_%s%s',[pathstem 'LFPs'],diagnosis{ss}, length(Sname), f2, f3);
+    end
 end
 
 fft_method = 'mtmfft'; % 'wavelet' for morlet; can leave blank for multitaper.
