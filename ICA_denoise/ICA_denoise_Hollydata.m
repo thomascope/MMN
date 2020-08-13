@@ -221,6 +221,7 @@ p.contrast_weights = [1,-1,0,0,0,0,0;-1,1,0,0,0,0,0;1,0,-1,0,0,0,0;1,0,0,-1,0,0,
 %% Exclude MCIs with unknown or negative biomarker status
 for i = biomarker_positive_mci_indices
     Participant{i}.diag = 'ADMCI';
+    Participant{i}.groupfolder = 'ADMCI';
 end
 for i = biomarker_negative_mci_indices
     Participant{i}.diag = 'MCI_neg';
@@ -230,6 +231,7 @@ for i = biomarker_unknown_mci_indices
 end
 for i = biomarker_unknown_AD_indices
     Participant{i}.diag = 'ADMCI';
+    Participant{i}.groupfolder = 'ADMCI';
 end
 
 Participant([biomarker_negative_mci_indices, biomarker_unknown_mci_indices]) = [];
@@ -461,6 +463,7 @@ end
 
 %% Now baseline correct the LFPs
 LFPBaselinecomplete = zeros(1,nsubj);
+prefix = 'fmbraedfffM';
 parfor todonumber = 1:nsubj
     try
         Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
@@ -472,6 +475,8 @@ parfor todonumber = 1:nsubj
         inputfile = ['b' this_input_fname]
         outputfile = ['s_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_b' prefix Participant{todonumber}.name '.mat'];
         spm_parallel_eeg_copy(inputfile,outputfile);
+        delete(inputfile)
+        delete([inputfile(1:end-4) '.dat'])
         LFPBaselinecomplete(todonumber) = 1
         fprintf('\n\nLFP Baseline complete for subject number %d,\n\n',todonumber);
     catch
@@ -493,8 +498,9 @@ p.time_wind_path = time_wind_path;
 p.wind_cnt = wind_cnt;
 p.inv_meth = inv_meth;
 p.inv_cnt = val;
+baselined = 1;
 %plot_all_LFPs(Participant,pathstem,p,prefix)
-plot_MMN_bytype_LFP(Participant,pathstem,p,prefix)
+plot_MMN_bytype_LFP(Participant,pathstem,p,prefix,baselined)
 % 
 % %% Now plot the baseline corrected LFPs for sanity check
 % prefix = 'bfmbraedfffM';
@@ -893,6 +899,37 @@ catch
     secondlevelcomplete(1) = 0;
 end
 p.conditions = p.all_conditions;
+
+%% Now run Tallie's extended DCM - NB WORK IN PROGRESS
+prefix = 'fmbraedfffM';
+val = 2; %for LORETA
+%val = 1 %for IID
+p.time_wind_path = time_wind_path;
+p.wind_cnt = wind_cnt;
+p.inv_meth = inv_meth;
+p.inv_cnt = val;
+
+extDCMcomplete = zeros(1,nsubj);
+parfor todonumber = 1:nsubj
+    try
+        Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+    end
+    this_input_fname = ['s_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_' prefix Participant{todonumber}.name '.mat'];
+    this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/']
+    try
+        Preprocessing_mainfunction('baseline',this_input_fname,p,pathstem, [], this_output_folder_tail,todonumber)
+        inputfile = ['b' this_input_fname]
+        outputfile = ['s_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_b' prefix Participant{todonumber}.name '.mat'];
+        spm_parallel_eeg_copy(inputfile,outputfile);
+        LFPBaselinecomplete(todonumber) = 1
+        fprintf('\n\nLFP Baseline complete for subject number %d,\n\n',todonumber);
+    catch
+        LFPBaselinecomplete(todonumber) = 0;
+        fprintf('\n\nLFP Baseline failed for subject number %d,\n\n',todonumber);
+    end
+end
+
+
 
 %% Now plot the whole scalp ERPs for sanity check
 for todonumber = 1:nsubj

@@ -1,4 +1,4 @@
-function plot_MMN_bytype_LFP(Participant,pathstem,p,prefix)
+function plot_MMN_bytype_LFP(Participant,pathstem,p,prefix,baselined)
 % A function for plotting my extracted LFPs
 addpath(['/group/language/data/thomascope/MMN/ICA_denoise/stdshade']);
 
@@ -15,11 +15,19 @@ conditions = {'STD','DVT','Loc','Int','Dur','Gap','Freq','Loc_L','Freq_hi','Int_
 
 mkdir('./outputfigures/source/')
 
+if ~exist('baselined', 'var')
+    baselined = 0;
+end
+
 for ss = 1:length(Participant)
     try
         Participant{ss}.name = Participant{ss}.namepostmerge;
     end
-    megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.name '/' 's_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_' prefix Participant{ss}.name '.mat'];
+    if baselined == 1
+        megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.name '/' 's_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_b' prefix Participant{ss}.name '.mat'];
+    else
+        megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.name '/' 's_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_' prefix Participant{ss}.name '.mat'];
+    end
     diagnosis{ss} = Participant{ss}.diag;
     
     [f1,f2,f3] = fileparts(megpath{ss});
@@ -222,7 +230,7 @@ for i = 1:8
             end
         end
         ylim([these_ylims(1),these_ylims(2)+(this_ylim_range/8)])
-        title(Sname{i},'FontSize',34)
+        title(conditions{j},'FontSize',34)
         xlabel('Time (s)')
         xlim([-0.1 0.500])
         plot(D{1}.time,zeros(1,length(D{1}.time)),'k--','LineWidth',2)
@@ -267,7 +275,7 @@ for i = 1:8
             end
         end
         ylim([these_ylims(1),these_ylims(2)+(this_ylim_range/8)])
-        title(Sname{i},'FontSize',34)
+        title(['Abs ' conditions{j}],'FontSize',28)
         xlabel('Time (s)')
         xlim([-0.1 0.500])
         plot(D{1}.time,zeros(1,length(D{1}.time)),'k--','LineWidth',2)
@@ -314,7 +322,7 @@ for i = 1:8
             end
             end
             ylim([these_ylims(1),these_ylims(2)+(this_ylim_range/8)])
-            title(Sname{i},'FontSize',34)
+            title(['MMN ' conditions{j}],'FontSize',28)
             xlabel('Time (s)')
             xlim([-0.1 0.500])
             plot(D{1}.time,zeros(1,length(D{1}.time)),'k--','LineWidth',2)
@@ -361,7 +369,7 @@ for i = 1:8
             end
             end
             ylim([these_ylims(1),these_ylims(2)+(this_ylim_range/8)])
-            title(Sname{i},'FontSize',34)
+            title(['Abs MMN ' conditions{j}],'FontSize',22)
             xlabel('Time (s)')
             xlim([-0.1 0.500])
             plot(D{1}.time,zeros(1,length(D{1}.time)),'k--','LineWidth',2)

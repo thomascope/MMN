@@ -28,7 +28,8 @@ averagesubtracted = 1;
 highfreq = 1;
 timewins = [0 500];
 %timewins = [32 296; 300 564; 636 900];
-topfreqband = 49;
+%topfreqband = 49;
+topfreqband = 20;
 
 closeafter = 1;
 
@@ -391,12 +392,16 @@ for t = 1:size(timewins)
     legend_text = cell(1,2*length(groupstodo));
     for grp = 1:2:2*length(groupstodo)
         linehandle(grp) = stdshade_TEC_cmap(squeeze(mean(all_granger_data(from,to,:,:,:,group==ceil(grp/2)),5))',0.2,cmap(ceil(grp/2),:),foi,1,1,':');
+        switch(analysis_type)
+            case 'Granger'
         linehandle(grp+1) = stdshade_TEC_cmap(squeeze(mean(all_granger_data(to,from,:,:,:,group==ceil(grp/2)),5))',0.2,cmap(ceil(grp/2),:),foi,1,1,'--');
-        legend_text{grp} = [from_name '-' to_name ' ' groupstodo{ceil(grp/2)}]; 
         legend_text{grp+1} = [to_name '-' from_name ' ' groupstodo{ceil(grp/2)}];
+        end
+        legend_text{grp} = [from_name '-' to_name ' ' groupstodo{ceil(grp/2)}]; 
     end
-    legend(linehandle,legend_text)
+    legend(linehandle(~cellfun('isempty',legend_text)),legend_text(~cellfun('isempty',legend_text)))
     title(['By group ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
+    xlabel('Frequency, Hz')
     
     for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
         % all_granger_data = zeros(8,8,1,topfreqband,2,length(group));
@@ -699,6 +704,7 @@ for t = 1:size(timewins)
             plot(foi(i),0,'bx')
         end
     end
+    xlabel('Frequency, Hz')
     savestring = ['./figures/' from_name '_' to_name '_All_mean_std-dvt_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
     savestring = strrep(savestring,' ','_');
     eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
@@ -725,6 +731,7 @@ for t = 1:size(timewins)
             plot(foi(i),0,'bx')
         end
     end
+    xlabel('Frequency, Hz')
     savestring = ['./figures/' from_name '_' to_name '_All_median_std-dvt_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
     savestring = strrep(savestring,' ','_');
     eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
@@ -780,13 +787,18 @@ for t = 1:size(timewins)
     legend_text = cell(1,2*length(groupstodo));
     for grp = 1:2:2*length(groupstodo)
         linehandle(grp) = stdshade_TEC_cmap(squeeze(all_mismatch_contrasts(from,to,:,:,group==ceil(grp/2)))',0.2,cmap(ceil(grp/2),:),foi,1,1,':');
-        linehandle(grp+1) = stdshade_TEC_cmap(squeeze(all_mismatch_contrasts(to,from,:,:,group==ceil(grp/2)))',0.2,cmap(ceil(grp/2),:),foi,1,1,'--');
-        legend_text{grp} = [from_name '-' to_name ' ' groupstodo{ceil(grp/2)}]; 
-        legend_text{grp+1} = [to_name '-' from_name ' ' groupstodo{ceil(grp/2)}];
+        switch(analysis_type)
+            case 'Granger'
+                linehandle(grp+1) = stdshade_TEC_cmap(squeeze(mean(all_granger_data(to,from,:,:,:,group==ceil(grp/2)),5))',0.2,cmap(ceil(grp/2),:),foi,1,1,'--');
+                legend_text{grp+1} = [to_name '-' from_name ' ' groupstodo{ceil(grp/2)}];
+        end
+        legend_text{grp} = [from_name '-' to_name ' ' groupstodo{ceil(grp/2)}];
+        
     end
     plot(foi,zeros(1,length(foi)),'k--');
-    legend(linehandle,legend_text)
+    legend(linehandle(~cellfun('isempty',legend_text)),legend_text(~cellfun('isempty',legend_text)))
     title(['By group Mean Standard-Deviant ' analysis_type ])
+    xlabel('Frequency, Hz')
     savestring = ['./figures/' from_name '_' to_name '_Group_mean_std-dvt_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
     savestring = strrep(savestring,' ','_');
     eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);

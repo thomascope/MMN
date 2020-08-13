@@ -2694,6 +2694,16 @@ switch step
         
         fprintf('\n\nImage files windowed!\n\n');
         
+    case 'extDCM'
+        % A new section to run Tallie Adams' extended DCM model on the
+        % extracted LFP data
+        
+        addpath(genpath('/group/language/data/thomascope/MMN/ICA_denoise/Tallie_extDCM/'))
+        
+        
+        
+        
+        
     otherwise
         
         fprintf('\n\nProcess not found. Please try again!\n\n');

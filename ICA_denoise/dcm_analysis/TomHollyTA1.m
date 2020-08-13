@@ -4,6 +4,7 @@
 %% LABELS ACCORDING TO THE SUBJECT DATA MATRIX (collated with the help of ConStrength_A_README.m and ConStrength_B_README.m:
 
 groups_to_exclude = [6]; %Exclude MCI biomarker negative or unknown
+mkdir('./dcm_stats/')
 
 Alab_for1 = {'LA1-LSTG SP->SS' 'RA1-RSTG SP->SS' 'LSTG-LIFG SP->SS' 'RSTG-RIFG SP->SS' 'LSTG-LIPC SP->SS' 'RSTG-RIPC SP->SS' 'LIPC-LIFG SP->SS' 'RIPC-RIFG SP->SS'};
 Alab_for2 = {'LA1-LSTG SP->DP' 'RA1-RSTG SP->DP' 'LSTG-LIFG SP->DP' 'RSTG-RIFG SP->DP' 'LSTG-LIPC SP->DP' 'RSTG-RIPC SP->DP' 'LIPC-LIFG SP->DP' 'RIPC-RIFG SP->DP'};
@@ -196,6 +197,8 @@ for dvt = 1:length(datafit)
                         eval(['group_mean(grp) = mean(log(squeeze(' all_matrices{this_matrix} '(' num2str(from) ',' num2str(to) ',connectivity_EpA(:,2)==grp))));']);
                         eval(['group_ste(grp) = std(log(squeeze(' all_matrices{this_matrix} '(' num2str(from) ',' num2str(to) ',connectivity_EpA(:,2)==grp))))/sqrt(sum(connectivity_EpA(:,2)==grp));']);
                     end
+                    drawnow
+                    saveas(gcf,['./dcm_stats/' datafit{dvt} ' from ' order{from} ' to ' order{to} ' ' all_matrices{this_matrix} '_scatter.png']);
                     figure
                     errorbar([1:5],group_mean,group_ste,'kx')
                     set(gca,'XTick',[1:5])
@@ -203,7 +206,10 @@ for dvt = 1:length(datafit)
                     xlim([0 6])
                     hold on
                     plot([0,6],[0,0],'k--')
-                    pause
+                    set(gcf, 'PaperPositionMode', 'auto');
+                    drawnow
+                    saveas(gcf,['./dcm_stats/' datafit{dvt} ' from ' order{from} ' to ' order{to} ' ' all_matrices{this_matrix} '_errorbar.png']);
+                    %pause
                 end
                 close all
                 
