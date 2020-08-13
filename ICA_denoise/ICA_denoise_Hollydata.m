@@ -463,25 +463,26 @@ end
 
 %% Now baseline correct the LFPs
 LFPBaselinecomplete = zeros(1,nsubj);
-prefix = 'fmbraedfffM';
 parfor todonumber = 1:nsubj
-    try
-        Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
-    end
-    this_input_fname = ['s_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_' prefix Participant{todonumber}.name '.mat'];
-    this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/']
-    try
-        Preprocessing_mainfunction('baseline',this_input_fname,p,pathstem, [], this_output_folder_tail,todonumber)
-        inputfile = ['b' this_input_fname]
-        outputfile = ['s_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_b' prefix Participant{todonumber}.name '.mat'];
-        spm_parallel_eeg_copy(inputfile,outputfile);
-        delete(inputfile)
-        delete([inputfile(1:end-4) '.dat'])
-        LFPBaselinecomplete(todonumber) = 1
-        fprintf('\n\nLFP Baseline complete for subject number %d,\n\n',todonumber);
-    catch
-        LFPBaselinecomplete(todonumber) = 0;
-        fprintf('\n\nLFP Baseline failed for subject number %d,\n\n',todonumber);
+    if LFPBaselinecomplete(todonumber)~=4
+        for inv_cnt = 1:length(inv_meth)
+            this_input_fname = {['8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_fmbraedfffM' Participant{todonumber}.name '.mat'],
+                ['8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_braedfffM' Participant{todonumber}.name '.mat']
+                };
+            this_output_folder_tail = [Participant{todonumber}.diag '/']
+            for thismeg = 1:length(this_input_fname)
+                try
+                    Preprocessing_mainfunction('baseline',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,todonumber)
+                    LFPBaselinecomplete(todonumber) = LFPBaselinecomplete(todonumber) + 1;
+                    if LFPBaselinecomplete(todonumber) == 4
+                        fprintf('\n\nLFP Baseline complete for subject number %d,\n\n',todonumber);
+                    end
+                catch
+                    LFPBaselinecomplete(todonumber) = 0;
+                    fprintf('\n\nLFP Baseline failed for subject number %d,\n\n',todonumber);
+                end
+            end
+        end
     end
 end
 
