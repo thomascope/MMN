@@ -915,6 +915,11 @@ p.wind_cnt = wind_cnt;
 p.inv_meth = inv_meth;
 p.inv_cnt = val;
 
+%Open a parallel pool with lots of memory and spmd disabled to allow
+%continuation if a worker fails
+Poolinfo = cbupool(41,'--mem-per-cpu=16G --time=167:00:00');
+parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
+
 extDCMcomplete = zeros(1,nsubj);
 
 parfor todonumber = 1:nsubj
