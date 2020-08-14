@@ -1,8 +1,11 @@
 %%Make sure correct version of SPM running
-rmpath(genpath('/imaging/local/software/spm_cbu_svn/releases/spm12_latest/'));
 spmpath = '/group/language/data/thomascope/spm12_fil_r6906/';
-addpath(spmpath)
-spm eeg
+thisspm = which('spm');
+if ~strcmp(thisspm(1:end-5), spmpath)
+    rmpath(genpath('/imaging/local/software/spm_cbu_svn/releases/spm12_latest/'));
+    addpath(spmpath)
+    spm eeg
+end
 
 %This script ICA denoises the data for MMN analysis
 
@@ -447,7 +450,7 @@ parfor todonumber = 1:nsubj
             for thismeg = 1:length(megpaths)
                 try
                     
-                    [~] = Fullpipeline_extraction(megpaths{thismeg},Participant{todonumber}.diag,outpath,inv_cnt);
+                    [~] = Fullpipeline_extraction(megpaths{thismeg},Participant{todonumber}.diag,outpath,time_windowt);
                     LFPExtractioncomplete(todonumber) = LFPExtractioncomplete(todonumber)+1;
                     
                     
@@ -902,6 +905,8 @@ end
 p.conditions = p.all_conditions;
 
 %% Now run Tallie's extended DCM - NB WORK IN PROGRESS
+p.start_times = 0;
+p.end_times = 500;
 prefix = 'fmbraedfffM';
 val = 2; %for LORETA
 %val = 1 %for IID
@@ -911,25 +916,21 @@ p.inv_meth = inv_meth;
 p.inv_cnt = val;
 
 extDCMcomplete = zeros(1,nsubj);
+
 parfor todonumber = 1:nsubj
-    try
-        Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
-    end
-    this_input_fname = ['s_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_' prefix Participant{todonumber}.name '.mat'];
-    this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/']
-    try
-        Preprocessing_mainfunction('baseline',this_input_fname,p,pathstem, [], this_output_folder_tail,todonumber)
-        inputfile = ['b' this_input_fname]
-        outputfile = ['s_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_b' prefix Participant{todonumber}.name '.mat'];
-        spm_parallel_eeg_copy(inputfile,outputfile);
-        LFPBaselinecomplete(todonumber) = 1
-        fprintf('\n\nLFP Baseline complete for subject number %d,\n\n',todonumber);
-    catch
-        LFPBaselinecomplete(todonumber) = 0;
-        fprintf('\n\nLFP Baseline failed for subject number %d,\n\n',todonumber);
+    this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix Participant{todonumber}.name '.mat']};
+    this_output_folder_tail = [Participant{todonumber}.diag '/']
+    for thismeg = 1:length(this_input_fname)
+        try
+            Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,todonumber)
+            extDCMcomplete(todonumber) = LFPBaselinecomplete(todonumber) + 1;
+            fprintf('\n\nLFP DCM modelling complete for subject number %d,\n\n',todonumber);
+        catch
+            LFPBaselinecomplete(todonumber) = 0;
+            fprintf('\n\nLFP DCM modelling failed for subject number %d,\n\n',todonumber);
+        end
     end
 end
-
 
 
 %% Now plot the whole scalp ERPs for sanity check

@@ -3,73 +3,73 @@ function Preprocessing_mainfunction(step,prevStep,p,pathstem,maxfilteredpathstem
 if iscell(prevStep)
     prevStep1 = prevStep;
 else
-switch prevStep
-    % Here you specify the filenames that you search for after each step.
-    case 'maxfilter'
-        prevStep1 = '*ssst.fif';
-        S.outfilestem = [pathstem subjects];
-        if ~exist(S.outfilestem,'dir')
-            mkdir(S.outfilestem);
-        end
-        pathstem = maxfilteredpathstem;
-    case 'convert'
-        prevStep1 = 'run*.mat';
-    case 'ICA_artifacts'
-        prevStep1 = 'Mrun*.mat';
-    case 'ICA_artifacts_copy'
-        prevStep1 = 'Mrun*.mat';
-    case 'downsample'
-        prevStep1 = 'd*Mrun*.mat';
-    case 'epoch'
-        prevStep1 = 'e*Mrun*.mat';
-    case 'merge'
-        prevStep1 = 'c*Mrun*.mat';
-    case 'merge_withsession'
-        prevStep1 = 'z*Mrun*.mat';
-    case 'rereference'
-        prevStep1 = 'M*Mrun*.mat';
-    case 'TF_power'
-        prevStep1 = 'tf*Mrun*.mat';
-    case 'TF_phase'
-        prevStep1 = 'tph*Mrun*.mat';
-    case 'TF_rescale'
-        prevStep1 = 'r*Mrun*.mat';
-    case 'filter'
-        prevStep1 = 'fb*Mrun*.mat';
-    case 'secondfilter'
-        prevStep1 = 'ffb*Mrun*.mat';
-    case 'baseline'
-        prevStep1 = 'b*Mrun*.mat';
-    case 'average'
-        prevStep1 = 'm*Mrun*.mat';
-    case 'quickaverage'
-        prevStep1 = 'quick/m*Mrun*.mat';
-    case 'weight'
-        prevStep1 = 'w*Mrun*.mat';
-    case 'combineplanar'
-        prevStep1 = 'p*Mrun*.mat';
-    case 'artefact'
-        prevStep1 = 'a*Mrun*.mat';
-    case 'blink'
-        prevStep1 = 'clean*Mrun*.mat';
-    case 'image'
-        prevStep1 = 'trial*Mrun*.img';
-    case 'smooth'
-        prevStep1 = 'sm*Mrun*.img';
-    case 'firstlevel'
-        prevStep1 = 't*Mrun*.img';
-        
-end
-
-try
-    prevStep2 = strrep(prevStep1,'run','nobuttons');
-catch
-    prevStep1 = prevStep;
-    prevStep2 = [prevStep(1:end-6) 'n*.mat'];
-end
-if strcmp(prevStep1,prevStep2)
-    prevStep2 = 'neverfindthis';
-end
+    switch prevStep
+        % Here you specify the filenames that you search for after each step.
+        case 'maxfilter'
+            prevStep1 = '*ssst.fif';
+            S.outfilestem = [pathstem subjects];
+            if ~exist(S.outfilestem,'dir')
+                mkdir(S.outfilestem);
+            end
+            pathstem = maxfilteredpathstem;
+        case 'convert'
+            prevStep1 = 'run*.mat';
+        case 'ICA_artifacts'
+            prevStep1 = 'Mrun*.mat';
+        case 'ICA_artifacts_copy'
+            prevStep1 = 'Mrun*.mat';
+        case 'downsample'
+            prevStep1 = 'd*Mrun*.mat';
+        case 'epoch'
+            prevStep1 = 'e*Mrun*.mat';
+        case 'merge'
+            prevStep1 = 'c*Mrun*.mat';
+        case 'merge_withsession'
+            prevStep1 = 'z*Mrun*.mat';
+        case 'rereference'
+            prevStep1 = 'M*Mrun*.mat';
+        case 'TF_power'
+            prevStep1 = 'tf*Mrun*.mat';
+        case 'TF_phase'
+            prevStep1 = 'tph*Mrun*.mat';
+        case 'TF_rescale'
+            prevStep1 = 'r*Mrun*.mat';
+        case 'filter'
+            prevStep1 = 'fb*Mrun*.mat';
+        case 'secondfilter'
+            prevStep1 = 'ffb*Mrun*.mat';
+        case 'baseline'
+            prevStep1 = 'b*Mrun*.mat';
+        case 'average'
+            prevStep1 = 'm*Mrun*.mat';
+        case 'quickaverage'
+            prevStep1 = 'quick/m*Mrun*.mat';
+        case 'weight'
+            prevStep1 = 'w*Mrun*.mat';
+        case 'combineplanar'
+            prevStep1 = 'p*Mrun*.mat';
+        case 'artefact'
+            prevStep1 = 'a*Mrun*.mat';
+        case 'blink'
+            prevStep1 = 'clean*Mrun*.mat';
+        case 'image'
+            prevStep1 = 'trial*Mrun*.img';
+        case 'smooth'
+            prevStep1 = 'sm*Mrun*.img';
+        case 'firstlevel'
+            prevStep1 = 't*Mrun*.img';
+            
+    end
+    
+    try
+        prevStep2 = strrep(prevStep1,'run','nobuttons');
+    catch
+        prevStep1 = prevStep;
+        prevStep2 = [prevStep(1:end-6) 'n*.mat'];
+    end
+    if strcmp(prevStep1,prevStep2)
+        prevStep2 = 'neverfindthis';
+    end
 end
 
 switch step
@@ -2698,14 +2698,50 @@ switch step
         % A new section to run Tallie Adams' extended DCM model on the
         % extracted LFP data
         
-        addpath(genpath('/group/language/data/thomascope/MMN/ICA_denoise/Tallie_extDCM/'))
+        % Create cleanup object to make sure that the SPM path is only
+        % changed for this function
         
+        old_path = path;
+        cleanupObj = onCleanup(@()restore_env(old_path));
         
+        % Now add paths with impunity (more are changed in the function
+        % itself)
+        addpath('/group/language/data/thomascope/MMN/ICA_denoise/Tallie_extDCM/')
+        addpath('/imaging/na01/misc/TALLIE_SCRIPTS/extDCM/extDCM scripts')
+        addpath('/imaging/na01/misc/TALLIE_SCRIPTS/extDCM/mfiles_also_needed')
         
+        for s=1:size(subjects,1)
+            
+            fprintf([ '\n\nCurrent subject = ' subjects '...\n\n' ]);
+            
+            % change to input directory
+            filePath = [pathstem subjects];
+            cd(filePath);
+            
+            % search for input files
+            files = [dir(prevStep1); dir(prevStep2)];
+            
+            for f=1:length(files)
+                
+                fprintf([ '\n\nProcessing ' files(f).name '...\n\n' ]);
+                
+                % main process
+                DCM = integrated_DCMTA(files(f).name,[p.start_times p.end_times]);
+                
+            end
+            
+        end % subjects
         
+        fprintf('\n\nData subjected to extended DCM!\n\n');
         
     otherwise
         
         fprintf('\n\nProcess not found. Please try again!\n\n');
         
+end
+
+% This is the cleanup routine.
+    function restore_env(old_path)
+        path(old_path);
+    end
 end
