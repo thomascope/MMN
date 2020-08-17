@@ -332,8 +332,8 @@ fprintf('.      Vp: [%s] \n.      Vg: [%s] \n',num2str(size(Vp)),num2str(size(Vg
 strR = nout(2,@fileparts,DCM.name);
 strRa = datestr(datetime);
 strRa = strRa(1:end-3);
-mkdir(['/imaging/tc02/Holly_MMN/REPORTS_' strRa])
-disp(['    -- reporting incrementally saved in /imaging/tc02/Holly_MMN/REPORTS_' strRa])
+mkdir(['/imaging/tc02/Holly_MMN/DCM_REPORTS/REPORTS_' strRa])
+disp(['    -- reporting incrementally saved in /imaging/tc02/Holly_MMN/DCM_REPORTS/REPORTS_' strRa])
 %disp(['    -- EM optimize p ' strR])
 EP     = [];
 for ip = 1:M.Nmax
@@ -728,6 +728,6 @@ DCM.M = rmfield(DCM.M,'dipfit');
 if ~exist('/imaging/tc02/Holly_MMN/extDCMs/','dir')
     mkdir('/imaging/tc02/Holly_MMN/extDCMs/')
 end
-save(['/imaging/tc02/Holly_MMN/extDCMs/' nout(2,@fileparts,DCM.name) '_dcm.mat'],'DCM')
+save(['/imaging/tc02/Holly_MMN/extDCMs/' nout(2,@fileparts,DCM.name) '_' DCM.xY.code{1} '.mat'],'DCM')
 
 return

@@ -1,10 +1,14 @@
-function DCM = integrated_DCMTA(megfilename,time_window)
+function DCM = integrated_DCMTA(megfilename,time_window,condition)
 % An original script by Tallie Adams to apply an extended neuronal
 % model DCM to mismatch negativity data, subtly modified by Thomas Cope to be
 % more generalisable in application, but with the mechanics unchanged. It
 % still explicitly specifies the connectivity model.
+% Condition can be specified either with a number or with a code
 
 %% First load Tallie's version of SPM, with her additional scripts, if not already loaded
+old_path = path;
+cleanupObj = onCleanup(@()restore_env(old_path));
+
 spmpath = '/group/language/data/thomascope/MMN/ICA_denoise/Tallie_extDCM/spm12_latestTA/';
 thisspm = which('spm');
 if ~strcmp(thisspm(1:end-5), spmpath)
@@ -316,6 +320,16 @@ D         = spm_eeg_load(megfilename);
 ti        = time(D,[],'ms');
 cond      = D.condlist;
 mode      = 'LFP';
+if isstr(condition)
+    DM_names                = condition;
+    DM_trials               = find(strcmp(cond,condition));
+else
+    DM_trials               = condition;
+    DM_names                = cond(DM_trials);
+end
+if ~isscalar(DM_trials)
+    error('A single condition needs to be specified')
+end
 
 % Need to specify which model. On the basis of Holly's first pass classic
 % DCM, a fully connected model is specified. Specifically:
@@ -399,8 +413,6 @@ C         = ~~DCM.C;
 DCM.pE.C  = C*32 - 32;
 DCM.pC.C  = zeros(size(C)); % C/8;
 
-DM_trials               = [1];
-DM_names                = {'Dev'};
 DM_design               = [1];
 suffix                  = ''; % extra addition to outfile name if desired
 
@@ -451,10 +463,10 @@ DCM.M.fu                = {@(c,varargin)fu(c,varargin)}; % {@(c)fu(c)}; %
 % g:
 DCM.gE.J                = sparse(1,Np*Nns);
 DCM.gE.J(1:Np)          = [.2 .8 0 .2 0 .2]; %[.2 0 0 0 .8 0 0 0 0 0 0 0 .2 0 0 0];
-DCM.gE.J                = repmat(DCM.gE.J,[3 1]);
+DCM.gE.J                = repmat(DCM.gE.J,[Nn 1]);
 DCM.gC.J                = sparse(1,Np*Nns);
 DCM.gC.J(1:Np)          = [1/8 1/8 1/16 1/8 1/16 1/8]; % ones(1,Np)/8;
-DCM.gC.J                = repmat(DCM.gC.J,[3 1]);
+DCM.gC.J                = repmat(DCM.gC.J,[Nn 1]);
 
 DCM.gE.Lpos             = sparse(3,0);
 DCM.gC.Lpos             = sparse(3,0);

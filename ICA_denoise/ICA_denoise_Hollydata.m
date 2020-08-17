@@ -906,7 +906,7 @@ p.conditions = p.all_conditions;
 
 %% Now run Tallie's extended DCM - NB WORK IN PROGRESS
 p.start_times = 0;
-p.end_times = 500;
+p.end_times = 400;
 prefix = 'fmbraedfffM';
 val = 2; %for LORETA
 %val = 1 %for IID
@@ -928,10 +928,10 @@ parfor todonumber = 1:nsubj
     for thismeg = 1:length(this_input_fname)
         try
             Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,todonumber)
-            extDCMcomplete(todonumber) = LFPBaselinecomplete(todonumber) + 1;
+            extDCMcomplete(todonumber) = extDCMcomplete(todonumber) + 1;
             fprintf('\n\nLFP DCM modelling complete for subject number %d,\n\n',todonumber);
         catch
-            LFPBaselinecomplete(todonumber) = 0;
+            extDCMcomplete(todonumber) = 0;
             fprintf('\n\nLFP DCM modelling failed for subject number %d,\n\n',todonumber);
         end
     end
