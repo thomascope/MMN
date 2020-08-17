@@ -2725,9 +2725,10 @@ switch step
                 
                 fprintf([ '\n\nProcessing ' files(f).name '...\n\n' ]);
                 
+                for condition = p.conditions
                 % main process
-                DCM = integrated_DCMTA(files(f).name,[p.start_times p.end_times],condition);
-                
+                    DCM = integrated_DCMTA(files(f).name,[p.start_times p.end_times],cell2mat(condition));
+                end
             end
             
         end % subjects

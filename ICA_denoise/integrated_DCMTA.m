@@ -344,44 +344,44 @@ end
 
 % forward
 A{1} = [     0     0     0     0     0     0     0     0
-             1     0     0     0     0     1     0     0
-             0     1     0     0     0     0     1     0
-             0     1     1     0     0     0     0     1
-             0     0     0     0     0     0     0     0
-             0     1     0     0     1     0     0     0
-             0     0     1     0     0     1     0     0
-             0     0     0     1     0     1     1     0];
+    1     0     0     0     0     1     0     0
+    0     1     0     0     0     0     1     0
+    0     1     1     0     0     0     0     1
+    0     0     0     0     0     0     0     0
+    0     1     0     0     1     0     0     0
+    0     0     1     0     0     1     0     0
+    0     0     0     1     0     1     1     0];
 
 
 % backward
 A{2} = [     0     1     0     0     0     0     0     0
-             0     0     1     1     0     1     0     0
-             0     0     0     1     0     0     1     0
-             0     0     0     0     0     0     0     1
-             0     0     0     0     0     1     0     0
-             0     1     0     0     0     0     1     1
-             0     0     1     0     0     0     0     1
-             0     0     0     1     0     0     0     0];
+    0     0     1     1     0     1     0     0
+    0     0     0     1     0     0     1     0
+    0     0     0     0     0     0     0     1
+    0     0     0     0     0     1     0     0
+    0     1     0     0     0     0     1     1
+    0     0     1     0     0     0     0     1
+    0     0     0     1     0     0     0     0];
 
 % modulatory - INGORE
 A{3} = [     0     0     0     0     0     0     0     0
-             0     0     0     0     0     0     0     0
-             0     0     0     0     0     0     0     0
-             0     0     0     0     0     0     0     0
-             0     0     0     0     0     0     0     0
-             0     0     0     0     0     0     0     0
-             0     0     0     0     0     0     0     0
-             0     0     0     0     0     0     0     0];
-         
+    0     0     0     0     0     0     0     0
+    0     0     0     0     0     0     0     0
+    0     0     0     0     0     0     0     0
+    0     0     0     0     0     0     0     0
+    0     0     0     0     0     0     0     0
+    0     0     0     0     0     0     0     0
+    0     0     0     0     0     0     0     0];
+
 % across trial &/ intrinsic
 B{1} = [     1     0     0     0     0     0     0     0
-             0     1     0     0     0     0     0     0
-             0     0     1     0     0     0     0     0
-             0     0     0     1     0     0     0     0
-             0     0     0     0     1     0     0     0
-             0     0     0     0     0     1     0     0
-             0     0     0     0     0     0     1     0
-             0     0     0     0     0     0     0     1];
+    0     1     0     0     0     0     0     0
+    0     0     1     0     0     0     0     0
+    0     0     0     1     0     0     0     0
+    0     0     0     0     1     0     0     0
+    0     0     0     0     0     1     0     0
+    0     0     0     0     0     0     1     0
+    0     0     0     0     0     0     0     1];
 
 C = [1 0 1 0 1 0 1 0]'; % input
 
@@ -454,7 +454,7 @@ disp(['       starting potential of ' num2str(DCM.M.x(1,1,1))])
 
 
 DCM.M.f                 = @(x,u,P,M)fx(x,u,P,M); % 'spm_fx_cmm_NMDAint3ext22';
-DCM.M.G                 = 'spm_lx_erp_cmmNMDATA';
+DCM.M.G                 = 'spm_lx_erp_cmmNMDA_symflexTA'; %'spm_lx_erp_cmmNMDATA'
 DCM.M.genQ              = 'spm_gen_QTAint33';
 DCM.M.IS                = 'spm_gen_erp_nonx'; % spm_int_L
 DCM.M.FS                = 'spm_fy_erp';
@@ -593,13 +593,15 @@ if DCM.options.han
     end
 end
 
+disp(['       Using -100ms -> 0ms, for baseline correction'])
+tv0_i = [findnearest(-100,D.time) findnearest(0,D.time)];
 for i = 1:length(DCM.options.trials)
     c = D.indtrial(cond(DCM.options.trials(i)), 'GOOD');
     Nt = length(c);
     DCM.xY.nt(i) = Nt;
     Y = zeros(Ns,Nc);
     for j = 1:Nt
-        Y = Y + R*(D(Ic,It,c(j)) - nanmean(D(Ic,1:100,c(j)),2))';
+        Y = Y + R*(D(Ic,It,c(j)) -  nanmean(D(Ic,tv0_i(1):tv0_i(2),c(j)),2))';
     end
     DCM.xY.y{i} = -Y/Nt;
 end
@@ -636,6 +638,10 @@ disp(' -- RUNNING THE INVERSION')
 
 DCM = spm_nlsi_N_TEC_modified(DCM);
 
+function restore_env(old_path)
+path(old_path);
+end
 
 end
+
 

@@ -905,7 +905,7 @@ end
 p.conditions = p.all_conditions;
 
 %% Now run Tallie's extended DCM - NB WORK IN PROGRESS
-p.start_times = 0;
+p.start_times = -100; %Needs a 100ms baseline
 p.end_times = 400;
 prefix = 'fmbraedfffM';
 val = 2; %for LORETA
@@ -914,6 +914,7 @@ p.time_wind_path = time_wind_path;
 p.wind_cnt = wind_cnt;
 p.inv_meth = inv_meth;
 p.inv_cnt = val;
+p.conditions = {'STD','DVT'}; % Just do standards and deviants for now
 
 %Open a parallel pool with lots of memory and spmd disabled to allow
 %continuation if a worker fails
