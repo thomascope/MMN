@@ -593,7 +593,7 @@ for ip = 1:M.Nmax
         R.p{10} = permute(R.p{10},[2 1 3]);
         R.p{11} = permute(R.p{11},[2 1 3]);
         
-        save(['/imaging/tc02/Holly_MMN/REPORTS_' strRa '/' strR],'R')
+        save(['/imaging/tc02/Holly_MMN/DCM_REPORTS/REPORTS_' strRa '/' strR],'R')
         
         %NODES = {'LIFG' 'LSTG' 'LAud' 'RIFG' 'RSTG' 'RAud'};
         NODES = DCM.Sname';
@@ -650,7 +650,7 @@ for ip = 1:M.Nmax
         subplot(3,7,[13 14]), hold on
         for k1 = 1:size(R.yp,2)
             if DCM.options.han
-                plot(these_times,(R.yp(:,k1,k)-nanmean(R.yp(:,k1,k),1)).*[(tukeywin(size(R.yp,1)/2,.3)+(1/3))/(4/3)';(tukeywin(size(R.yp,1)/2,.3)+(1/3))/(4/3)'],'Color',node_colours(k1,:),'LineWidth',2.5)
+                plot(these_times,(R.yp(:,k1,k)-nanmean(R.yp(:,k1,k),1)).*[(tukeywin(ceil(size(R.yp,1)/2),.3)+(1/3))/(4/3)';(tukeywin(floor(size(R.yp,1)/2),.3)+(1/3))/(4/3)'],'Color',node_colours(k1,:),'LineWidth',2.5)
             else
                 plot(these_times,(R.yp(:,k1,k)-nanmean(R.yp(:,k1,k),1)),'Color',node_colours(k1,:),'LineWidth',2.5)
             end % [hanning(size(R.yp,1)/2)' hanning(size(R.yp,1)/2)']'

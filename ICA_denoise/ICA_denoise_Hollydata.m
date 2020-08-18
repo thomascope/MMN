@@ -905,7 +905,7 @@ end
 p.conditions = p.all_conditions;
 
 %% Now run Tallie's extended DCM - NB WORK IN PROGRESS
-p.start_times = -100; %Needs a 100ms baseline
+p.start_times = 0;
 p.end_times = 400;
 prefix = 'fmbraedfffM';
 val = 2; %for LORETA

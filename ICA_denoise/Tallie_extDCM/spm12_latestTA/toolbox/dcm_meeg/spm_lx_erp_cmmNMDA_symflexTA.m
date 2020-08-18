@@ -39,21 +39,22 @@ l = kron(P.J(1,:),L);
 try
     o = struct();
     for k = 1:size(P.J,1)
-        o.(['L' k]) = kron(P.J(k,:),L);
+        o.(['L' num2str(k)]) = kron(P.J(k,:),L);
     end
-
+    
     L       = l*0; % get sparse size
     n = (size(L,1)/2);
     for k = 1:n
-        L(k,k)  = o.(['L' k])(k,k);
-        L(k+n,k+n) = o.(['L' k])(k+n,k+n);
-
-        L(k,k+6) = o.(['L' k])(k,k+6);
-        L(k+n,k+n+6) = o.(['L' k])(k+n,k+n+6);
+        L(k,k)  = o.(['L' num2str(k)])(k,k);
+        L(k+n,k+n) = o.(['L' num2str(k)])(k+n,k+n);
         
-        L(k,k+18) = o.(['L' k])(k,k+18);
-        L(k+n,k+n+18) = o.(['L' k])(k+n,k+n+18);
+        L(k,k+6) = o.(['L' num2str(k)])(k,k+6);
+        L(k+n,k+n+6) = o.(['L' num2str(k)])(k+n,k+n+6);
+        
+        L(k,k+18) = o.(['L' num2str(k)])(k,k+18);
+        L(k+n,k+n+18) = o.(['L' num2str(k)])(k+n,k+n+18);
     end
+
 catch err
     if isnumeric(P.J)
         L = kron(P.J,L);                       % lead-field per state

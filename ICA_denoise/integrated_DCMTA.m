@@ -427,7 +427,7 @@ DCM.options.Fdcm        = [0 48];                                      % frequen
 DCM.options.Rft         = 5;
 DCM.options.onset       = 60;                                          % gaussian input onset time (ms)
 DCM.options.dur         = 8;                                           % standard deviation of the gaussian kernel
-DCM.options.Nmodes      = 6;                                           % number of nodes in the system
+DCM.options.Nmodes      = 8;                                           % number of modes in the system (default 8)
 DCM.options.h           = 1;
 DCM.options.han         = 1;                                           % if you have a hanning window
 DCM.options.D           = 1;
@@ -463,10 +463,10 @@ DCM.M.fu                = {@(c,varargin)fu(c,varargin)}; % {@(c)fu(c)}; %
 % g:
 DCM.gE.J                = sparse(1,Np*Nns);
 DCM.gE.J(1:Np)          = [.2 .8 0 .2 0 .2]; %[.2 0 0 0 .8 0 0 0 0 0 0 0 .2 0 0 0];
-DCM.gE.J                = repmat(DCM.gE.J,[Nn 1]);
+DCM.gE.J                = repmat(DCM.gE.J,[Nn/2 1]);
 DCM.gC.J                = sparse(1,Np*Nns);
 DCM.gC.J(1:Np)          = [1/8 1/8 1/16 1/8 1/16 1/8]; % ones(1,Np)/8;
-DCM.gC.J                = repmat(DCM.gC.J,[Nn 1]);
+DCM.gC.J                = repmat(DCM.gC.J,[Nn/2 1]);
 
 DCM.gE.Lpos             = sparse(3,0);
 DCM.gC.Lpos             = sparse(3,0);
