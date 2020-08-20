@@ -16,7 +16,7 @@ end
 disp([num2str(size(all_files,1)) ' files found, proceeding'])
 nodelist = {'left A1', 'left STG', 'left IFG', 'left IPC', 'right A1', 'right STG', 'right IFG', 'right IPC'};
 figure
-for i = 1:size(all_files,1)
+for i = size(all_files,1):-1:1
     clf
     disp(['plotting ' all_files(i).folder filesep all_files(i).name])
     all_files(i).name
@@ -25,8 +25,8 @@ for i = 1:size(all_files,1)
         
         subplot(4,2,j)
         hold on
-        plot(0:4:500, R.y(:,j,end))
-        plot(0:4:500, R.yp(:,j,end), 'r')
+        plot(0:4:400, R.y(:,j,end))
+        plot(0:4:400, R.yp(:,j,end), 'r')
         title(nodelist{j})
     end
     pause

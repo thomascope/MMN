@@ -922,6 +922,18 @@ Poolinfo = cbupool(41,'--mem-per-cpu=16G --time=167:00:00');
 parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 
 extDCMcomplete = zeros(1,nsubj);
+%For repeating the NaN matrices
+%thesetodos = unique(third)
+clear all_names
+for i = 1:length(Participant)
+all_names{i} = Participant{i}.name;
+end
+thesetodos = [];
+thesetodos(end+1) = find(strcmp('14_0150_vp8',all_names));
+thesetodos(end+1) = find(strcmp('14_0333',all_names));
+thesetodos(end+1) = 50;
+%parfor this_one = 1:length(thesetodos)
+%todonumber = thesetodos(this_one)
 
 parfor todonumber = 1:nsubj
     this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix Participant{todonumber}.name '.mat']};
