@@ -241,8 +241,10 @@ Participant([biomarker_negative_mci_indices, biomarker_unknown_mci_indices]) = [
 nsubj = nsubj - (length(biomarker_negative_mci_indices)+length(biomarker_unknown_mci_indices));
 
 all_diagnoses = cell(1,nsubj);
+all_names = cell(1,nsubj);
 for todonumber = 1:nsubj
     all_diagnoses{todonumber} = Participant{todonumber}.diag;
+    all_names{todonumber} = Participant{todonumber}.name;
 end
 [p.diagnosis_list, ~, p.group] = unique(all_diagnoses,'stable');
 
@@ -683,7 +685,7 @@ end
 
 %% Now do TF grand averages 
 
-prefix = 'wrmtf_braedfffM*.mat';
+prefix = 'wrmtf_braedfffM*.mat';e
 TFweightedgrandaveragecomplete = zeros(1,1);
 this_output_folder_tail = {};
 for todonumber = 1:nsubj
@@ -904,7 +906,7 @@ catch
 end
 p.conditions = p.all_conditions;
 
-%% Now run Tallie's extended DCM - NB WORK IN PROGRESS
+%% Now run Tallie's extended DCM
 p.start_times = 0;
 p.end_times = 400;
 prefix = 'fmbraedfffM';
@@ -949,7 +951,22 @@ parfor todonumber = 1:nsubj
         end
     end
 end
+delete(gcp)
 
+%% Now do a first level PEB on the extDCM data
+dirname_DCM = '/imaging/tc02/Holly_MMN/extDCMs/';
+filestem = 'b8LFP_s_-100_500_LOR_fmbraedfffM';
+conditions = {'STD', 'DVT'};
+all_combinations = combvec(unique(p.group)',1:length(conditions));
+Poolinfo = cbupool(length(all_combinations),'--mem-per-cpu=16G --time=167:00:00');
+parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
+% parfor this_comb = 1:length(all_combinations)
+for this_comb = 1:length(all_combinations) %falls over in parallel due to tmp.mat and unpredictable cd behaviour - needs fixing for bigger datasets
+    k = all_combinations(1,this_comb)
+    c = all_combinations(2,this_comb)
+    extDCM_firstlevel_PEB(dirname_DCM,filestem,conditions(c),k,p,all_names)
+end
+delete(gcp)
 
 %% Now plot the whole scalp ERPs for sanity check
 for todonumber = 1:nsubj
