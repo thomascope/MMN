@@ -3,66 +3,6 @@
 % extDCMpostproc_notes
 %
 
-
-%% PEB 1 - THE FULL MODEL:
-
-% this is repeated for each set of DCMs you did. For instance, I had the
-% controls and patients for the standard and deviant conditions in
-% different folders, making 4 repitions of this section. The full model is
-% reduced for the different folders separately, meaning there is no
-% group-mean assumption across the conditions - only across the
-% participants in each group.
-
-% First, go to the directory where you saved one of your DCMs and create
-% your file list to work with:
-
-dirname_DCM = '/imaging/tc02/Holly_MMN/extDCMs/';
-conditions = {'STD', 'DVT'};
-all_combinations = combvec(1:max(p.group),1:length(conditions));
-parfor this_comb = 1:length(all_combinations)
-    k = all_combinations(1,this_comb)
-    c = all_combinations(2,this_comb)
-% for k = 1:max(p.group)
-%     for c = 1:length(conditions)
-        this_group = find(p.group==k);
-        dcm_files={};
-        for subj = 1:length(this_group)
-            if exist([dirname_DCM 'b8LFP_s_-100_500_LOR_fmbraedfffM' all_names{this_group(subj)} '_dcm_' conditions{c} '.mat'],'file')
-            dcm_files{end+1} = [dirname_DCM 'b8LFP_s_-100_500_LOR_fmbraedfffM' all_names{this_group(subj)} '_dcm_' conditions{c} '.mat'];
-            else
-                warning([dirname_DCM 'b8LFP_s_-100_500_LOR_fmbraedfffM' all_names{this_group(subj)} '_dcm_' conditions{c} '.mat does not exist'])
-            end
-        end
-
-    save('dcm_files','dcm_files')
-
-    %  Load the DCMs into a cell array and set up the variables for the PEB:
-    clear DCM
-    for i = 1:length(dcm_files)
-        DCM{i,1} = load(dcm_files{i});
-        DCM{i,1} = DCM{i,1}.DCM;
-    end
-    [~,rC,rE] = spm_find_pC(DCM{1});
-    clear M
-    M.Q = 'single';
-    M.bE = rE;
-    M.bC = rC;
-
-    % run the PEB for all fields, giving the group-level result in PEB and the
-    % reduced values for all individuals in DCM (N.B. only .Ep is updated in
-    % the new DCM structure). In this case we are interested in the DCM
-    % output, not the PEB:
-    [PEB,DCM] = spm_dcm_peb(DCM,M,'all');
-    DCM = spm_dcm_reduce(DCM,rE,rC);
-    
-    if ~exist([dirname_DCM 'PEB_firstlevel' filesep])
-mkdir([dirname_DCM 'PEB_firstlevel' filesep])
-    end
-
-    save([dirname_DCM 'PEB_firstlevel' filesep 'First_level_PEB_' p.diagnosis_list{k} '_' conditions{c} '.mat'],'DCM','PEB')
-end
-end
-
 %% PEB 2 - the second level design matrix
 
 % load all the reduced DCMs created in the above step into a single
