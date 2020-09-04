@@ -1,5 +1,8 @@
-function DCM = integrated_DCMTA(megfilename,time_window,condition)
-% An original script by Tallie Adams to apply an extended neuronal
+function DCM = multilevel_DCMTA(megfilename,time_window,condition)
+% A new script for two participants who failed fitting, using loose
+% parameters to get a posterior that is then re-used as a prior for the
+% modelling, as suggested by Amir Jafarian, implemented by Thomas Cope,
+% based on an original script by Tallie Adams to apply an extended neuronal
 % model DCM to mismatch negativity data, subtly modified by Thomas Cope to be
 % more generalisable in application, but with the mechanics unchanged. It
 % still explicitly specifies the connectivity model.
@@ -443,8 +446,8 @@ Nns                     = 7;                                           % neurona
 Np                      = 6;                                           % populations
 Nn                      = size(A{1},1);                                % nodes
 
-DCM.M.hE                = 8;       %Changed from 6 because of two conditions where NaNs were creeping into the state space matrix
-DCM.M.hC                = 1/128;
+DCM.M.hE                = 16;       %changed from 6 for run 1
+DCM.M.hC                = 1/256;    %changed from 1/128 for run 1
 DCM.M.h                 = [];
 DCM.M.Xp                = [];
 
@@ -634,7 +637,26 @@ DCM.M.Nmax     = DCM.options.Nmax;
 
 
 %%
-disp(' -- RUNNING THE INVERSION')
+disp(' -- RUNNING THE FIRST INVERSION')
+
+DCM = spm_nlsi_N_TEC_modified(DCM);
+
+DCM.M.hE                = 6;       %changed from 6 for run 1
+DCM.M.hC                = 1/128;    %changed from 1/128 for run 1
+DCM.pE      = DCM.Ep;
+DCM.pC      = DCM.Cp;
+DCM.gE       = DCM.Eg;
+DCM.gC       = DCM.Cg;
+
+DCM.M.dipfit.type       = DCM.options.spatial;
+DCM.M.dipfit.location   = DCM.options.location;
+DCM.M.dipfit.symmetry   = DCM.options.symmetry;
+DCM.M.dipfit.model      = DCM.options.model;
+DCM.M.dipfit.Ns         = length(DCM.Sname);
+DCM.M.dipfit.Nc         = length(DCM.xY.Ic);
+DCM.M.dipfit.modality   = 'LFP';
+
+disp(' -- NOW RE-RUNNING THE INVERSION USING THE POSTERIOR AS A PRIOR')
 
 DCM = spm_nlsi_N_TEC_modified(DCM);
 
