@@ -446,8 +446,8 @@ Nns                     = 7;                                           % neurona
 Np                      = 6;                                           % populations
 Nn                      = size(A{1},1);                                % nodes
 
-DCM.M.hE                = 16;       %changed from 6 for run 1
-DCM.M.hC                = 1/256;    %changed from 1/128 for run 1
+DCM.M.hE                = 6;       %changed from 6 for run 1
+DCM.M.hC                = 1/128;    %changed from 1/128 for run 1
 DCM.M.h                 = [];
 DCM.M.Xp                = [];
 
@@ -637,24 +637,22 @@ DCM.M.Nmax     = DCM.options.Nmax;
 
 
 %%
-disp(' -- RUNNING THE FIRST INVERSION')
+%disp(' -- RUNNING THE FIRST INVERSION')
+%DCM = spm_nlsi_N_TEC_modified(DCM);
 
-DCM = spm_nlsi_N_TEC_modified(DCM);
+disp('Loading the inversion from the unfailed run as a template for DCM.x')
+if strcmp(condition,'DVT')
+    DCM_template = load(['/imaging/tc02/Holly_MMN/extDCMs/' nout(2,@fileparts,megfilename) '_dcm_STD.mat'],'DCM');
+else
+    DCM_template = load(['/imaging/tc02/Holly_MMN/extDCMs/' nout(2,@fileparts,megfilename) '_dcm_DVT.mat'],'DCM');
+end
 
-DCM.M.hE                = 6;       %changed from 6 for run 1
-DCM.M.hC                = 1/128;    %changed from 1/128 for run 1
-DCM.pE      = DCM.Ep;
-DCM.pC      = DCM.Cp;
-DCM.gE       = DCM.Eg;
-DCM.gC       = DCM.Cg;
+DCM.pE      = DCM_template.DCM.Ep;
+DCM.pC      = diag(diag(DCM_template.DCM.Cp));
+DCM.gE       = DCM_template.DCM.Eg;
+DCM.gC       = diag(diag(DCM_template.DCM.Cg));
 
-DCM.M.dipfit.type       = DCM.options.spatial;
-DCM.M.dipfit.location   = DCM.options.location;
-DCM.M.dipfit.symmetry   = DCM.options.symmetry;
-DCM.M.dipfit.model      = DCM.options.model;
-DCM.M.dipfit.Ns         = length(DCM.Sname);
-DCM.M.dipfit.Nc         = length(DCM.xY.Ic);
-DCM.M.dipfit.modality   = 'LFP';
+DCM.M.x = reshape(mean(DCM_template.DCM.x{1},1),[8,6,7]);
 
 disp(' -- NOW RE-RUNNING THE INVERSION USING THE POSTERIOR AS A PRIOR')
 

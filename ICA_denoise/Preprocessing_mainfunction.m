@@ -2727,7 +2727,11 @@ switch step
                 
                 for condition = p.conditions
                 % main process
+                if isfield(p,'multilevel') && p.multilevel == 1
+                    DCM = multilevel_DCMTA(files(f).name,[p.start_times p.end_times],cell2mat(condition));
+                else
                     DCM = integrated_DCMTA(files(f).name,[p.start_times p.end_times],cell2mat(condition));
+                end
                 end
             end
             
