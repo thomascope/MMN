@@ -2701,6 +2701,10 @@ switch step
         % Create cleanup object to make sure that the SPM path is only
         % changed for this function
         
+        if isfield(p,'subjcntforcondition')&& p.subjcntforcondition == 1
+            p.conditions = p.conditions(subjcnt);
+        end
+        
         old_path = path;
         cleanupObj = onCleanup(@()restore_env(old_path));
         

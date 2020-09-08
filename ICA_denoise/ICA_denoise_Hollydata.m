@@ -916,39 +916,52 @@ p.time_wind_path = time_wind_path;
 p.wind_cnt = wind_cnt;
 p.inv_meth = inv_meth;
 p.inv_cnt = val;
-p.conditions = {'STD','DVT'}; % Just do standards and deviants for now
+%conditions_to_invert = {'STD','DVT','location','intensity','duration','gap','frequency'};
+%conditions_to_invert = {'STD','DVT'}; % Just do standards and deviants for now
+conditions_to_invert = {'location','intensity','duration','gap','frequency'};
 
 %Open a parallel pool with lots of memory and spmd disabled to allow
 %continuation if a worker fails
 Poolinfo = cbupool(31,'--mem-per-cpu=24G --time=167:00:00');
 parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 
-extDCMcomplete = zeros(1,nsubj);
+
 %For repeating the NaN matrices
 %thesetodos = unique(third)
 clear all_names
 for i = 1:length(Participant)
 all_names{i} = Participant{i}.name;
 end
+
+% Parallelise subject and condition to avoid failure stoppages
+all_condition_numbers = 1:length(conditions_to_invert);
+all_subjects = 1:nsubj;
+allrunsarray = [];
+allrunsarray=combvec(all_subjects,all_condition_numbers)';
+extDCMcomplete = zeros(1,size(allrunsarray,1));
+p.subjcntforcondition = 1;
+p.conditions = conditions_to_invert;
+p.multilevel = 0; %for first run
+
 % % thesetodos = [];
-% % thesetodos(end+1) = find(strcmp('meg14_0150_vp8',all_names));
+% % thesetodos(end+1) = find(strcmp('meg14_0150_vp8',all_names)); %Failed runs
 % % thesetodos(end+1) = find(strcmp('meg14_0333',all_names));
 % % p.multilevel = 1
-% % thesetodos(end+1) = 50;
+
 % % %parfor this_one = 1:length(thesetodos)
 % % %todonumber = thesetodos(this_one)
 
-parfor todonumber = 1:nsubj
-    this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix Participant{todonumber}.name '.mat']};
-    this_output_folder_tail = [Participant{todonumber}.diag '/']
+parfor todonumber = 1:size(allrunsarray,1)
+    this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix Participant{allrunsarray(todonumber,1)}.name '.mat']};
+    this_output_folder_tail = [Participant{allrunsarray(todonumber,1)}.diag '/']
     for thismeg = 1:length(this_input_fname)
         try
-            Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,todonumber)
+            Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,allrunsarray(todonumber,2))
             extDCMcomplete(todonumber) = extDCMcomplete(todonumber) + 1;
-            fprintf('\n\nLFP DCM modelling complete for subject number %d,\n\n',todonumber);
+            fprintf('\n\nLFP DCM modelling complete for run number %d,\n\n',todonumber);
         catch
             extDCMcomplete(todonumber) = 0;
-            fprintf('\n\nLFP DCM modelling failed for subject number %d,\n\n',todonumber);
+            fprintf('\n\nLFP DCM modelling failed for run number %d,\n\n',todonumber);
         end
     end
 end
