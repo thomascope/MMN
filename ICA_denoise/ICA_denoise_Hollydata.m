@@ -922,7 +922,7 @@ conditions_to_invert = {'location','intensity','duration','gap','frequency'};
 
 %Open a parallel pool with lots of memory and spmd disabled to allow
 %continuation if a worker fails
-Poolinfo = cbupool(31,'--mem-per-cpu=24G --time=167:00:00');
+Poolinfo = cbupool(24,'--mem-per-cpu=32G --time=167:00:00');
 parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 
 
@@ -1004,8 +1004,27 @@ prefix = 'PfmbraedfffM';
 % end
 thesediagnoses = {'Control','ADMCI','nfvppa','pca','bvFTD'};
 plot_ERP_bytype(Participant,pathstem,p,prefix,thesediagnoses)
+quantify_MMN_ERP(Participant,pathstem,p,prefix,thesediagnoses)
+%% Work in progress - quantitative analysis on the LFP data after Hughes et al. 2013
 
-% %% Work in progress - second level analysis on the LFP data
+for todonumber = 1:nsubj
+        try
+        Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+        end
+end
+prefix = 'fmbraedfffM';
+val = 2; %for LORETA
+%val = 1 %for IID
+p.time_wind_path = time_wind_path;
+p.wind_cnt = wind_cnt;
+p.inv_meth = inv_meth;
+p.inv_cnt = val;
+baselined = 1;
+plot_all_LFPs(Participant,pathstem,p,prefix)
+quantify_MMN_LFP(Participant,pathstem,p,prefix,baselined)
+
+
+
 % 
 % prefix = 'PfmbraedfffM';
 % secondlevelcomplete = zeros(1,1);
