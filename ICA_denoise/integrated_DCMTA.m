@@ -435,7 +435,7 @@ DCM.options.lock        = 0;
 DCM.options.multiC      = 0;                                           % used if your input matrix has more than one column
 DCM.options.location    = 0;
 DCM.options.symmetry    = 0;
-DCM.options.Nmax        = 100;                                          % Increased from 64 to 100 for peace of mind. max number of iterations - can be ANY number you want, if you're lucky it'll converge after 30.
+DCM.options.Nmax        = 64;                                          % Max number of iterations - can be ANY number you want, if you're lucky it'll converge after 30.
 disp(['       time window [' num2str(time_window(1)) ' ' num2str(time_window(2)) ']'])
 disp(['       running a max of ' num2str(DCM.options.Nmax) ' iterations'])
 
@@ -443,7 +443,7 @@ Nns                     = 7;                                           % neurona
 Np                      = 6;                                           % populations
 Nn                      = size(A{1},1);                                % nodes
 
-DCM.M.hE                = 8;       %Changed from 6 because of two conditions where NaNs were creeping into the state space matrix
+DCM.M.hE                = 6;       %Changed from 6 because of two conditions where NaNs were creeping into the state space matrix
 DCM.M.hC                = 1/128;
 DCM.M.h                 = [];
 DCM.M.Xp                = [];

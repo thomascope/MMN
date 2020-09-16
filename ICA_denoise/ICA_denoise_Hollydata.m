@@ -925,9 +925,6 @@ conditions_to_invert = {'location','intensity','duration','gap','frequency'};
 Poolinfo = cbupool(24,'--mem-per-cpu=32G --time=167:00:00');
 parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 
-
-%For repeating the NaN matrices
-%thesetodos = unique(third)
 clear all_names
 for i = 1:length(Participant)
 all_names{i} = Participant{i}.name;
@@ -942,15 +939,6 @@ extDCMcomplete = zeros(1,size(allrunsarray,1));
 p.subjcntforcondition = 1;
 p.conditions = conditions_to_invert;
 p.multilevel = 0; %for first run
-
-% % thesetodos = [];
-% % thesetodos(end+1) = find(strcmp('meg14_0150_vp8',all_names)); %Failed runs
-% % thesetodos(end+1) = find(strcmp('meg14_0333',all_names));
-% % p.multilevel = 1
-
-% % %parfor this_one = 1:length(thesetodos)
-% % %todonumber = thesetodos(this_one)
-
 parfor todonumber = 1:size(allrunsarray,1)
     this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix Participant{allrunsarray(todonumber,1)}.name '.mat']};
     this_output_folder_tail = [Participant{allrunsarray(todonumber,1)}.diag '/']
@@ -965,6 +953,29 @@ parfor todonumber = 1:size(allrunsarray,1)
         end
     end
 end
+
+% Now repeat for those few subjects who failed integration, using the posterior as a prior
+extDCM_directory = '/imaging/tc02/Holly_MMN/extDCMs/';
+conditions_to_invert = {'STD','DVT','location','intensity','duration','gap','frequency'};
+p.conditions = conditions_to_invert;
+[subjcondpair] = find_failed_extDCM_integrations(extDCM_directory,conditions_to_invert,Participant);
+
+p.subjcntforcondition = 1;
+p.multilevel = 1;
+parfor this_one = 1:size(subjcondpair,1)
+    this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix subjcondpair{this_one,1} '.mat']};
+    this_output_folder_tail = [Participant{allrunsarray(todonumber,1)}.diag '/']
+    this_cond = find(strcmp(subjcondpair{this_one,2}, p.conditions));
+    for thismeg = 1:length(this_input_fname)
+        try
+            Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,this_cond)
+            fprintf('\n\nLFP DCM modelling complete for run number %d,\n\n',todonumber);
+        catch
+            fprintf('\n\nLFP DCM modelling failed for run number %d,\n\n',todonumber);
+        end
+    end
+end
+    
 delete(gcp)
 
 %% Now do a first level PEB on the extDCM data
