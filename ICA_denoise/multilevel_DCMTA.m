@@ -438,7 +438,7 @@ DCM.options.lock        = 0;
 DCM.options.multiC      = 0;                                           % used if your input matrix has more than one column
 DCM.options.location    = 0;
 DCM.options.symmetry    = 0;
-DCM.options.Nmax        = 100;                                          % Increased from 64 to 100 for peace of mind. max number of iterations - can be ANY number you want, if you're lucky it'll converge after 30.
+DCM.options.Nmax        = 64;                                          % Max number of iterations - can be ANY number you want, if you're lucky it'll converge after 30.
 disp(['       time window [' num2str(time_window(1)) ' ' num2str(time_window(2)) ']'])
 disp(['       running a max of ' num2str(DCM.options.Nmax) ' iterations'])
 
@@ -641,10 +641,10 @@ DCM.M.Nmax     = DCM.options.Nmax;
 %DCM = spm_nlsi_N_TEC_modified(DCM);
 
 disp('Loading the inversion from the unfailed run as a template for DCM.x')
-if strcmp(condition,'DVT')
-    DCM_template = load(['/imaging/tc02/Holly_MMN/extDCMs/' nout(2,@fileparts,megfilename) '_dcm_STD.mat'],'DCM');
-else
+if strcmp(condition,'STD')
     DCM_template = load(['/imaging/tc02/Holly_MMN/extDCMs/' nout(2,@fileparts,megfilename) '_dcm_DVT.mat'],'DCM');
+else
+    DCM_template = load(['/imaging/tc02/Holly_MMN/extDCMs/' nout(2,@fileparts,megfilename) '_dcm_STD.mat'],'DCM');
 end
 
 DCM.pE      = DCM_template.DCM.Ep;

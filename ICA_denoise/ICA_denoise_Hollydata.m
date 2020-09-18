@@ -964,14 +964,18 @@ p.subjcntforcondition = 1;
 p.multilevel = 1;
 parfor this_one = 1:size(subjcondpair,1)
     this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix subjcondpair{this_one,1} '.mat']};
-    this_output_folder_tail = [Participant{allrunsarray(todonumber,1)}.diag '/']
+    this_output_folder_tail = [Participant{find(strcmp(subjcondpair{this_one,1},all_names))}.diag '/']
     this_cond = find(strcmp(subjcondpair{this_one,2}, p.conditions));
     for thismeg = 1:length(this_input_fname)
         try
             Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,this_cond)
-            fprintf('\n\nLFP DCM modelling complete for run number %d,\n\n',todonumber);
+            fprintf('\n\nLFP DCM modelling complete for run number %d,\n\n',find(strcmp(subjcondpair{this_one,1},all_names)));
         catch
-            fprintf('\n\nLFP DCM modelling failed for run number %d,\n\n',todonumber);
+            try %Try again
+                Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,this_cond)
+            catch
+                fprintf('\n\nLFP DCM modelling failed for run number %d,\n\n',find(strcmp(subjcondpair{this_one,1},all_names)));
+            end
         end
     end
 end

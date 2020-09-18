@@ -28,3 +28,9 @@ for j = 1:length(Participant)
         end
     end
 end
+
+mkdir('./extDCM_failures')
+
+T = cell2table(subjcondpair,'VariableNames',{'Subject','Condition'});
+todaysdate = datevec(date); 
+writetable(T,['./extDCM_failures/failed_integrations' join([num2str(todaysdate(1)),num2str(todaysdate(2)),num2str(todaysdate(3))],'') '.csv']);
