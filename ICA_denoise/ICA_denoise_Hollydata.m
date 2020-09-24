@@ -916,13 +916,13 @@ p.time_wind_path = time_wind_path;
 p.wind_cnt = wind_cnt;
 p.inv_meth = inv_meth;
 p.inv_cnt = val;
-%conditions_to_invert = {'STD','DVT','location','intensity','duration','gap','frequency'};
+conditions_to_invert = {'STD','DVT','location','intensity','duration','gap','frequency'};
 %conditions_to_invert = {'STD','DVT'}; % Just do standards and deviants for now
-conditions_to_invert = {'location','intensity','duration','gap','frequency'};
+%conditions_to_invert = {'location','intensity','duration','gap','frequency'};
 
 %Open a parallel pool with lots of memory and spmd disabled to allow
 %continuation if a worker fails
-Poolinfo = cbupool(24,'--mem-per-cpu=32G --time=167:00:00');
+Poolinfo = cbupool(48,'--mem-per-cpu=16G --time=167:00:00');
 parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 
 clear all_names
@@ -942,6 +942,7 @@ p.multilevel = 0; %for first run
 parfor todonumber = 1:size(allrunsarray,1)
     this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix Participant{allrunsarray(todonumber,1)}.name '.mat']};
     this_output_folder_tail = [Participant{allrunsarray(todonumber,1)}.diag '/']
+    pause(mod(todonumber,60)); %Introduce a pause to stagger the workers - otherwise sometimes the pool fails if trying to read or write simultaneously 
     for thismeg = 1:length(this_input_fname)
         try
             Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,allrunsarray(todonumber,2))
@@ -956,7 +957,7 @@ end
 
 % Now repeat for those few subjects who failed integration, using the posterior as a prior
 extDCM_directory = '/imaging/tc02/Holly_MMN/extDCMs/';
-conditions_to_invert = {'STD','DVT','location','intensity','duration','gap','frequency'};
+%conditions_to_invert = {'STD','DVT','location','intensity','duration','gap','frequency'};
 p.conditions = conditions_to_invert;
 [subjcondpair] = find_failed_extDCM_integrations(extDCM_directory,conditions_to_invert,Participant);
 
@@ -985,7 +986,7 @@ delete(gcp)
 %% Now do a first level PEB on the extDCM data
 dirname_DCM = '/imaging/tc02/Holly_MMN/extDCMs/';
 filestem = 'b8LFP_s_-100_500_LOR_fmbraedfffM';
-conditions = {'STD', 'DVT'};
+conditions = {'STD','DVT','location','intensity','duration','gap','frequency'};
 all_combinations = combvec(unique(p.group)',1:length(conditions));
 Poolinfo = cbupool(length(all_combinations),'--mem-per-cpu=16G --time=167:00:00');
 parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
