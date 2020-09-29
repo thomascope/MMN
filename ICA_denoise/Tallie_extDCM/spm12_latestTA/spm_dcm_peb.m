@@ -424,8 +424,14 @@ for n = 1:64
         % otherwise, retrieve expansion point and increase regularisation
         %------------------------------------------------------------------
         t  = t - 1;
+        %         try
+        %             load('tmp.mat');
+        %         catch %Sometimes this falls over in the parallel loop
+        %             drawnow
+        %             pause(15)
+        %             load('tmp.mat');
+        %         end
         load('tmp.mat');
-        
     end
     
 

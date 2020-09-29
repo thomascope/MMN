@@ -992,7 +992,7 @@ parfor this_one = 1:size(subjcondpair,1)
     this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix subjcondpair{this_one,1} '.mat']};
     this_output_folder_tail = [Participant{find(strcmp(subjcondpair{this_one,1},all_names))}.diag '/']
     this_cond = find(strcmp(subjcondpair{this_one,2}, p.conditions));
-    pause(mod(this_one*30,90)); %Introduce a pause to stagger the workers - otherwise sometimes the pool fails if trying to read or write simultaneously 
+    %pause(mod(this_one*30,90)); %Introduce a pause to stagger the workers - otherwise sometimes the pool fails if trying to read or write simultaneously 
     for thismeg = 1:length(this_input_fname)
         try
             Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,this_cond)
@@ -1032,14 +1032,18 @@ end
 delete(gcp)
 
 %% Now do a first level PEB on the extDCM data
-dirname_DCM = '/imaging/tc02/Holly_MMN/extDCMs/';
+dirname_DCM = '/imaging/tc02/Holly_MMN/extDCMs_hE6/';
 filestem = 'b8LFP_s_-100_500_LOR_fmbraedfffM';
 conditions = {'STD','DVT','location','intensity','duration','gap','frequency'};
 all_combinations = combvec(unique(p.group)',1:length(conditions));
-Poolinfo = cbupool(length(all_combinations),'--mem-per-cpu=16G --time=167:00:00');
+if length(all_combinations) < 48
+    Poolinfo = cbupool(length(all_combinations),'--mem-per-cpu=16G --time=167:00:00');
+else
+    Poolinfo = cbupool(48,'--mem-per-cpu=16G --time=167:00:00');
+end
 parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
-% parfor this_comb = 1:length(all_combinations)
-for this_comb = 1:length(all_combinations) %falls over in parallel due to tmp.mat and unpredictable cd behaviour - needs fixing for bigger datasets
+parfor this_comb = 1:length(all_combinations)
+%for this_comb = 1:length(all_combinations) %falls over in parallel due to tmp.mat and unpredictable cd behaviour - needs fixing for bigger datasets
     k = all_combinations(1,this_comb)
     c = all_combinations(2,this_comb)
     extDCM_firstlevel_PEB(dirname_DCM,filestem,conditions(c),k,p,all_names)

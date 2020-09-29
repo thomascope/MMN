@@ -72,8 +72,8 @@ for k = groups
         % output, not the PEB:
         %cd to a dummy directory as, if parallelised, tmp.mat files can
         %overwrite each other
-        mkdir([dirname_DCM 'PEB_firstlevel' filesep 'tempdir_' num2str(k) '_' num2str(c)])
-        cd([dirname_DCM 'PEB_firstlevel' filesep 'tempdir_' num2str(k) '_' num2str(c)])
+        mkdir([dirname_DCM 'PEB_firstlevel' filesep 'tempdir_' p.diagnosis_list{k} '_' conditions{c}])
+        cd([dirname_DCM 'PEB_firstlevel' filesep 'tempdir_' p.diagnosis_list{k} '_' conditions{c}])
         [PEB,DCM] = spm_dcm_peb(DCM,M,'all');
         DCM = spm_dcm_reduce(DCM,rE,rC);
         cd(this_dir)
