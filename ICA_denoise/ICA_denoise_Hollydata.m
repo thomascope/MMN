@@ -961,12 +961,38 @@ extDCM_directory = '/imaging/tc02/Holly_MMN/extDCMs/';
 p.conditions = conditions_to_invert;
 [subjcondpair] = find_failed_extDCM_integrations(extDCM_directory,conditions_to_invert,Participant);
 
+these_STDs = {}; %Now find those subjects where the standard failed to integrate
+for i = 1:size(subjcondpair,1)
+if strcmp(subjcondpair{i,2},'STD')
+these_STDs{end+1} = subjcondpair{i,1};
+end
+end
+
+these_DVTs = {};
+these_others = [];
+for i = 1:size(subjcondpair,1)
+    if strcmp(subjcondpair{i,2},'DVT') && any(contains(these_STDs,subjcondpair{i,1}))
+        these_DVTs{end+1} = subjcondpair{i,1};
+    elseif ~strcmp(subjcondpair{i,2},'STD') && any(contains(these_STDs,subjcondpair{i,1})) 
+        these_others(end+1) = i;
+    end
+end
+
+if ~isempty(these_DVTs)
+    error('Both the STD and the DVT integration contain NaNs for at least one subject. This is fatally problematic for loading the posteriors as priors')
+end
+
+firstwavedata = subjcondpair(setdiff(1:size(subjcondpair,1),these_others),:);
+secondwavedata = subjcondpair(intersect(1:size(subjcondpair,1),these_others),:);
+
+subjcondpair = firstwavedata;
 p.subjcntforcondition = 1;
 p.multilevel = 1;
 parfor this_one = 1:size(subjcondpair,1)
     this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix subjcondpair{this_one,1} '.mat']};
     this_output_folder_tail = [Participant{find(strcmp(subjcondpair{this_one,1},all_names))}.diag '/']
     this_cond = find(strcmp(subjcondpair{this_one,2}, p.conditions));
+    pause(mod(this_one*30,90)); %Introduce a pause to stagger the workers - otherwise sometimes the pool fails if trying to read or write simultaneously 
     for thismeg = 1:length(this_input_fname)
         try
             Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,this_cond)
@@ -981,6 +1007,28 @@ parfor this_one = 1:size(subjcondpair,1)
     end
 end
     
+subjcondpair = secondwavedata;
+p.subjcntforcondition = 1;
+p.multilevel = 1;
+parfor this_one = 1:size(subjcondpair,1)
+    this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix subjcondpair{this_one,1} '.mat']};
+    this_output_folder_tail = [Participant{find(strcmp(subjcondpair{this_one,1},all_names))}.diag '/']
+    this_cond = find(strcmp(subjcondpair{this_one,2}, p.conditions));
+    pause(mod(this_one*30,90)); %Introduce a pause to stagger the workers - otherwise sometimes the pool fails if trying to read or write simultaneously 
+    for thismeg = 1:length(this_input_fname)
+        try
+            Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,this_cond)
+            fprintf('\n\nLFP DCM modelling complete for run number %d,\n\n',find(strcmp(subjcondpair{this_one,1},all_names)));
+        catch
+            try %Try again
+                Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,this_cond)
+            catch
+                fprintf('\n\nLFP DCM modelling failed for run number %d,\n\n',find(strcmp(subjcondpair{this_one,1},all_names)));
+            end
+        end
+    end
+end
+
 delete(gcp)
 
 %% Now do a first level PEB on the extDCM data

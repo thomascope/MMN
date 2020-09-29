@@ -23,7 +23,7 @@ for j = 1:length(Participant)
             subjcondpair(end+1,:) = {Participant{j}.name,Inverted_Conditions{i}};
         end
         if any(any(isnan(D.DCM.H{1}))) %Debugging of NaNs
-            disp(['NaNs found in file ' strrep(filelist(j).name,'DVT',Inverted_Conditions{i})])
+            disp(['NaNs found in file ' strrep(strrep(filelist(first_subj_file).name,Participant{1}.name,Participant{j}.name),Inverted_Conditions{1},Inverted_Conditions{i})])
             subjcondpair(end+1,:) = {Participant{j}.name,Inverted_Conditions{i}};
         end
     end
@@ -31,6 +31,14 @@ end
 
 mkdir('./extDCM_failures')
 
-T = cell2table(subjcondpair,'VariableNames',{'Subject','Condition'});
-todaysdate = datevec(date); 
+try
+    T = cell2table(subjcondpair,'VariableNames',{'Subject','Condition'});
+    todaysdate = datevec(date); 
 writetable(T,['./extDCM_failures/failed_integrations' join([num2str(todaysdate(1)),num2str(todaysdate(2)),num2str(todaysdate(3))],'') '.csv']);
+catch
+    if isempty(subjcondpair)
+        disp('Yay, no NaNs or missing files')
+    else
+        error('Something went wrong with writing the table but it was not that there were no dodgy files')
+    end
+end

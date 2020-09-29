@@ -2732,7 +2732,7 @@ switch step
                 for condition = p.conditions
                     % main process
                     if isfield(p,'multilevel') && p.multilevel == 1
-                        error('Purposeful error to abort parallel loop');
+                        %error('Purposeful error to abort parallel loop');
                         DCM = multilevel_DCMTA(files(f).name,[p.start_times p.end_times],cell2mat(condition));
                     else
                         if exist(['/imaging/tc02/Holly_MMN/extDCMs/' nout(2,@fileparts,[files(f).name(1:end-4) '_dcm']) '_' cell2mat(condition) '.mat'],'file')
