@@ -1048,6 +1048,7 @@ parfor this_comb = 1:length(all_combinations)
     c = all_combinations(2,this_comb)
     extDCM_firstlevel_PEB(dirname_DCM,filestem,conditions(c),k,p,all_names)
 end
+rmdir([dirname_DCM 'PEB_firstlevel' filesep 'tempdir_*'])
 delete(gcp)
 
 %% Now plot the whole scalp ERPs for sanity check
