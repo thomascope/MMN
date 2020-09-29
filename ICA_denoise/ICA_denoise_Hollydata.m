@@ -1051,6 +1051,11 @@ end
 rmdir([dirname_DCM 'PEB_firstlevel' filesep 'tempdir_*'])
 delete(gcp)
 
+%% Now do a second level PEB on the extDCM data
+
+extDCM_secondlevel_PEB(dirname_DCM,filestem,conditions,unique(p.group)',p,all_names)
+
+
 %% Now plot the whole scalp ERPs for sanity check
 for todonumber = 1:nsubj
         try

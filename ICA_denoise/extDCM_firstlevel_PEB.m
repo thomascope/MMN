@@ -70,8 +70,8 @@ for k = groups
         % reduced values for all individuals in DCM (N.B. only .Ep is updated in
         % the new DCM structure). In this case we are interested in the DCM
         % output, not the PEB:
-        %cd to a dummy directory as, if parallelised, tmp.mat files can
-        %overwrite each other
+        % cd to a dummy directory as, if parallelised, tmp.mat files can
+        % overwrite each other
         mkdir([dirname_DCM 'PEB_firstlevel' filesep 'tempdir_' p.diagnosis_list{k} '_' conditions{c}])
         cd([dirname_DCM 'PEB_firstlevel' filesep 'tempdir_' p.diagnosis_list{k} '_' conditions{c}])
         [PEB,DCM] = spm_dcm_peb(DCM,M,'all');
