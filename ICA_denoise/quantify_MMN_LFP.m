@@ -56,13 +56,24 @@ for ss = 1:length(Participant)
             all_abs_MMN(i,ss,:,j)=abs(all_MMN(i,ss,:,j));
         end
     end
+    %Correct for changing sound system latency over the years - 13ms until
+    %2011, 32ms until 2015, then 26ms
+    temp_split = strsplit(Participant{ss}.name,'meg');
+    this_year(ss) = str2num(temp_split{2}(1:2));
+    if this_year<=11
+        all_times{ss}= D{ss}.time-0.013;
+    elseif this_year>=15
+        all_times{ss} = D{ss}.time-0.026;
+    else
+        all_times{ss} = D{ss}.time-0.032;
+    end
 end
 
 
 plot_points = 0;
 for ss = 1:length(Participant)
     for i = 1:length(Sname)
-        STD_M100_amplitude(i,ss)=max(abs(all_STD(i,ss,D{ss}.time>=0.05&D{ss}.time<=0.15))); %STD amplitude
+        STD_M100_amplitude(i,ss)=max(abs(all_STD(i,ss,all_times{ss}>=0.05&all_times{ss}<=0.15))); %STD amplitude
         if plot_points == 1
             values_plot = figure(1);
             clf(gcf)
@@ -70,29 +81,30 @@ for ss = 1:length(Participant)
             set(gcf, 'PaperPositionMode', 'auto');
             hold off
             subplot(2,ceil(length(conditions)/2),1)
-            plot(D{ss}.time,squeeze(all_STD(i,ss,:)),'k-')
+            plot(all_times{ss},squeeze(all_STD(i,ss,:)),'k-')
             hold on
-            plot(D{ss}.time,repmat(STD_M100_amplitude(i,ss),1,length(D{ss}.time)),'r--');
-            plot(D{ss}.time,-repmat(STD_M100_amplitude(i,ss),1,length(D{ss}.time)),'r--');
+            plot(all_times{ss},repmat(STD_M100_amplitude(i,ss),1,length(all_times{ss})),'r--');
+            plot(all_times{ss},-repmat(STD_M100_amplitude(i,ss),1,length(all_times{ss})),'r--');
             hold off
         end
         for j = 2:length(conditions)
-            [~,firstpeakloc]=findpeaks(squeeze(all_abs_MMN(i,ss,D{ss}.time>=0.1&D{ss}.time<=0.3,j)),'MinPeakHeight',max(squeeze(all_abs_MMN(i,ss,D{ss}.time>=0.1&D{ss}.time<=0.3,j)))*3/4);
+            [~,firstpeakloc]=findpeaks(squeeze(all_abs_MMN(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.3,j)),'MinPeakHeight',max(squeeze(all_abs_MMN(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.3,j)))*3/4);
             if isempty(firstpeakloc)
-                [~,firstpeakloc]=findpeaks(squeeze(all_abs_MMN(i,ss,D{ss}.time>=0.1&D{ss}.time<=0.3,j)),'MinPeakHeight',max(squeeze(all_abs_MMN(i,ss,D{ss}.time>=0.1&D{ss}.time<=0.3,j)))*0.5);
+                [~,firstpeakloc]=findpeaks(squeeze(all_abs_MMN(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.3,j)),'MinPeakHeight',max(squeeze(all_abs_MMN(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.3,j)))*0.5);
                 if isempty(firstpeakloc)
-                    [~,firstpeakloc] = max(squeeze(all_abs_MMN(i,ss,D{ss}.time>=0.1&D{ss}.time<=0.3,j)));
+                    [~,firstpeakloc] = max(squeeze(all_abs_MMN(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.3,j)));
                 end
             end
-            firstpeaksample = min(find(D{ss}.time>=0.1))+firstpeakloc(1)-1;
-            MMN_latency(i,ss,j)=D{ss}.time(firstpeaksample);
-            MMN_amplitude(i,ss,j)=mean(all_abs_MMN(i,ss,D{ss}.time>=(MMN_latency(i,ss,j)-0.05)&D{ss}.time<=(MMN_latency(i,ss,j)+0.05),j),3);
-            relative_MMN_amplitude(i,ss,j)=MMN_amplitude(i,ss,j)/STD_M100_amplitude(i,ss);
+            firstpeaksample = min(find(all_times{ss}>=0.1))+firstpeakloc(1)-1;
+            MMN_latency(i,ss,j)=all_times{ss}(firstpeaksample);
+            MMN_amplitude(i,ss,j)=mean(all_abs_MMN(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.2,j),3);
+            %relative_MMN_amplitude(i,ss,j)=MMN_amplitude(i,ss,j)/STD_M100_amplitude(i,ss);
+            relative_MMN_amplitude(i,ss,j)=mean(all_abs_MMN(i,ss,all_times{ss}>=(MMN_latency(i,ss,j)-0.05)&all_times{ss}<=(MMN_latency(i,ss,j)+0.05),j),3);
             if plot_points == 1
                subplot(2,ceil(length(conditions)/2),j) 
-               plot(D{ss}.time,squeeze(all_abs_MMN(i,ss,:,j)),'k-')
+               plot(all_times{ss},squeeze(all_abs_MMN(i,ss,:,j)),'k-')
                hold on
-               plot(D{ss}.time,squeeze(all_MMN(i,ss,:,j)),'k--')
+               plot(all_times{ss},squeeze(all_MMN(i,ss,:,j)),'k--')
                plot(MMN_latency(i,ss,j),MMN_amplitude(i,ss,j),'x')
                plot(MMN_latency(i,ss,j),-MMN_amplitude(i,ss,j),'x')
                drawnow
@@ -370,17 +382,17 @@ for i = 1:8
     amplitude_table = [table(diagnosis','VariableNames',{'Diagnosis'}),array2table(squeeze(relative_MMN_amplitude(i,:,3:7)))];
     amplitude_covariates = table(conditions(3:7)','VariableNames',{'Condition'});
     amplitude_rm = fitrm(amplitude_table,'Var1-Var5~Diagnosis','WithinDesign',amplitude_covariates);
-    amplitude_ranovatbl = ranova(amplitude_rm,'WithinModel','Condition')
+    relative_amplitude_ranovatbl = ranova(amplitude_rm,'WithinModel','Condition')
     supertitle = [];
-    if amplitude_ranovatbl.pValueGG(find(strcmp(amplitude_ranovatbl.Row,'Diagnosis'))) < p_thresh
-        supertitle = [supertitle 'Amplitude main effect of Diagnosis p=' num2str(amplitude_ranovatbl.pValueGG(find(strcmp(amplitude_ranovatbl.Row,'Diagnosis'))),3) ' in ' Sname{i} '. '];
+    if relative_amplitude_ranovatbl.pValueGG(find(strcmp(relative_amplitude_ranovatbl.Row,'Diagnosis'))) < p_thresh
+        supertitle = [supertitle 'Amplitude main effect of Diagnosis p=' num2str(relative_amplitude_ranovatbl.pValueGG(find(strcmp(relative_amplitude_ranovatbl.Row,'Diagnosis'))),3) ' in ' Sname{i} '. '];
         Diagnosis_table = multcompare(amplitude_rm,'Diagnosis');
         significant_contrasts = Diagnosis_table.pValue<0.05;
         Sname{i}
         Diagnosis_table(significant_contrasts,:)
     end
-    if amplitude_ranovatbl.pValueGG(find(strcmp(amplitude_ranovatbl.Row,'Diagnosis:Condition'))) < p_thresh
-        supertitle = [supertitle 'Amplitude diagnosis by condition interaction p=' num2str(amplitude_ranovatbl.pValueGG(find(strcmp(amplitude_ranovatbl.Row,'Diagnosis:Condition'))),3) ' in ' Sname{i} '. '];
+    if relative_amplitude_ranovatbl.pValueGG(find(strcmp(relative_amplitude_ranovatbl.Row,'Diagnosis:Condition'))) < p_thresh
+        supertitle = [supertitle 'Amplitude diagnosis by condition interaction p=' num2str(relative_amplitude_ranovatbl.pValueGG(find(strcmp(relative_amplitude_ranovatbl.Row,'Diagnosis:Condition'))),3) ' in ' Sname{i} '. '];
     end
     if anova1(squeeze(relative_MMN_amplitude(i,:,2)),diagnosis,'off') < p_thresh
         supertitle = [supertitle 'One way ANOVA group difference for DVT MMN amplitude in ' Sname{i} ' p=' num2str(anova1(squeeze(relative_MMN_amplitude(i,:,2)),diagnosis,'off'),3) '. '];
@@ -404,7 +416,7 @@ for i = 1:8
                     errorbar(grp-0.1,mean(squeeze(relative_MMN_amplitude(i,group_inds==grp,j)),2),std(squeeze(relative_MMN_amplitude(i,group_inds==grp,j)))/sqrt(sum(group_inds==grp)),'-s','MarkerSize',10,'MarkerEdgeColor','black','MarkerFaceColor','black','LineWidth',1,'color','black')
                 end
             else
-                if amplitude_ranovatbl.pValueGG(find(strcmp(amplitude_ranovatbl.Row,'Diagnosis:Condition'))) < p_thresh && p<p_thresh %No longer Bonferroni as only do if diagnosis by region interaction is significant
+                if relative_amplitude_ranovatbl.pValueGG(find(strcmp(relative_amplitude_ranovatbl.Row,'Diagnosis:Condition'))) < p_thresh && p<p_thresh %No longer Bonferroni as only do if diagnosis by region interaction is significant
                     errorbar(grp-0.1,mean(squeeze(relative_MMN_amplitude(i,group_inds==grp,j)),2),std(squeeze(relative_MMN_amplitude(i,group_inds==grp,j)))/sqrt(sum(group_inds==grp)),'-s','MarkerSize',10,'MarkerEdgeColor','red','MarkerFaceColor','red','LineWidth',1,'color','black')
                 else
                     errorbar(grp-0.1,mean(squeeze(relative_MMN_amplitude(i,group_inds==grp,j)),2),std(squeeze(relative_MMN_amplitude(i,group_inds==grp,j)))/sqrt(sum(group_inds==grp)),'-s','MarkerSize',10,'MarkerEdgeColor','black','MarkerFaceColor','black','LineWidth',1,'color','black')
@@ -476,6 +488,10 @@ for i = 1:8
         ylabel('MMN amplitude (AU)')
     end
     saveas(MMN_amplitude_plot,['./outputfigures/source/stats/' Sname{i} ' MMN amplitude (AU).png']);
+    
+    all_pvals_maineffect(i,:) = [latency_ranovatbl.pValueGG(find(strcmp(latency_ranovatbl.Row,'Diagnosis'))), relative_amplitude_ranovatbl.pValueGG(find(strcmp(relative_amplitude_ranovatbl.Row,'Diagnosis'))), amplitude_ranovatbl.pValueGG(find(strcmp(relative_amplitude_ranovatbl.Row,'Diagnosis')))];
+    all_pvals_interaction(i,:) = [latency_ranovatbl.pValueGG(find(strcmp(latency_ranovatbl.Row,'Diagnosis:Condition'))), relative_amplitude_ranovatbl.pValueGG(find(strcmp(relative_amplitude_ranovatbl.Row,'Diagnosis:Condition'))), amplitude_ranovatbl.pValueGG(find(strcmp(relative_amplitude_ranovatbl.Row,'Diagnosis:Condition')))];
+    all_pvals_key = {'latency','amplitude_around_peak','amplitude_100-200'};
     
 %     DEV_plot = figure(20*i);
 %     set(gcf,'Position',[100 100 1600 800]);
@@ -664,4 +680,6 @@ for i = 1:8
 %     %pause
     close all %To prevent Java memory error
 end
-%pause
+save(['./outputfigures/source/stats/all_lfp_pvals.mat'], 'all_pvals_maineffect', 'all_pvals_interaction', 'all_pvals_key')
+    
+pause

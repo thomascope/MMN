@@ -1052,9 +1052,10 @@ rmdir([dirname_DCM 'PEB_firstlevel' filesep 'tempdir_*'])
 delete(gcp)
 
 %% Now do a second level PEB on the extDCM data
-
+Poolinfo = cbupool(2*length(unique(p.group)'),'--mem-per-cpu=48G --time=167:00:00');
+parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 extDCM_secondlevel_PEB(dirname_DCM,filestem,conditions,unique(p.group)',p,all_names)
-
+delete(gcp)
 
 %% Now plot the whole scalp ERPs for sanity check
 for todonumber = 1:nsubj

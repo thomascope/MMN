@@ -93,7 +93,7 @@ function bma = spm_dcm_bma(post,post_indx,subj,Nsamp,oddsr)
 % defaults
 %--------------------------------------------------------------------------
 if nargin < 4 || isempty(Nsamp)
-    Nsamp = 1e3;
+    Nsamp = 1e2; % Cut from 1000 as this step was taking more than a day
 end
 if nargin < 5 || isempty(oddsr)
     oddsr = 0;
@@ -448,6 +448,8 @@ for i=1:Nsamp % iterates for a reasonable number of samples to create a decent d
     % Average over subjects
     %----------------------------------------------------------------------
     Ep(:,i) = mean(Ep_all,2);
+    
+    disp(['completed averaging iteration ' num2str(i) ' of ' num2str(Nsamp)]) 
 
 end
 
