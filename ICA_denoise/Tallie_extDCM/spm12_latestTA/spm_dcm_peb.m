@@ -543,3 +543,8 @@ spm_unlink('tmp.mat');
 %--------------------------------------------------------------------------
 try, P   = spm_dem2dcm(DEM,P); end
 
+DCM = P;
+thisdir_split = strsplit(pwd,'_');
+save(['PEB_step1_ ' thisdir_split{end} '.mat'],'PEB','DCM');
+disp(['Step one PEB complete (PEB) for group ' thisdir_split{end}])
+

@@ -313,6 +313,9 @@ P2    = sum(P,1);
 % Bayesian model averaging (with an Occam's window of eight)
 %--------------------------------------------------------------------------
 i     = G(:) > max(G(:) - 8);
+thisdir_split = strsplit(pwd,'_');
+save(['BMR_step2_ ' thisdir_split{end} '.mat'],'BMR');
+disp(['Step two PEB complete (BMR)  for group ' thisdir_split{end}])
 BMA   = spm_dcm_bma(BMR(i)');
 
 % assemble BMA output structure
@@ -335,6 +338,10 @@ BMA.K     = K;
 BMA.Ce    = PEB.Ce;
 BMA.Ch    = PEB.Ch;
 BMA.Eh    = PEB.Eh;
+
+thisdir_split = strsplit(pwd,'_');
+save(['PEB_step3_ ' thisdir_split{end} '.mat'],'BMA');
+disp(['Step four PEB complete (BMA) for group ' thisdir_split{end}])
 
 % Show results
 %==========================================================================

@@ -487,3 +487,7 @@ bma.nsamp = Nsamp;
 bma.oddsr = oddsr;
 bma.Nocc  = Nocc;
 bma.Mocc  = post_ind;
+
+thisdir_split = strsplit(pwd,'_');
+save(['PEB_step3_ ' thisdir_split{end} '.mat'],'bma');
+disp(['Step three PEB complete (bma_prelim) for group ' thisdir_split{end}])
