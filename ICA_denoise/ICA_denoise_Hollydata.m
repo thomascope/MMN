@@ -261,9 +261,9 @@ catch
 end
 
 if nsubj <= 92 % Max 92 workers for 1 week
-    cbupool(nsubj,'--mem-per-cpu=8G --time=167:00:00')
+    cbupool(nsubj,'--mem-per-cpu=8G --time=167:00:00 --exclude=node-i[01-15]')
 else
-    cbupool(92,'--mem-per-cpu=8G --time=167:00:00')
+    cbupool(92,'--mem-per-cpu=8G --time=167:00:00 --exclude=node-i[01-15]')
 end
 
 % %% First maxfilter and convert MCI/AD data
@@ -922,7 +922,7 @@ conditions_to_invert = {'STD','DVT','location','intensity','duration','gap','fre
 
 %Open a parallel pool with lots of memory and spmd disabled to allow
 %continuation if a worker fails
-Poolinfo = cbupool(48,'--mem-per-cpu=16G --time=167:00:00');
+Poolinfo = cbupool(48,'--mem-per-cpu=16G --time=167:00:00 --exclude=node-i[01-15]');
 parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 
 clear all_names
@@ -1037,9 +1037,9 @@ filestem = 'b8LFP_s_-100_500_LOR_fmbraedfffM';
 conditions = {'STD','DVT','location','intensity','duration','gap','frequency'};
 all_combinations = combvec(unique(p.group)',1:length(conditions));
 if length(all_combinations) < 48
-    Poolinfo = cbupool(length(all_combinations),'--mem-per-cpu=16G --time=167:00:00');
+    Poolinfo = cbupool(length(all_combinations),'--mem-per-cpu=16G --time=167:00:00 --exclude=node-i[01-15]');
 else
-    Poolinfo = cbupool(48,'--mem-per-cpu=16G --time=167:00:00');
+    Poolinfo = cbupool(48,'--mem-per-cpu=16G --time=167:00:00 --exclude=node-i[01-15]');
 end
 parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 parfor this_comb = 1:length(all_combinations)
@@ -1052,7 +1052,7 @@ rmdir([dirname_DCM 'PEB_firstlevel' filesep 'tempdir_*'])
 delete(gcp)
 
 %% Now do a second level PEB on the extDCM data
-Poolinfo = cbupool(2*length(unique(p.group)'),'--mem-per-cpu=48G --time=167:00:00');
+Poolinfo = cbupool(2*length(unique(p.group)'),'--mem-per-cpu=48G --time=167:00:00 --exclude=node-i[01-15]');
 parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 conditions = {'STD','DVT'}; %Tolerance failure if all conditions included
 extDCM_secondlevel_PEB(dirname_DCM,filestem,conditions,unique(p.group)',p,all_names)

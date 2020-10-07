@@ -92,8 +92,8 @@ if iscell(X1)
             % figure;imagesc(X);colorbar %Visualise design matrix for sanity check
             M = GCM{k}{1}.M;
             M.X = X;
-            mkdir([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_ABC_' p.diagnosis_list{k} '_' char(join(conditions,'_'))])
-            cd([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_ABC_' p.diagnosis_list{k} '_' char(join(conditions,'_'))])
+            mkdir([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_ABC_' char(join(conditions,'_')) '_' p.diagnosis_list{k}])
+            cd([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_ABC_' char(join(conditions,'_')) '_' p.diagnosis_list{k}])
             
             try
                 [PEB_ABC{k},DCM_ABC{k}] = spm_dcm_peb(GCM{k},M,{'A','B','C'}) % Intrinsic and Extrinsic connections, plus input, plus inter-regional delays, overall
@@ -117,8 +117,8 @@ if iscell(X1)
             % figure;imagesc(X);colorbar %Visualise design matrix for sanity check
             M = GCM{k-length(groups)}{1}.M;
             M.X = X;
-            mkdir([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_HD_' p.diagnosis_list{k-length(groups)} '_' char(join(conditions,'_'))])
-            cd([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_HD_' p.diagnosis_list{k-length(groups)} '_' char(join(conditions,'_'))])
+            mkdir([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_HD_' char(join(conditions,'_')) '_' p.diagnosis_list{k-length(groups)}])
+            cd([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_HD_' char(join(conditions,'_')) '_' p.diagnosis_list{k-length(groups)}])
             
             try
                 [PEB_HD{k},DCM_HD{k}] = spm_dcm_peb(GCM{k-length(groups)},M,{'H','D'}) % Intrinsic connections by population
@@ -162,8 +162,8 @@ if iscell(X1)
             end
             M.X = X;
             
-            mkdir([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_ABC_Overall_' char(join(conditions,'_'))])
-            cd([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_ABC_Overall_' char(join(conditions,'_'))])
+            mkdir([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_ABC_' char(join(conditions,'_')) '_Overall'])
+            cd([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_ABC_' char(join(conditions,'_')) '_Overall'])
             [PEB_ABC_Overall,DCM_ABC_Overall] = spm_dcm_peb(PEB_ABC,M,'all',{'A','B','C'})
             % find the posterior p-vals for the parameters in this PEB
             BMA_ABC_Overall = spm_dcm_peb_bmc(PEB_ABC_Overall);
@@ -183,8 +183,8 @@ if iscell(X1)
             end
             M.X = X;
         
-            mkdir([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_HD_Overall_' char(join(conditions,'_'))])
-            cd([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_HD_Overall_' char(join(conditions,'_'))])
+            mkdir([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_HD_' char(join(conditions,'_')) '_Overall'])
+            cd([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_HD_' char(join(conditions,'_')) '_Overall'])
             [PEB_HD_Overall,DCM_HD_Overall] = spm_dcm_peb(PEB_HD,M,'all',{'H','D'})
             % find the posterior p-vals for the parameters in this PEB
             BMA_HD_Overall = spm_dcm_peb_bmc(PEB_HD_Overall);
