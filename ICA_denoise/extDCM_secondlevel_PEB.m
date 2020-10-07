@@ -39,13 +39,38 @@ for k = groups
     end
 end
 
+these_conditions = find(contains(p.conditions,conditions));
+all_contrast_cols = 1:size(p.contrast_weights,2);
+other_cols = setdiff(all_contrast_cols,these_conditions);
+these_contrasts = [];
+for i = 1:size(p.contrast_weights,1)
+    if sum(p.contrast_weights(i,these_conditions)~=0)>=2&&all(p.contrast_weights(i,other_cols)==0)
+        these_contrasts(end+1) = i; 
+    end
+end
+% Pare down the contrasts to only those in the included conditions
+p.contrast_weights = p.contrast_weights(these_contrasts,these_conditions);
+p.contrast_labels = p.contrast_labels(these_contrasts);
+
+%get rid of duplicates and inverse contrasts
+duplicates = [];
+for i = 1:size(p.contrast_weights,1)
+    for j = (i+1):size(p.contrast_weights,1)
+        if all(p.contrast_weights(i,:)==-p.contrast_weights(j,:))||all(p.contrast_weights(i,:)==p.contrast_weights(j,:))
+            duplicates(end+1) = j;
+        end
+    end
+end
+p.contrast_weights(duplicates,:) = [];
+p.contrast_labels(duplicates) = [];
+
 if iscell(X1)
-    PEB_ABC2 = cell(2*length(groups),1);
-    PEB_HD2 = cell(2*length(groups),1);
-    DCM_ABC2 = cell(2*length(groups),1);
-    DCM_HD2 = cell(2*length(groups),1);
-    BMA_ABC2 = cell(2*length(groups),1);
-    BMA_HD2 = cell(2*length(groups),1);
+    PEB_ABC = cell(2*length(groups),1);
+    PEB_HD = cell(2*length(groups),1);
+    DCM_ABC = cell(2*length(groups),1);
+    DCM_HD = cell(2*length(groups),1);
+    BMA_ABC = cell(2*length(groups),1);
+    BMA_HD = cell(2*length(groups),1);
 
     parfor k = 1:2*length(groups)
         
@@ -57,7 +82,7 @@ if iscell(X1)
         % final column:
         
         %warning on verbose
-        warning('error','MATLAB:nearlySingularMatrix') % Make the PEB fail if enters a singular matrix state
+        %warning('error','MATLAB:nearlySingularMatrix') % Make the PEB fail if enters a singular matrix state
         
         if k <=length(groups)
             X = ones(size(X1{k},1),1);
@@ -67,23 +92,23 @@ if iscell(X1)
             % figure;imagesc(X);colorbar %Visualise design matrix for sanity check
             M = GCM{k}{1}.M;
             M.X = X;
-            mkdir([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_ABC2' p.diagnosis_list{k}])
-            cd([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_ABC2' p.diagnosis_list{k}])
+            mkdir([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_ABC_' p.diagnosis_list{k} '_' char(join(conditions,'_'))])
+            cd([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_ABC_' p.diagnosis_list{k} '_' char(join(conditions,'_'))])
             
             try
-                [PEB_ABC2{k},DCM_ABC2{k}] = spm_dcm_peb(GCM{k},M,{'A','B','C'}) % Intrinsic and Extrinsic connections, plus input, plus inter-regional delays, overall
+                [PEB_ABC{k},DCM_ABC{k}] = spm_dcm_peb(GCM{k},M,{'A','B','C'}) % Intrinsic and Extrinsic connections, plus input, plus inter-regional delays, overall
             catch
 %                 try
-%                     [PEB_ABC2{k},DCM_ABC2{k}] = spm_dcm_peb(GCM{k},M,{'A','B','C','D'}) % Add an extra parameter of no interest if there are optimisation errors
+%                     [PEB_ABC{k},DCM_ABC{k}] = spm_dcm_peb(GCM{k},M,{'A','B','C','D'}) % Add an extra parameter of no interest if there are optimisation errors
 %                 catch
-%                     error(['The failed condition was ABC2 group ' num2str(k)])
+%                     error(['The failed condition was ABC group ' num2str(k)])
 %                 end
             end
             % find the posterior p-vals for the parameters in this PEB
-            BMA_ABC2{k} = spm_dcm_peb_bmc(PEB_ABC2{k});
-            BMA_ABC2{k}.Ep = reshape(BMA_ABC2{k}.Ep,[],size(M.X,2));
-            BMA_ABC2{k}.Cp = reshape(BMA_ABC2{k}.Cp,[],size(M.X,2));
-            BMA_ABC2{k}.Pp = reshape(BMA_ABC2{k}.Pp,[],size(M.X,2));
+            BMA_ABC{k} = spm_dcm_peb_bmc(PEB_ABC{k});
+            BMA_ABC{k}.Ep = reshape(BMA_ABC{k}.Ep,[],size(M.X,2));
+            BMA_ABC{k}.Cp = reshape(BMA_ABC{k}.Cp,[],size(M.X,2));
+            BMA_ABC{k}.Pp = reshape(BMA_ABC{k}.Pp,[],size(M.X,2));
         else
             X = ones(size(X1{k-length(groups)},1),1);
             for i = 1:size(p.contrast_weights,1)
@@ -92,70 +117,85 @@ if iscell(X1)
             % figure;imagesc(X);colorbar %Visualise design matrix for sanity check
             M = GCM{k-length(groups)}{1}.M;
             M.X = X;
-            mkdir([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_HD2' p.diagnosis_list{k-length(groups)}])
-            cd([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_HD2' p.diagnosis_list{k-length(groups)}])
+            mkdir([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_HD_' p.diagnosis_list{k-length(groups)} '_' char(join(conditions,'_'))])
+            cd([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_HD_' p.diagnosis_list{k-length(groups)} '_' char(join(conditions,'_'))])
             
             try
-                [PEB_HD2{k},DCM_HD2{k}] = spm_dcm_peb(GCM{k-length(groups)},M,{'H','D'}) % Intrinsic connections by population
+                [PEB_HD{k},DCM_HD{k}] = spm_dcm_peb(GCM{k-length(groups)},M,{'H','D'}) % Intrinsic connections by population
             catch
 %                 try
-%                     [PEB_HD2{k},DCM_HD2{k}] = spm_dcm_peb(GCM{k-length(groups)},M,{'H','D'}) % Add an extra parameter of no interest if there are optimisation errors
+%                     [PEB_HD{k},DCM_HD{k}] = spm_dcm_peb(GCM{k-length(groups)},M,{'H','D'}) % Add an extra parameter of no interest if there are optimisation errors
 %                 catch
 %                     error(['The failed condition was H group ' num2str(k-length(groups)) ', k = ' num2str(k)])
 %                 end
             end
             % find the posterior p-vals for the parameters in this PEB
-            BMA_HD2{k} = spm_dcm_peb_bmc(PEB_HD2{k});
-            BMA_HD2{k}.Ep = reshape(BMA_HD2{k}.Ep,[],size(M.X,2));
-            BMA_HD2{k}.Cp = reshape(BMA_HD2{k}.Cp,[],size(M.X,2));
-            BMA_HD2{k}.Pp = reshape(BMA_HD2{k}.Pp,[],size(M.X,2));
+            BMA_HD{k} = spm_dcm_peb_bmc(PEB_HD{k});
+            BMA_HD{k}.Ep = reshape(BMA_HD{k}.Ep,[],size(M.X,2));
+            BMA_HD{k}.Cp = reshape(BMA_HD{k}.Cp,[],size(M.X,2));
+            BMA_HD{k}.Pp = reshape(BMA_HD{k}.Pp,[],size(M.X,2));
         end
     end
     for k = 1:length(groups)
-        PEB_HD2(1) = [];
-        DCM_HD2(1) = [];
-        BMA_HD2(1) = [];
-        PEB_ABC2(end) = [];
-        DCM_ABC2(end) = [];
-        BMA_ABC2(end) = [];
+        PEB_HD(1) = [];
+        DCM_HD(1) = [];
+        BMA_HD(1) = [];
+        PEB_ABC(end) = [];
+        DCM_ABC(end) = [];
+        BMA_ABC(end) = [];
     end
     cd([dirname_DCM 'PEB_secondlevel'])
-    save('PEB_ABC2.mat','PEB_ABC2','DCM_ABC2','BMA_ABC2')
-    save('PEB_HD2.mat','PEB_HD2','DCM_HD2','BMA_HD2')
+    save('PEB_ABC.mat','PEB_ABC','DCM_ABC','BMA_ABC')
+    save('PEB_HD.mat','PEB_HD','DCM_HD','BMA_HD')
     %Now take it to a PEB of PEBs
     parfor k = 1:2
-        X = ones(length(groups),1) %Group mean
-        for i = 1:length(groups) %Every pairwise contrast once
-            j = i
-            while j<=length(groups)
-                j = j+1
-                X(i,end+1) = 1;
-                X(j,end) = -1;
-            end
-        end
         if k == 1
-            mkdir([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_ABC2_Overall'])
-            cd([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_ABC2_Overall'])
-            [PEB_ABC2_Overall,DCM_ABC2_Overall] = spm_dcm_peb(PEB_ABC2,X)
+            M = PEB_ABC{1}.M
+            X = ones(length(groups),1); %Group mean
+            for i = 1:length(groups) %Every pairwise contrast once
+                j = i;
+                while j<=length(groups)-1
+                    j = j+1;
+                    X(i,end+1) = 1;
+                    X(j,end) = -1;
+                end
+            end
+            M.X = X;
+            
+            mkdir([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_ABC_Overall_' char(join(conditions,'_'))])
+            cd([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_ABC_Overall_' char(join(conditions,'_'))])
+            [PEB_ABC_Overall,DCM_ABC_Overall] = spm_dcm_peb(PEB_ABC,M,'all',{'A','B','C'})
             % find the posterior p-vals for the parameters in this PEB
-            BMA_ABC2_Overall = spm_dcm_peb_bmc(PEB_ABC2_Overall);
-            BMA_ABC2_Overall.Ep = reshape(BMA_ABC2_Overall.Ep,[],size(M.X,2));
-            BMA_ABC2_Overall.Cp = reshape(BMA_ABC2_Overall.Cp,[],size(M.X,2));
-            BMA_ABC2_Overall.Pp = reshape(BMA_ABC2_Overall.Pp,[],size(M.X,2));
+            BMA_ABC_Overall = spm_dcm_peb_bmc(PEB_ABC_Overall);
+            BMA_ABC_Overall.Ep = reshape(BMA_ABC_Overall.Ep,[],size(M.X,2));
+            BMA_ABC_Overall.Cp = reshape(BMA_ABC_Overall.Cp,[],size(M.X,2));
+            BMA_ABC_Overall.Pp = reshape(BMA_ABC_Overall.Pp,[],size(M.X,2));
         else
-            mkdir([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_HD2_Overall'])
-            cd([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_HD2_Overall'])
-            [PEB_HD2_Overall,DCM_HD2_Overall] = spm_dcm_peb(PEB_HD2,X)
+            M = PEB_HD{1}.M
+            X = ones(length(groups),1); %Group mean
+            for i = 1:length(groups) %Every pairwise contrast once
+                j = i;
+                while j<=length(groups)-1
+                    j = j+1;
+                    X(i,end+1) = 1;
+                    X(j,end) = -1;
+                end
+            end
+            M.X = X;
+        
+            mkdir([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_HD_Overall_' char(join(conditions,'_'))])
+            cd([dirname_DCM 'PEB_secondlevel' filesep 'tempdir_HD_Overall_' char(join(conditions,'_'))])
+            [PEB_HD_Overall,DCM_HD_Overall] = spm_dcm_peb(PEB_HD,M,'all',{'H','D'})
             % find the posterior p-vals for the parameters in this PEB
-            BMA_HD2_Overall = spm_dcm_peb_bmc(PEB_HD2_Overall);
-            BMA_HD2_Overall.Ep = reshape(BMA_HD2_Overall.Ep,[],size(M.X,2));
-            BMA_HD2_Overall.Cp = reshape(BMA_HD2_Overall.Cp,[],size(M.X,2));
-            BMA_HD2_Overall.Pp = reshape(BMA_HD2_Overall.Pp,[],size(M.X,2));
+            BMA_HD_Overall = spm_dcm_peb_bmc(PEB_HD_Overall);
+            BMA_HD_Overall.Ep = reshape(BMA_HD_Overall.Ep,[],size(M.X,2));
+            BMA_HD_Overall.Cp = reshape(BMA_HD_Overall.Cp,[],size(M.X,2));
+            BMA_HD_Overall.Pp = reshape(BMA_HD_Overall.Pp,[],size(M.X,2));
         end
     end
     cd([dirname_DCM 'PEB_secondlevel'])
-    save('PEB_ABC2_Overall.mat','PEB_ABC2_Overall','DCM_ABC2_Overall','BMA_ABC2_Overall')
-    save('PEB_HD2_Overall.mat','PEB_HD2_Overall','DCM_HD2_Overall','BMA_HD2_Overall')
+    save('PEB_ABC_Overall.mat','PEB_ABC_Overall','DCM_ABC_Overall','BMA_ABC_Overall')
+    save('PEB_HD_Overall.mat','PEB_HD_Overall','DCM_HD_Overall','BMA_HD_Overall')
     delete(gcp)
 else
     error('I have only written a two-stage implementation, feel free to add a one shot version here!')

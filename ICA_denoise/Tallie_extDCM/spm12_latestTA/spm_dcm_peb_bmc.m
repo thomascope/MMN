@@ -340,7 +340,7 @@ BMA.Ch    = PEB.Ch;
 BMA.Eh    = PEB.Eh;
 
 thisdir_split = strsplit(pwd,'_');
-save(['PEB_step3_ ' thisdir_split{end} '.mat'],'BMA');
+save(['PEB_step4_ ' thisdir_split{end} '.mat'],'BMA');
 disp(['Step four PEB complete (BMA) for group ' thisdir_split{end}])
 
 % Show results
