@@ -1,4 +1,4 @@
-function [BMA,BMR] = spm_dcm_peb_bmc(PEB,models)
+function [BMA,BMR] = spm_dcm_peb_bmc(PEB,models,varargin)
 % hierarchical (PEB) model comparison and averaging (2nd level)
 % FORMAT [BMA] = spm_dcm_peb_bmc(PEB,models)
 % FORMAT [BMA] = spm_dcm_peb_bmc(PEB)
@@ -23,6 +23,11 @@ function [BMA,BMR] = spm_dcm_peb_bmc(PEB,models)
 % if models are not specified, all combinations of second level parameters
 % will be tested.
 %
+% fields - (optional) for use with pre-defined model spaces only. Limits 
+%          the parameters that vary across models to those with names 
+%          matching those provided. All excluded parameters are switched
+%          on in all models. Cell array of chars.
+%
 % BMA    - DCM structure of Bayesian model average
 % -------------------------------------------------------------------------
 %     BMA.Snames - string array of first level model names
@@ -36,7 +41,10 @@ function [BMA,BMR] = spm_dcm_peb_bmc(PEB,models)
 %     BMA.P    - posterior probability over models
 %     BMA.Px   - posterior probability over parameters (differences)
 %     BMA.Pw   - posterior probability over parameters (common)
-%     BMA.K    - model space
+%
+%     BMA.K     - [models x parameters] model space (0 = off, 1 = on)
+%     BMA.Kind  - indices of DCM parameters which varied across models
+%     BMA.Kname - names of DCM parameters which varied across models
 %
 % or for automatic model search, see spm_dcm_bmr_all.m (output: DCM)
 %
@@ -53,7 +61,6 @@ function [BMA,BMR] = spm_dcm_peb_bmc(PEB,models)
 %     BMR.F      - free energy relative to full model
 %     BMR.P      - and posterior (model) probabilities
 %     BMR.K      - [models x parameters] model space (1 = off, 2 = on)
-%     BMR.bma{i} - Model i which contributed to the BMA (Ep,Cp,F)
 %
 %--------------------------------------------------------------------------
 % This routine performs Bayesian model comparison and averaging of second
@@ -91,7 +98,7 @@ function [BMA,BMR] = spm_dcm_peb_bmc(PEB,models)
 % Copyright (C) 2005 Wellcome Trust Centre for Neuroimaging
 
 % Karl Friston
-% $Id: spm_dcm_peb_bmc.m 7081 2017-05-27 19:36:09Z karl $
+% $Id: spm_dcm_peb_bmc.m 7958 2020-09-23 19:53:36Z peter $
 
 % checks
 %--------------------------------------------------------------------------
@@ -184,24 +191,42 @@ if ischar(models)
     
 elseif iscell(models)
     
-    % (RFX) BMA � define the model space in terms of a matrix
+    % model space is defined by an array of exemplar models
     %----------------------------------------------------------------------
+    Pind  = PEB.Pind;              % Indices of parameters from level below
+        
+    try
+        Pind0 = PEB.Pind0;         % Mapping to parameters in the DCM
+    catch
+        Pind0 = PEB.Pind;
+    end
+    
     Nm    = length(models);
-    Np    = length(PEB.Pind);
+    Np    = length(Pind);
     K     = ones(Nm,Np);
-    for i = 1:Nm
-        k      = spm_find_pC(PEB,models{i});
-        j      = find(~ismember(PEB.Pind,k));
+    for i = 1:Nm        
+        k = spm_find_pC(models{i});  
+        j = find(~ismember(Pind0,k));        
         K(i,j) = 0;
     end
     
 else
     
-    % model space in defined in terms of a matrix
+    % model space is defined in terms of a matrix
     %----------------------------------------------------------------------
     K     = models;
     
 end
+
+% Filter parameters that vary across models by name if requested
+if nargin > 2
+    fields = varargin{1};
+    if ~iscell(fields), fields = {fields}; end
+    k = contains(PEB.Pnames,fields);
+    K(:,~k) = 1;
+end
+
+% Complete model space
 [k,i]     = unique(K,'rows');
 K         = K(sort(i),:);
 [Nm,Np]   = size(K);
@@ -313,17 +338,16 @@ P2    = sum(P,1);
 % Bayesian model averaging (with an Occam's window of eight)
 %--------------------------------------------------------------------------
 i     = G(:) > max(G(:) - 8);
-thisdir_split = strsplit(pwd,'_');
-save(['BMR_step2_ ' thisdir_split{end} '.mat'],'BMR');
-disp(['Step two PEB complete (BMR)  for group ' thisdir_split{end}])
 BMA   = spm_dcm_bma(BMR(i)');
 
 % assemble BMA output structure
 %--------------------------------------------------------------------------
 BMA.Snames = PEB.Snames;
 BMA.Pnames = PEB.Pnames;
-BMA.Pind   = PEB.Pind;
+BMA.Pind   = Pind;
+BMA.Pind0  = Pind0;
 BMA.Kname  = Kname;
+BMA.Kind   = Pind(k);
 try BMA.Xnames = PEB.Xnames; catch, BMA.Xnames = {}; end
 
 BMA.F     = G;
@@ -338,10 +362,6 @@ BMA.K     = K;
 BMA.Ce    = PEB.Ce;
 BMA.Ch    = PEB.Ch;
 BMA.Eh    = PEB.Eh;
-
-thisdir_split = strsplit(pwd,'_');
-save(['PEB_step4_ ' thisdir_split{end} '.mat'],'BMA');
-disp(['Step four PEB complete (BMA) for group ' thisdir_split{end}])
 
 % Show results
 %==========================================================================

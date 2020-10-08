@@ -69,7 +69,7 @@ for k = groups
         % run the PEB for all fields, giving the group-level result in PEB and the
         % reduced values for all individuals in DCM (N.B. only .Ep is updated in
         % the new DCM structure). In this case we are interested in the DCM
-        % output, not the PEB:
+        % output, not the PEB. Note that this takes the place of the more usual spm_dcm_peb_fit as we do not want to re-estimate the DCM:
         % cd to a dummy directory as, if parallelised, tmp.mat files can
         % overwrite each other
         mkdir([dirname_DCM 'PEB_firstlevel' filesep 'tempdir_' p.diagnosis_list{k} '_' conditions{c}])
