@@ -15,9 +15,8 @@ end
 addpath('/group/language/data/thomascope/MMN/ICA_denoise/Tallie_extDCM/mfiles_also_needed');
 
 cd([dirname_DCM 'PEB_secondlevel'])
-load('temp_workspace.mat')
-load('PEB_ABC.mat','PEB_ABC','DCM_ABC','BMA_ABC')
-load('PEB_HD.mat','PEB_HD','DCM_HD','BMA_HD')
+load('PEB_ABC.mat','PEB_ABC')
+load('PEB_HD.mat','PEB_HD')
 
 parfor k = 1:2
     if k == 1

@@ -1031,7 +1031,7 @@ end
 
 delete(gcp)
 
-%% Now do a first level PEB on the extDCM data
+%% Now do a first level PEB on the extDCM data -  Separately per group and condition to optimise the DCM parameters. The PEB output is discarded. This step takes the place of spm_dcm_peb_fit
 dirname_DCM = '/imaging/tc02/Holly_MMN/extDCMs_hE6/';
 filestem = 'b8LFP_s_-100_500_LOR_fmbraedfffM';
 conditions = {'STD','DVT','location','intensity','duration','gap','frequency'};
@@ -1051,11 +1051,18 @@ end
 rmdir([dirname_DCM 'PEB_firstlevel' filesep 'tempdir_*'])
 delete(gcp)
 
-%% Now do a second level PEB on the extDCM data
+%% Now do a second level PEB on the extDCM data - Separately per group but across conditions, doing a first level contrast between conditions for each group
 Poolinfo = cbupool(2*length(unique(p.group)'),'--mem-per-cpu=48G --time=167:00:00 --exclude=node-i[01-15]');
 parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 conditions = {'STD','DVT'}; %Tolerance failure if all conditions included
 extDCM_secondlevel_PEB(dirname_DCM,filestem,conditions,unique(p.group)',p,all_names)
+delete(gcp)
+
+%% Now do a PEB of PEBs
+Poolinfo = cbupool(2*length(unique(p.group)'),'--mem-per-cpu=48G --time=167:00:00 --exclude=node-i[01-15]');
+parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
+conditions = {'STD','DVT'}; %Can only be what went into the second level
+extDCM_overall_PEB(dirname_DCM,filestem,conditions,unique(p.group)',p,all_names)
 delete(gcp)
 
 %% Now plot the whole scalp ERPs for sanity check
