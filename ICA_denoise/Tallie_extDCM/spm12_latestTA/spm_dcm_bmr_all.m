@@ -228,7 +228,7 @@ while GS
     
     % Show results
     % ---------------------------------------------------------------------
-    spm_figure('Getwin','BMR - all'); clf
+    %spm_figure('Getwin','BMR - all'); clf
     fprintf('%i out of %i free parameters removed \n',nelim,nparam)
     
     subplot(3,2,1)

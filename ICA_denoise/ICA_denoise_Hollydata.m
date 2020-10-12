@@ -1059,11 +1059,16 @@ extDCM_secondlevel_PEB(dirname_DCM,filestem,conditions,unique(p.group)',p,all_na
 delete(gcp)
 
 %% Now do a PEB of PEBs
-Poolinfo = cbupool(2*length(unique(p.group)'),'--mem-per-cpu=48G --time=167:00:00 --exclude=node-i[01-15]');
+Poolinfo = cbupool(2,'--mem-per-cpu=48G --time=167:00:00 --exclude=node-i[01-15]');
 parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 conditions = {'STD','DVT'}; %Can only be what went into the second level
-extDCM_overall_PEB(dirname_DCM,filestem,conditions,unique(p.group)',p,all_names)
+parfor k = 1:2
+extDCM_overall_PEB(dirname_DCM,filestem,conditions,unique(p.group)',p,all_names,k)
+end
 delete(gcp)
+
+%% Now visualise the PEB results
+
 
 %% Now plot the whole scalp ERPs for sanity check
 for todonumber = 1:nsubj
