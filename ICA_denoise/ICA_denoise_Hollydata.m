@@ -1046,25 +1046,65 @@ parfor this_comb = 1:length(all_combinations)
 %for this_comb = 1:length(all_combinations) %falls over in parallel due to tmp.mat and unpredictable cd behaviour - needs fixing for bigger datasets
     k = all_combinations(1,this_comb)
     c = all_combinations(2,this_comb)
-    extDCM_firstlevel_PEB(dirname_DCM,filestem,conditions(c),k,p,all_names)
+    c(dirname_DCM,filestem,conditions(c),k,p,all_names)
 end
 rmdir([dirname_DCM 'PEB_firstlevel' filesep 'tempdir_*'])
 delete(gcp)
 
-%% Now do a second level PEB on the extDCM data - Separately per group but across conditions, doing a first level contrast between conditions for each group
-Poolinfo = cbupool(2*length(unique(p.group)'),'--mem-per-cpu=48G --time=167:00:00 --exclude=node-i[01-15]');
-parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
-conditions = {'STD','DVT'}; %Tolerance failure if all conditions included
-extDCM_secondlevel_PEB(dirname_DCM,filestem,conditions,unique(p.group)',p,all_names)
-delete(gcp)
+% %% Now do a second level PEB on the extDCM data - Separately per group but across conditions, doing a first level contrast between conditions for each group
+% Poolinfo = cbupool(2*length(unique(p.group)'),'--mem-per-cpu=48G --time=167:00:00 --exclude=node-i[01-15]');
+% parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
+% conditions = {'STD','DVT'}; %Tolerance failure if all conditions included
+% extDCM_secondlevel_PEB(dirname_DCM,filestem,conditions,unique(p.group)',p,all_names)
+% delete(gcp)
 
-%% Now do a PEB of PEBs
-Poolinfo = cbupool(2,'--mem-per-cpu=48G --time=167:00:00 --exclude=node-i[01-15]');
-parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
-conditions = {'STD','DVT'}; %Can only be what went into the second level
-parfor k = 1:2
-extDCM_overall_PEB(dirname_DCM,filestem,conditions,unique(p.group)',p,all_names,k)
+% %% Now do a PEB of PEBs
+% Poolinfo = cbupool(2,'--mem-per-cpu=48G --time=167:00:00 --exclude=node-i[01-15]');
+% parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
+% conditions = {'STD','DVT'}; %Can only be what went into the second level
+% parfor k = 1:2
+% extDCM_overall_PEB(dirname_DCM,filestem,conditions,unique(p.group)',p,all_names,k)
+% end
+% delete(gcp)
+
+%% Now do a second level PEB on the extDCM data - Separately per group per condition, doing a first level contrast between conditions for each group then a PEB of PEBs
+
+conditions = {'STD','DVT'}; %Tolerance failure if all conditions included
+regions = {'A1';'STG';'IFG';'IPC'}; %Symmetrical in extDCM
+conductances = {'AMPA';'NMDA';'GABA-A';'GABA-B'};
+populations = {'stellate';'super pyramid';'super inter';'deep pyramid';'deep inter';'thalamic proj'};
+
+PEB_focuses = {}; % Create a cell array of the PEBs - best to do one for each population of interest to ensure optimisation is constrained
+PEB_focuses{end+1} = 'A'; %Forward and Backward connections
+PEB_focuses{end+1} = 'D'; %Thalamic delay
+%Now create all intrinsics
+for j = 1:length(conductances)
+    for i = 1:length(regions)
+        PEB_focuses{end+1} = ['H(:,:,' num2str(i) ',' num2str(j) ')'];
+    end
 end
+
+numworkersreq = length(PEB_focuses)*length(unique(p.group)');
+if numworkersreq > 92
+    numworkersreq = 92;
+end
+
+Poolinfo = cbupool(numworkersreq,'--mem-per-cpu=8G --time=167:00:00 --exclude=node-i[01-15]');
+parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
+
+secondlevelPEBcomplete = zeros(1,length(PEB_focuses)*length(unique(p.group)'));
+parfor k = 1:length(PEB_focuses)*length(unique(p.group)')
+    this_focus = mod(k,length(PEB_focuses));
+    this_group = ceil(k/length(PEB_focuses));
+    try
+        extDCM_secondlevel_PEB_separated(dirname_DCM,conditions,this_group,p,PEB_focuses(this_focus),regions,conductances)
+        disp(['Second level PEB complete for group ' p.diagnosis_list{this_group} ' focus ' PEB_focuses{this_focus}])
+        secondlevelPEBcomplete(k) = 1;
+    catch
+        disp(['Second level PEB failed for group ' p.diagnosis_list{this_group} ' focus ' PEB_focuses{this_focus}])
+    end
+end
+
 delete(gcp)
 
 %% Now visualise the PEB results

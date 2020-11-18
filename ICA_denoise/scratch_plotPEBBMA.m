@@ -73,25 +73,25 @@ for kf = 1:nf
     fm; set(gcf,'Color','w')
     for k = c1
         subplot(4,np,1+(np*(k-c0))-np), imagesc(B.(flds{k}).bma.M.X), axis tight square, colormap(gca,bone(256))
-        xyt('',[labelTA(flds{k});{'Design Matrix'}],'')
+        title([labelTA(flds{k});{'Design Matrix'}])
 
         wmp = 2:size(B.(flds{k}).bma.Ep,2); % size(B.(flds{k}).bma.M.X,2);
         for kw = 1:length(wmp) % for each covariate
-            H1 = zeros(6); H1a = zeros(6);
+            H1 = zeros(length(source_names)); H1a = zeros(length(source_names));
             for k1 = 1:size(s1h,1)
                 if B.(flds{k}).bma.Pp(s1hi(k1),wmp(kw))>=p % find the significantly correlated parameters
                     H1(s1h(k1,2),s1h(k1,1)) = B.(flds{k}).bma.Ep(s1hi(k1),wmp(kw)); % fill a pop*pop matrix with their posterior estimates
                     H1a(s1h(k1,2),s1h(k1,1)) = B.(flds{k}).bma.Pp(s1hi(k1),wmp(kw));
                 end
             end
-            H3 = zeros(6); H3a = zeros(6);
+            H3 = zeros(length(source_names)); H3a = zeros(length(source_names));
             for k1 = 1:size(s3h,1)
                 if B.(flds{k}).bma.Pp(s3hi(k1),wmp(kw))>=p % find the significantly correlated parameters
                     H3(s3h(k1,2),s3h(k1,1)) = B.(flds{k}).bma.Ep(s3hi(k1),wmp(kw)); % fill a pop*pop matrix with their posterior estimates
                     H3a(s3h(k1,2),s3h(k1,1)) = B.(flds{k}).bma.Pp(s3hi(k1),wmp(kw));
                 end
             end
-            A = zeros(6); Aa = zeros(6);
+            A = zeros(length(source_names)); Aa = zeros(length(source_names));
             for k1 = 1:size(sa,1)
                 if B.(flds{k}).bma.Pp(sahi(k1),wmp(kw))>=p % find the significantly correlated parameters
                     A(sa(k1,2),sa(k1,1)) = A(sa(k1,1),sa(k1,2)) + B.(flds{k}).bma.Ep(sahi(k1),wmp(kw)); % fill a pop*pop matrix with their posterior estimates
@@ -99,15 +99,15 @@ for kf = 1:nf
                 end
             end
             
-            H1H3A = zeros(18);
-            H1H3A(1:6,1:6) = H1;
-            H1H3A(7:12,7:12) = H3;
-            H1H3A(13:18,13:18) = A;
-            
-            H1H3Aa = zeros(18);
-            H1H3Aa(1:6,1:6) = H1a;
-            H1H3Aa(7:12,7:12) = H3a;
-            H1H3Aa(13:18,13:18) = Aa;
+            H1H3A = zeros(3*length(source_names));
+            H1H3A(1:length(source_names),1:length(source_names)) = H1;
+            H1H3A((length(source_names)+1):2*length(source_names),(length(source_names)+1):2*length(source_names)) = H3;
+            H1H3A((2*length(source_names)+1):3*length(source_names),(2*length(source_names)+1):3*length(source_names)) = A;
+                        
+            H1H3Aa = zeros(3*length(source_names));
+            H1H3Aa(1:length(source_names),1:length(source_names)) = H1a;
+            H1H3Aa((length(source_names)+1):2*length(source_names),(length(source_names)+1):2*length(source_names)) = H3a;
+            H1H3Aa((2*length(source_names)+1):3*length(source_names),(2*length(source_names)+1):3*length(source_names)) = Aa;
             
             g = digraph(H1H3A);
             H1H3Ac = double.empty([0 1]);
