@@ -1095,6 +1095,9 @@ parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 secondlevelPEBcomplete = zeros(1,length(PEB_focuses)*length(unique(p.group)'));
 parfor k = 1:length(PEB_focuses)*length(unique(p.group)')
     this_focus = mod(k,length(PEB_focuses));
+    if this_focus == 0 
+       this_focus = length(PEB_focuses);
+    end
     this_group = ceil(k/length(PEB_focuses));
     try
         extDCM_secondlevel_PEB_separated(dirname_DCM,conditions,this_group,p,PEB_focuses(this_focus),regions,conductances)
