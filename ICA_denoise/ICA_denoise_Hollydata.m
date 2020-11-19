@@ -35,53 +35,53 @@ run(folder_structure_file_maindata);
 
 % Define MCI data location
 biomarker_positive_mci = {'meg17_0144_pp110119'
-'meg18_0065_pp113409'
-'meg17_0199_pp114823'
-'meg17_0217_pp117582'
-'meg17_0171_pp119159'
-'meg17_0196_pp126264'
-'meg18_0011_pp167931'
-'meg18_0066_pp167967'
-'meg17_0193_pp175738'
-'meg17_0163_pp183667'
-'meg18_0001_pp187628'
-'meg17_0153_pp196609'
-'meg17_0116_pp142632'
-'meg17_0159_pp108210'
-'meg17_0247_pp114097'
-};
+    'meg18_0065_pp113409'
+    'meg17_0199_pp114823'
+    'meg17_0217_pp117582'
+    'meg17_0171_pp119159'
+    'meg17_0196_pp126264'
+    'meg18_0011_pp167931'
+    'meg18_0066_pp167967'
+    'meg17_0193_pp175738'
+    'meg17_0163_pp183667'
+    'meg18_0001_pp187628'
+    'meg17_0153_pp196609'
+    'meg17_0116_pp142632'
+    'meg17_0159_pp108210'
+    'meg17_0247_pp114097'
+    };
 
 biomarker_negative_mci = {'meg17_0200_pp111738'
-'meg18_0051_pp112035'
-'meg17_0216_pp128346'
-'meg17_0162_pp135832'
-'meg17_0206_pp136246'
-'meg17_0160_pp167487'
-'meg18_0053_pp137551'
-};
+    'meg18_0051_pp112035'
+    'meg17_0216_pp128346'
+    'meg17_0162_pp135832'
+    'meg17_0206_pp136246'
+    'meg17_0160_pp167487'
+    'meg18_0053_pp137551'
+    };
 
 biomarker_unknown_mci = {'meg17_0154_pp136072'
-'meg17_0248_pp156841'
-'meg17_0108_pp167844'
-'meg17_0120_pp168080'
-'meg18_0047_pp170827'
-'meg17_0117_pp105571'
-};
+    'meg17_0248_pp156841'
+    'meg17_0108_pp167844'
+    'meg17_0120_pp168080'
+    'meg18_0047_pp170827'
+    'meg17_0117_pp105571'
+    };
 
 biomarker_unknown_AD = {'meg18_0010_pp102319'
-'meg18_0039_pp113615'
-'meg17_0238_pp117411'
-'meg18_0048_pp138368'
-'meg17_0240_pp141038'
-'meg18_0052_pp142409'
-'meg18_0035'
-'meg18_0003_pp153538'
-'meg18_0040_pp155559'
-'meg17_0246_pp176327'
-'meg18_0042_pp183367'
-'meg17_0136_pp185442'
-'meg18_0041_pp196451'
-};
+    'meg18_0039_pp113615'
+    'meg17_0238_pp117411'
+    'meg18_0048_pp138368'
+    'meg17_0240_pp141038'
+    'meg18_0052_pp142409'
+    'meg18_0035'
+    'meg18_0003_pp153538'
+    'meg18_0040_pp155559'
+    'meg17_0246_pp176327'
+    'meg18_0042_pp183367'
+    'meg17_0136_pp185442'
+    'meg18_0041_pp196451'
+    };
 
 MCI_subjs_dir = '/megdata/cbu/camcan_f/';
 all_MCI_subjs = dir([MCI_subjs_dir '*pp*']);
@@ -89,9 +89,9 @@ fullpath = {};
 errored_subjs = {};
 MCI_fnames = {};
 for i = 1:size(all_MCI_subjs)
-%     if any(strcmp(all_MCI_subjs(i).name,biomarker_negative_mci)) % exclude biomarker negative
-%         continue
-%     end
+    %     if any(strcmp(all_MCI_subjs(i).name,biomarker_negative_mci)) % exclude biomarker negative
+    %         continue
+    %     end
     subdir = ls([MCI_subjs_dir all_MCI_subjs(i).name]);
     try
         fullpath{i} = ls([MCI_subjs_dir all_MCI_subjs(i).name '/' deblank(subdir) '/*mmn*.fif']);
@@ -137,15 +137,15 @@ for todonumber = 1:size(fullpath,2)
     if any(strcmp(MCI_fnames{todonumber},biomarker_unknown_AD))
         biomarker_unknown_AD_indices(end+1) = todonumber+nsubj;
     end
-
-    try
-    mri_path = dir(['/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/MCI/' MCI_fnames{todonumber} '/*.nii']);
     
-    if size(mri_path,1) ~= 1
-        error(['more than one MRI found for subject ' num2str(todonumber)])
-    else
-        [~,mri_name,~] = fileparts(mri_path.name);
-    end
+    try
+        mri_path = dir(['/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/MCI/' MCI_fnames{todonumber} '/*.nii']);
+        
+        if size(mri_path,1) ~= 1
+            error(['more than one MRI found for subject ' num2str(todonumber)])
+        else
+            [~,mri_name,~] = fileparts(mri_path.name);
+        end
     catch
         try
             mri_path = dir(['/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/MCI/' MCI_fnames{todonumber} '/*.dcm']);
@@ -160,7 +160,7 @@ for todonumber = 1:size(fullpath,2)
             nomri{end+1} = MCI_fnames{todonumber};
         end
     end
-        
+    
     Participant{todonumber+nsubj}.MRI = mri_name;
     thesepaths = strsplit(fullpath{todonumber});
     thesepaths = thesepaths(~(cellfun('isempty',thesepaths)));
@@ -219,7 +219,7 @@ p.preBase = -100; %TF baseline correct period with below (I don't know why this 
 p.postBase = 0;
 
 p.contrast_labels = {'STD-DVT';'DVT-STD';'STD-Loc';'STD-Int';'STD-Dur';'STD-Gap';'STD-Freq'};
-p.contrast_weights = [1,-1,0,0,0,0,0;-1,1,0,0,0,0,0;1,0,-1,0,0,0,0;1,0,0,-1,0,0,0;1,0,0,0,-1,0,0;1,0,0,0,0,-1,0;1,0,0,0,0,0,-1]; 
+p.contrast_weights = [1,-1,0,0,0,0,0;-1,1,0,0,0,0,0;1,0,-1,0,0,0,0;1,0,0,-1,0,0,0;1,0,0,0,-1,0,0;1,0,0,0,0,-1,0;1,0,0,0,0,0,-1];
 
 %% Exclude MCIs with unknown or negative biomarker status
 for i = biomarker_positive_mci_indices
@@ -254,7 +254,7 @@ try
         delete(gcp)
     end
 catch
-    try 
+    try
         matlabpool close
     catch
     end
@@ -287,7 +287,7 @@ end
 %         fprintf('\n\nMaxfilter and convert failed for subject number %d\n\n',todonumber);
 %     end
 % end
-% 
+%
 % %% Then copy other subjects' maxfiltered data to new folder
 % copycomplete = zeros(1,old_nsubj);
 % parfor todonumber = 1:old_nsubj
@@ -346,7 +346,7 @@ parfor todonumber = 1:nsubj
         end
     end
 end
-   
+
 %% Now run ICA_denoise
 copyfile('/imaging/tc02/Holly_MMN/ICA_denoise/MEGArtifactTemplateTopographies.mat',[pathstem 'MEGArtifactTemplateTopographies.mat'])
 copyfile('/imaging/tc02/Holly_MMN/ICA_denoise/tec_montage_all.mat',[pathstem 'tec_montage_all.mat'])
@@ -386,13 +386,13 @@ Preprocesscomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     try
         if Preprocesscomplete(todonumber)~=1
-        if iscell(Participant{todonumber}.name)
-            preproc_this_participant([pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'], Participant{todonumber}.name, startagain,p)
-        else
-            preproc_this_participant([pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'], Participant{todonumber}.name, startagain,p)
-        end
-        Preprocesscomplete(todonumber) = 1
-        fprintf('\n\nPreprocessing complete for subject number %d,\n\n',todonumber);
+            if iscell(Participant{todonumber}.name)
+                preproc_this_participant([pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'], Participant{todonumber}.name, startagain,p)
+            else
+                preproc_this_participant([pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/'], Participant{todonumber}.name, startagain,p)
+            end
+            Preprocesscomplete(todonumber) = 1
+            fprintf('\n\nPreprocessing complete for subject number %d,\n\n',todonumber);
         end
     catch
         Preprocesscomplete(todonumber) = 0;
@@ -493,9 +493,9 @@ end
 
 %% Now plot the LFPs for sanity check
 for todonumber = 1:nsubj
-        try
+    try
         Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
-        end
+    end
 end
 prefix = 'fmbraedfffM';
 val = 2; %for LORETA
@@ -507,10 +507,10 @@ p.inv_cnt = val;
 baselined = 1;
 %plot_all_LFPs(Participant,pathstem,p,prefix)
 plot_MMN_bytype_LFP(Participant,pathstem,p,prefix,baselined)
-% 
+%
 % %% Now plot the baseline corrected LFPs for sanity check
 % prefix = 'bfmbraedfffM';
-% val = 2; 
+% val = 2;
 % p.time_wind_path = time_wind_path;
 % p.wind_cnt = wind_cnt;
 % p.inv_meth = inv_meth;
@@ -527,12 +527,12 @@ val = 2; %for LORETA
 p.time_wind_path = time_wind_path;
 p.wind_cnt = wind_cnt;
 p.inv_meth = inv_meth;
-p.inv_cnt = val; 
+p.inv_cnt = val;
 
 for todonumber = 1:nsubj
-        try
+    try
         Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
-        end
+    end
 end
 for method = {'granger','coh'}
     p.decompmethod = char(method);
@@ -541,9 +541,9 @@ end
 
 %% Now do a time-frequency analysis
 for todonumber = 1:nsubj
-        try
+    try
         Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
-        end
+    end
 end
 
 prefix = 'braedfffM';
@@ -569,8 +569,8 @@ prefix = 'tf_braedfffM';
 TFaveragecomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
-        %if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
-
+    %if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
+    
     megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
     if iscell(Participant{todonumber}.name)
         this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
@@ -589,8 +589,8 @@ prefix = 'mtf_braedfffM';
 TFrescalecomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
-        %if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
-
+    %if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
+    
     megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
     if iscell(Participant{todonumber}.name)
         this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
@@ -609,8 +609,8 @@ prefix = 'rmtf_braedfffM';
 TFweightcomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
-        %if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
-
+    %if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
+    
     megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
     if iscell(Participant{todonumber}.name)
         this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
@@ -629,8 +629,8 @@ prefix = 'rmtf_braedfffM';
 TFimagecomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
-        %if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
-
+    %if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
+    
     megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
     if iscell(Participant{todonumber}.name)
         this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
@@ -649,8 +649,8 @@ prefix = 'rmtf_braedfffM';
 TFsmoothcomplete = zeros(1,nsubj);
 megpath = [];
 parfor todonumber = 1:nsubj
-        %if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
-
+    %if todonumber ~= 101 && todonumber ~= 102 && todonumber ~= 135 ; continue; end
+    
     megpath = [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' prefix Participant{todonumber}.name '.mat'];
     if iscell(Participant{todonumber}.name)
         this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/'];
@@ -683,7 +683,7 @@ for todonumber = 1:1 % Only need 1 mask
     end
 end
 
-%% Now do TF grand averages 
+%% Now do TF grand averages
 
 prefix = 'wrmtf_braedfffM*.mat';e
 TFweightedgrandaveragecomplete = zeros(1,1);
@@ -706,9 +706,9 @@ if ~exist([pathstem 'TF_grand_averages'])
 end
 filestomove = dir([pathstem '*weighted_grandmean*.mat']);
 for i = 1:length(filestomove)
-S.D = [pathstem filestomove(i).name];
-S.outfile = [pathstem 'TF_grand_averages/' filestomove(i).name];
-spm_eeg_copy(S)
+    S.D = [pathstem filestomove(i).name];
+    S.outfile = [pathstem 'TF_grand_averages/' filestomove(i).name];
+    spm_eeg_copy(S)
 end
 delete([pathstem '*weighted_grandmean*'])
 
@@ -730,9 +730,9 @@ catch
 end
 filestomove = dir([pathstem '*_grandmean*.mat']);
 for i = 1:length(filestomove)
-S.D = [pathstem filestomove(i).name];
-S.outfile = [pathstem 'TF_grand_averages/' filestomove(i).name];
-spm_eeg_copy(S)
+    S.D = [pathstem filestomove(i).name];
+    S.outfile = [pathstem 'TF_grand_averages/' filestomove(i).name];
+    spm_eeg_copy(S)
 end
 delete([pathstem '*_grandmean*'])
 
@@ -789,9 +789,9 @@ if ~exist([pathstem 'ERP_grand_averages'])
 end
 filestomove = dir([pathstem '*weighted_grandmean*.mat']);
 for i = 1:length(filestomove)
-S.D = [pathstem filestomove(i).name];
-S.outfile = [pathstem 'ERP_grand_averages/' filestomove(i).name];
-spm_eeg_copy(S)
+    S.D = [pathstem filestomove(i).name];
+    S.outfile = [pathstem 'ERP_grand_averages/' filestomove(i).name];
+    spm_eeg_copy(S)
 end
 delete([pathstem '*weighted_grandmean*'])
 
@@ -813,9 +813,9 @@ catch
 end
 filestomove = dir([pathstem '*_grandmean*.mat']);
 for i = 1:length(filestomove)
-S.D = [pathstem filestomove(i).name];
-S.outfile = [pathstem 'ERP_grand_averages/' filestomove(i).name];
-spm_eeg_copy(S)
+    S.D = [pathstem filestomove(i).name];
+    S.outfile = [pathstem 'ERP_grand_averages/' filestomove(i).name];
+    spm_eeg_copy(S)
 end
 delete([pathstem '*_grandmean*'])
 
@@ -927,7 +927,7 @@ parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 
 clear all_names
 for i = 1:length(Participant)
-all_names{i} = Participant{i}.name;
+    all_names{i} = Participant{i}.name;
 end
 
 % Parallelise subject and condition to avoid failure stoppages
@@ -942,7 +942,7 @@ p.multilevel = 0; %for first run
 parfor todonumber = 1:size(allrunsarray,1)
     this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix Participant{allrunsarray(todonumber,1)}.name '.mat']};
     this_output_folder_tail = [Participant{allrunsarray(todonumber,1)}.diag '/']
-    pause(mod(todonumber,60)); %Introduce a pause to stagger the workers - otherwise sometimes the pool fails if trying to read or write simultaneously 
+    pause(mod(todonumber,60)); %Introduce a pause to stagger the workers - otherwise sometimes the pool fails if trying to read or write simultaneously
     for thismeg = 1:length(this_input_fname)
         try
             Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,allrunsarray(todonumber,2))
@@ -963,9 +963,9 @@ p.conditions = conditions_to_invert;
 
 these_STDs = {}; %Now find those subjects where the standard failed to integrate
 for i = 1:size(subjcondpair,1)
-if strcmp(subjcondpair{i,2},'STD')
-these_STDs{end+1} = subjcondpair{i,1};
-end
+    if strcmp(subjcondpair{i,2},'STD')
+        these_STDs{end+1} = subjcondpair{i,1};
+    end
 end
 
 these_DVTs = {};
@@ -973,7 +973,7 @@ these_others = [];
 for i = 1:size(subjcondpair,1)
     if strcmp(subjcondpair{i,2},'DVT') && any(contains(these_STDs,subjcondpair{i,1}))
         these_DVTs{end+1} = subjcondpair{i,1};
-    elseif ~strcmp(subjcondpair{i,2},'STD') && any(contains(these_STDs,subjcondpair{i,1})) 
+    elseif ~strcmp(subjcondpair{i,2},'STD') && any(contains(these_STDs,subjcondpair{i,1}))
         these_others(end+1) = i;
     end
 end
@@ -992,7 +992,7 @@ parfor this_one = 1:size(subjcondpair,1)
     this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix subjcondpair{this_one,1} '.mat']};
     this_output_folder_tail = [Participant{find(strcmp(subjcondpair{this_one,1},all_names))}.diag '/']
     this_cond = find(strcmp(subjcondpair{this_one,2}, p.conditions));
-    %pause(mod(this_one*30,90)); %Introduce a pause to stagger the workers - otherwise sometimes the pool fails if trying to read or write simultaneously 
+    %pause(mod(this_one*30,90)); %Introduce a pause to stagger the workers - otherwise sometimes the pool fails if trying to read or write simultaneously
     for thismeg = 1:length(this_input_fname)
         try
             Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,this_cond)
@@ -1006,7 +1006,7 @@ parfor this_one = 1:size(subjcondpair,1)
         end
     end
 end
-    
+
 subjcondpair = secondwavedata;
 p.subjcntforcondition = 1;
 p.multilevel = 1;
@@ -1014,7 +1014,7 @@ parfor this_one = 1:size(subjcondpair,1)
     this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix subjcondpair{this_one,1} '.mat']};
     this_output_folder_tail = [Participant{find(strcmp(subjcondpair{this_one,1},all_names))}.diag '/']
     this_cond = find(strcmp(subjcondpair{this_one,2}, p.conditions));
-    pause(mod(this_one*30,90)); %Introduce a pause to stagger the workers - otherwise sometimes the pool fails if trying to read or write simultaneously 
+    pause(mod(this_one*30,90)); %Introduce a pause to stagger the workers - otherwise sometimes the pool fails if trying to read or write simultaneously
     for thismeg = 1:length(this_input_fname)
         try
             Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,this_cond)
@@ -1043,7 +1043,7 @@ else
 end
 parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 parfor this_comb = 1:length(all_combinations)
-%for this_comb = 1:length(all_combinations) %falls over in parallel due to tmp.mat and unpredictable cd behaviour - needs fixing for bigger datasets
+    %for this_comb = 1:length(all_combinations) %falls over in parallel due to tmp.mat and unpredictable cd behaviour - needs fixing for bigger datasets
     k = all_combinations(1,this_comb)
     c = all_combinations(2,this_comb)
     c(dirname_DCM,filestem,conditions(c),k,p,all_names)
@@ -1067,7 +1067,7 @@ delete(gcp)
 % end
 % delete(gcp)
 
-%% Now do a second level PEB on the extDCM data - Separately per group per condition, doing a first level contrast between conditions for each group then a PEB of PEBs
+%% Now do a second level PEB on the extDCM data - Separately per group per condition, doing a first level contrast between conditions for each group
 
 conditions = {'STD','DVT'}; %Tolerance failure if all conditions included
 regions = {'A1';'STG';'IFG';'IPC'}; %Symmetrical in extDCM
@@ -1095,8 +1095,8 @@ parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 secondlevelPEBcomplete = zeros(1,length(PEB_focuses)*length(unique(p.group)'));
 parfor k = 1:length(PEB_focuses)*length(unique(p.group)')
     this_focus = mod(k,length(PEB_focuses));
-    if this_focus == 0 
-       this_focus = length(PEB_focuses);
+    if this_focus == 0
+        this_focus = length(PEB_focuses);
     end
     this_group = ceil(k/length(PEB_focuses));
     try
@@ -1110,14 +1110,38 @@ end
 
 delete(gcp)
 
+% Now do a between group PEB of PEBS
+numworkersreq = length(PEB_focuses);
+if numworkersreq > 46
+    numworkersreq = 46;
+end
+Poolinfo = cbupool(numworkersreq,'--mem-per-cpu=16G --time=167:00:00 --exclude=node-i[01-15]');
+parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
+
+PEBofPEBscomplete = zeros(1,length(PEB_focuses)*length(unique(p.group)'));
+
+conditions = {'STD','DVT'}; %Can only be what went into the second level
+parfor k = 1:length(PEB_focuses)
+    try
+        extDCM_PEB_of_PEBs(dirname_DCM,conditions,unique(p.group)',p,PEB_focuses(k),regions,conductances)
+        disp(['PEB of PEBs complete for focus ' PEB_focuses{k}])
+        PEBofPEBscomplete(k) = 1;
+    catch
+        disp(['PEB of PEBs failed for focus ' PEB_focuses{k}])
+    end
+end
+delete(gcp)
+
+
+
 %% Now visualise the PEB results
 
 
 %% Now plot the whole scalp ERPs for sanity check
 for todonumber = 1:nsubj
-        try
+    try
         Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
-        end
+    end
 end
 prefix = 'PfmbraedfffM';
 %plot_all_LFPs(Participant,pathstem,p,prefix)
@@ -1139,9 +1163,9 @@ quantify_MMN_ERP(Participant,pathstem,p,prefix,thesediagnoses)
 %% Work in progress - quantitative analysis on the LFP data after Hughes et al. 2013
 
 for todonumber = 1:nsubj
-        try
+    try
         Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
-        end
+    end
 end
 prefix = 'fmbraedfffM';
 val = 2; %for LORETA
@@ -1156,7 +1180,7 @@ quantify_MMN_LFP(Participant,pathstem,p,prefix,baselined)
 
 
 
-% 
+%
 % prefix = 'PfmbraedfffM';
 % secondlevelcomplete = zeros(1,1);
 % this_output_folder_tail = {};

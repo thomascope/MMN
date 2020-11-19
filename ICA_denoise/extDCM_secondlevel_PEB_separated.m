@@ -108,9 +108,9 @@ for i = 1:length(PEB_focus)
     
 end
 
-% function restore_env(old_path)
-% path(old_path);
-% end
+function restore_env(old_path)
+path(old_path);
+end
 
 end
 
