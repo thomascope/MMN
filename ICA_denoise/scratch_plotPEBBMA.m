@@ -6,7 +6,8 @@ function scratch_plotPEBBMA(B,EpPp,diagnosis_list,source_names)
 % multi-group MMN Oct 2020
 % 
 % B must be a structure with your collection of BMAs in (see example in 
-% extDCMpostproc_notes.m').
+% extDCMpostproc_notes.m'). - Edited by TEC to allow a cell array of
+% structs
 % 
 % EpPp is either 'Ep' or 'Pp' depending on whether you just want to plot 
 % the Ep fields (use if plotting multiple BMAs together) or whether you 
@@ -23,40 +24,48 @@ function scratch_plotPEBBMA(B,EpPp,diagnosis_list,source_names)
 % source_names: {'left A1', 'left STG', 'left IFG', 'left IPC', 'right A1', 'right STG', 'right IFG', 'right IPC'}
 
 if nargin==1, EpPp = 'Ep'; end
-flds = fieldnames(B);
+
+if iscell(B)
+    flds = fieldnames(B{1});
+    disp('Multiple BMAs in cell array - assuming all have the same fields')
+else
+    flds = fieldnames(B);
+    B = {B};
+end
 
 if ~isempty(regexp(EpPp,'Pp','once')), p = .75; else p = .95; end
 
 %V.cax = .25;
 V.cax = .5;
 
+for this_BMA = 1:length(B)
 % sort out which parameters your've looking at:
 % which are H1:
-h1 = cellfun(@(x) ~isempty(regexp(x,'H','once')) && ~isempty(regexp(x,',1)','once')),B.(flds{1}).bma.Pnames);
+h1 = cellfun(@(x) ~isempty(regexp(x,'H','once')) && ~isempty(regexp(x,',1)','once')),B{this_BMA}.(flds{1}).bma.Pnames);
 s1hi = find(h1);
-s1 = cellfun(@(x) strsplit(x,'('),B.(flds{1}).bma.Pnames(h1),'Uni',0);
+s1 = cellfun(@(x) strsplit(x,'('),B{this_BMA}.(flds{1}).bma.Pnames(h1),'Uni',0);
 s1 = cellfun(@(x) strsplit(x{2},','),s1,'Uni',0);
 s1 = cellfun(@(x) [x{1} strsplit(x{2},')')],s1,'Uni',0);
 s1 = cellfun(@(y) cell2mat(cellfun(@(x) str2num(x),y,'Uni',0)),s1,'Uni',0);
 s1h = cat(1,s1{:});
 % which are H3:
-h3 = cellfun(@(x) ~isempty(regexp(x,'H','once')) && ~isempty(regexp(x,',7)','once')),B.(flds{1}).bma.Pnames);
+h3 = cellfun(@(x) ~isempty(regexp(x,'H','once')) && ~isempty(regexp(x,',7)','once')),B{this_BMA}.(flds{1}).bma.Pnames);
 s3hi = find(h3);
-s1 = cellfun(@(x) strsplit(x,'('),B.(flds{1}).bma.Pnames(h3),'Uni',0);
+s1 = cellfun(@(x) strsplit(x,'('),B{this_BMA}.(flds{1}).bma.Pnames(h3),'Uni',0);
 s1 = cellfun(@(x) strsplit(x{2},','),s1,'Uni',0);
 s1 = cellfun(@(x) [x{1} strsplit(x{2},')')],s1,'Uni',0);
 s1 = cellfun(@(y) cell2mat(cellfun(@(x) str2num(x),y,'Uni',0)),s1,'Uni',0);
 s3h = cat(1,s1{:});
 % which are A:
-ha = cellfun(@(x) ~isempty(regexp(x,'H','once')),B.(flds{1}).bma.Pnames);
+ha = cellfun(@(x) ~isempty(regexp(x,'H','once')),B{this_BMA}.(flds{1}).bma.Pnames);
 sahi = find(~ha);
-s1 = cellfun(@(x) strsplit(x,'('),B.(flds{1}).bma.Pnames(~ha),'Uni',0);
+s1 = cellfun(@(x) strsplit(x,'('),B{this_BMA}.(flds{1}).bma.Pnames(~ha),'Uni',0);
 s1 = cellfun(@(x) strsplit(x{2},','),s1,'Uni',0);
 s1 = cellfun(@(x) [x{1} strsplit(x{2},')')],s1,'Uni',0);
 s1 = cellfun(@(y) cell2mat(cellfun(@(x) str2num(x),y,'Uni',0)),s1,'Uni',0);
 sa = cat(1,s1{:});
-
-fmx = max(cellfun(@(x) size(B.(x).bma.Ep,2),flds));
+end
+fmx = max(cellfun(@(x) size(B{this_BMA}.(x).bma.Ep,2),flds));
 np = fmx; % 8;
 doneEp = 0;
 donePp = 0;
