@@ -8,7 +8,7 @@ for j = 1:length(source_names)
     
     %Create figure
     circuit_diagram = figure('Position',[1, 1, xw, yw+20]);
-    xlim([0 xw+40])
+    xlim([-40 xw+40])
     ylim([0 yw+25])
     set(gca,'visible','off')
     hold on
@@ -93,8 +93,13 @@ for j = 1:length(source_names)
         line_code=[population_colors(i) '--'];
         for from = 1:6
             for to = 1:6
-                if this_DCM.Ep.H(from,to,j,i)~=0
+                if this_DCM.Ep.H(to,from,j,i)~=0&&sum(this_DCM.Ep.H(to,from,j,:)~=0)==1
                     draw_arrow(from, to, coords_top, coords_bot, coords_cen, xw, yw, line_code)
+                elseif this_DCM.Ep.H(to,from,j,i)~=0
+                    overlapping_lines_before = sum(this_DCM.Ep.H(to,from,j,1:i-1)~=0);
+                    this_coords_bot = coords_bot-(overlapping_lines_before*(xw/200));
+                    this_coords_top = coords_top-(overlapping_lines_before*(xw/200));
+                    draw_arrow(from, to, this_coords_top, this_coords_bot, coords_cen, xw, yw, line_code)
                 end
             end
         end
@@ -132,10 +137,6 @@ if from == to %Special case, self inhibition
     fill([circle_xs(100),circle_xs(100)-r/4,circle_xs(100),circle_xs(100)+r/4],[circle_ys(100),circle_ys(100)-r/2,circle_ys(100)-r/3,circle_ys(100)-r/2],line_code(1))
  
 else
-    %Special case of stellate - origin centre
-%     if from == 1
-%         coords_bot = coords_cen;
-%     end
     
     %Make a little offset to prevent arrows overlapping
     if from<to
@@ -151,9 +152,9 @@ else
         %quiver([coords_bot(from,1)+offset_amount],[coords_top(to,2)],coords_top(to,1)-coords_bot(from,1)-offset_amount,0,0,line_code,'filled')
     elseif coords_bot(from,2) < coords_top(to,2) % Is below, go down then around
         plot([coords_bot(from,1),coords_bot(from,1)]+offset_amount,[coords_bot(from,2), coords_bot(from,2) - xw/15 - offset_amount],line_code) %Down
-        plot([coords_bot(from,1),coords_bot(from,1)-xw/10]+offset_amount,[coords_bot(from,2) - xw/15 - offset_amount,coords_bot(from,2) - xw/15 - offset_amount],line_code) %Left
-        plot([coords_bot(from,1)-xw/10,coords_bot(from,1)-xw/10]+offset_amount,[coords_bot(from,2) - xw/15 - offset_amount,coords_top(to,2)],line_code) %Up
-        arrow3([coords_bot(from,1)-xw/10+offset_amount,coords_top(to,2)],coords_top(to,:),line_code) % note arrow3 syntax takes point pairs rather than x then y values
+        plot([coords_bot(from,1),coords_bot(from,1)-xw/6]+offset_amount,[coords_bot(from,2) - xw/15 - offset_amount,coords_bot(from,2) - xw/15 - offset_amount],line_code) %Left
+        plot([coords_bot(from,1)-xw/6,coords_bot(from,1)-xw/6]+offset_amount,[coords_bot(from,2) - xw/15 - offset_amount,coords_top(to,2)],line_code) %Up
+        arrow3([coords_bot(from,1)-xw/6+offset_amount,coords_top(to,2)],coords_top(to,:),line_code) % note arrow3 syntax takes point pairs rather than x then y values
         %quiver([coords_bot(from,1)+offset_amount],[coords_top(to,2)],coords_top(to,1)-coords_bot(from,1)-offset_amount,0,0,line_code,'filled')
     end
     
