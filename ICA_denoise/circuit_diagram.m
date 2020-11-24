@@ -1,7 +1,6 @@
 function circuit_diagram(dirname_DCM,diagnosis_list,source_names,conductances,thresh)
 %A script for plotting the results of extDCM across all diagnoses and
-%sources. Specify the condition (1 or 2 corresponding to STD+DVT or STD-DVT)
-% of interest - note can only do one at once.
+%sources. PEB of PEBs on H matrix.
 addpath('/group/language/data/thomascope/MMN/ICA_denoise/Helperfiles')
 thisdir = pwd;
 mkdir([thisdir '/circuit_diagrams'])
@@ -144,7 +143,7 @@ for this_contrast = 1:size(template_PEB.M.X,2)
                         line_code=[population_colors(this_conductance) '-']; %Patients greater, solid line
                     end
                     else
-                        line_code=[population_colors(this_conductance) ':']; %Interaction, dashed line
+                        line_code=[population_colors(this_conductance) ':']; %Interaction, dotted line
                     end
                     
                     this_connection = BMA_Overall.Pnames{these_differences(this_difference)};

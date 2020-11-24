@@ -1134,6 +1134,15 @@ delete(gcp)
 
 %% Now visualise the PEB results
 circuit_diagram(dirname_DCM,p.diagnosis_list,regions,conductances,1)
+p.Sname = {'left A1';
+         'left STG';
+         'left IFG';
+         'left IPC';
+         'right A1';
+         'right STG';
+         'right IFG';
+         'right IPC'};
+Inter_region(dirname_DCM,p.diagnosis_list,p.Sname,0.7)
 
 %% Now plot the whole scalp ERPs for sanity check
 for todonumber = 1:nsubj
