@@ -1132,10 +1132,8 @@ parfor k = 1:length(PEB_focuses)
 end
 delete(gcp)
 
-
-
 %% Now visualise the PEB results
-
+circuit_diagram(dirname_DCM,p.diagnosis_list,regions,conductances,1)
 
 %% Now plot the whole scalp ERPs for sanity check
 for todonumber = 1:nsubj
