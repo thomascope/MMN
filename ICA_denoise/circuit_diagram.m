@@ -1,4 +1,4 @@
-function circuit_diagram(dirname_DCM,diagnosis_list,source_names,conductances,condition,thresh)
+function circuit_diagram(dirname_DCM,diagnosis_list,source_names,conductances,thresh)
 %A script for plotting the results of extDCM across all diagnoses and
 %sources. Specify the condition (1 or 2 corresponding to STD+DVT or STD-DVT)
 % of interest - note can only do one at once.
@@ -130,16 +130,21 @@ for this_contrast = 1:size(template_PEB.M.X,2)
             saveas(circuit_diagram,[thisdir '/circuit_diagrams/' this_title '.pdf'])
             break
         else
+            for condition = 1:2
             all_to_froms = [];
             for this_conductance = 1:length(conductances)
                 load(['PEB_H_' source_names{this_source} '_' conductances{this_conductance} '_Overall.mat'])
                 these_differences = find(BMA_Overall.Pp(:,this_contrast)>thresh);
                 
                 for this_difference = 1:length(these_differences)
+                    if condition == 1 
                     if BMA_Overall.Ep(these_differences(this_difference),this_contrast)>0 %Controls greater, dashed line
                         line_code=[population_colors(this_conductance) '--'];
                     else
                         line_code=[population_colors(this_conductance) '-']; %Patients greater, solid line
+                    end
+                    else
+                        line_code=[population_colors(this_conductance) ':']; %Interaction, dashed line
                     end
                     
                     this_connection = BMA_Overall.Pnames{these_differences(this_difference)};
@@ -164,15 +169,12 @@ for this_contrast = 1:size(template_PEB.M.X,2)
             end
             daspect([1 1 1])
             
-            if condition == 1
-                this_title = [diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' minus ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' ' source_names{this_source} ' main effect'];
-            else
-                this_title = [diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' minus ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' ' source_names{this_source} ' Interaction'];
-            end
+                this_title = [diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' minus ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' ' source_names{this_source}];
             title(this_title)
             set(findall(gca, 'type', 'text'), 'visible', 'on')
             saveas(circuit_diagram,[thisdir '/circuit_diagrams/' this_title '.jpg'])
             saveas(circuit_diagram,[thisdir '/circuit_diagrams/' this_title '.pdf'])
+            end
         end
     end
 end
