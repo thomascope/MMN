@@ -1133,6 +1133,8 @@ end
 delete(gcp)
 
 %% Now visualise the PEB results
+addpath('./extDCM_visualisation')
+dirname_DCM = '/imaging/tc02/Holly_MMN/extDCMs_hE6/';
 circuit_diagram(dirname_DCM,p.diagnosis_list,regions,conductances,1)
 p.Sname = {'left A1';
          'left STG';
@@ -1143,6 +1145,7 @@ p.Sname = {'left A1';
          'right IFG';
          'right IPC'};
 Inter_region(dirname_DCM,p.diagnosis_list,p.Sname,0.7)
+visualise_bygroup(dirname_DCM,p.diagnosis_list,regions,conductances)
 
 %% Now plot the whole scalp ERPs for sanity check
 for todonumber = 1:nsubj
