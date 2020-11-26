@@ -88,11 +88,11 @@ for ss = 1:length(Participant)
             hold off
         end
         for j = 2:length(conditions)
-            [~,firstpeakloc]=findpeaks(squeeze(all_abs_MMN(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.3,j)),'MinPeakHeight',max(squeeze(all_abs_MMN(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.3,j)))*3/4);
+            [~,firstpeakloc]=findpeaks(squeeze(all_abs_MMN(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.25,j)),'MinPeakHeight',max(squeeze(all_abs_MMN(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.25,j)))*3/4);
             if isempty(firstpeakloc)
-                [~,firstpeakloc]=findpeaks(squeeze(all_abs_MMN(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.3,j)),'MinPeakHeight',max(squeeze(all_abs_MMN(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.3,j)))*0.5);
+                [~,firstpeakloc]=findpeaks(squeeze(all_abs_MMN(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.25,j)),'MinPeakHeight',max(squeeze(all_abs_MMN(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.25,j)))*0.5);
                 if isempty(firstpeakloc)
-                    [~,firstpeakloc] = max(squeeze(all_abs_MMN(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.3,j)));
+                    [~,firstpeakloc] = max(squeeze(all_abs_MMN(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.25,j)));
                 end
             end
             firstpeaksample = min(find(all_times{ss}>=0.1))+firstpeakloc(1)-1;
