@@ -43,4 +43,34 @@ for this_contrast = 2:size(template_PEB.M.X,2)
         
     end
 end
+
+load('PEB_D_Overall.mat')
+
+for this_contrast = 2:size(template_PEB.M.X,2)
+    these_differences = find(BMA_Overall.Pp(:,this_contrast)>thresh);
+    
+    for this_difference = 1:length(these_differences)
+        
+        delays = {'local','cortico-cortical','cor-thalamo-cor'};
+        
+        this_connection = BMA_Overall.Pnames{these_differences(this_difference)};
+        Condition_Split = strsplit(this_connection,'Covariate ');
+        condition = str2num(Condition_Split{2}(1));
+        
+        Connection_Split = strsplit(this_connection,'D(');
+        connection = delays{str2num(Connection_Split{2}(1))};
+                
+        if condition == 1
+            if BMA_Overall.Ep(these_differences(this_difference),this_contrast)>0
+                disp([diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' longer than ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' for ' connection])
+            else
+                disp([diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' longer than ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' connection])
+            end
+        else
+            disp(['Interaction between ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' and ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' connection])
+        end
+        
+    end
+end
+
 cd(thisdir)

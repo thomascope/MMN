@@ -1,4 +1,4 @@
-function Preprocessing_mainfunction(step,prevStep,p,pathstem,maxfilteredpathstem, subjects,subjcnt,dates,blocksin,blocksout,rawpathstem,badeeg,badmeg,runtodo)
+function Preprocessing_mainfunction(step,prevStep,p,pathstem,maxfilteredpathstem, subjects,subjcnt,newfilename,blocksin,blocksout,rawpathstem,badeeg,badmeg,runtodo)
 
 if iscell(prevStep)
     prevStep1 = prevStep;
@@ -13,51 +13,54 @@ else
             end
             pathstem = maxfilteredpathstem;
         case 'convert'
-            prevStep1 = 'run*.mat';
+            error('no consistent naming convention in this study, specify individual filenames')
+            %prevStep1 = 'meg*.mat';
         case 'ICA_artifacts'
-            prevStep1 = 'Mrun*.mat';
+            error('no consistent naming convention in this study, specify individual filenames')
+            %prevStep1 = 'M*.mat';
         case 'ICA_artifacts_copy'
-            prevStep1 = 'Mrun*.mat';
+            error('no consistent naming convention in this study, specify individual filenames')
+            %prevStep1 = 'M*.mat';
         case 'downsample'
-            prevStep1 = 'd*Mrun*.mat';
+            prevStep1 = 'd*eM*.mat';
         case 'epoch'
-            prevStep1 = 'e*Mrun*.mat';
+            prevStep1 = 'eM*.mat';
         case 'merge'
-            prevStep1 = 'c*Mrun*.mat';
+            prevStep1 = 'c*eM*.mat';
         case 'merge_withsession'
-            prevStep1 = 'z*Mrun*.mat';
+            prevStep1 = 'z*eM*.mat';
         case 'rereference'
-            prevStep1 = 'M*Mrun*.mat';
+            prevStep1 = 'M*eM*.mat';
         case 'TF_power'
-            prevStep1 = 'tf*Mrun*.mat';
+            prevStep1 = 'tf*eM*.mat';
         case 'TF_phase'
-            prevStep1 = 'tph*Mrun*.mat';
+            prevStep1 = 'tph*eM*.mat';
         case 'TF_rescale'
-            prevStep1 = 'r*Mrun*.mat';
+            prevStep1 = 'r*eM*.mat';
         case 'filter'
-            prevStep1 = 'fb*Mrun*.mat';
+            prevStep1 = 'fb*eM*.mat';
         case 'secondfilter'
-            prevStep1 = 'ffb*Mrun*.mat';
+            prevStep1 = 'ffb*eM*.mat';
         case 'baseline'
-            prevStep1 = 'b*Mrun*.mat';
+            prevStep1 = 'b*eM*.mat';
         case 'average'
-            prevStep1 = 'm*Mrun*.mat';
+            prevStep1 = 'm*eM*.mat';
         case 'quickaverage'
-            prevStep1 = 'quick/m*Mrun*.mat';
+            prevStep1 = 'quick/m*eM*.mat';
         case 'weight'
-            prevStep1 = 'w*Mrun*.mat';
+            prevStep1 = 'w*eM*.mat';
         case 'combineplanar'
-            prevStep1 = 'p*Mrun*.mat';
+            prevStep1 = 'p*eM*.mat';
         case 'artefact'
-            prevStep1 = 'a*Mrun*.mat';
+            prevStep1 = 'a*eM*.mat';
         case 'blink'
-            prevStep1 = 'clean*Mrun*.mat';
+            prevStep1 = 'clean*eM*.mat';
         case 'image'
-            prevStep1 = 'trial*Mrun*.img';
+            prevStep1 = 'trial*eM*.img';
         case 'smooth'
-            prevStep1 = 'sm*Mrun*.img';
+            prevStep1 = 'sm*eM*.img';
         case 'firstlevel'
-            prevStep1 = 't*Mrun*.img';
+            prevStep1 = 't*eM*.img';
             
     end
     
@@ -221,7 +224,13 @@ switch step
         
         % other parameters
         conditions = p.conditions;
-        triggers = p.triggers;
+        
+        if iscell(p.triggers)
+            triggers = p.triggers;
+        else
+            triggers = num2cell(p.triggers)';
+        end
+        
         if isfield(p,'stimuli_list_fname')
             stimuli_list_fname = [pathstem p.stimuli_list_fname];
         end
@@ -230,7 +239,7 @@ switch step
         for c=1:length(conditions)
             S.trialdef(c).conditionlabel = conditions{c};
             S.trialdef(c).eventtype = 'STI101_up';
-            S.trialdef(c).eventvalue = triggers(c);
+            S.trialdef(c).eventvalue = triggers{c};
         end
         
         
@@ -243,6 +252,7 @@ switch step
         
         % search for input files
         files = [dir(prevStep1); dir(prevStep2)];
+        assert(~isempty(files),['No files found for subject ' subjects ' number ' num2str(subjcnt) '! Please check.'])
         
         for f=1:length(files)
             
@@ -386,7 +396,7 @@ switch step
             
             % search for input files
             files = [dir(prevStep1); dir(prevStep2)];
-            filesTrlDef = [dir('*trlDef_run*.mat'); dir('*trlDef_nobuttons*.mat')];
+            filesTrlDef = [dir('*trlDef_*.mat')];
             
             for f=1:length(files)
                 
@@ -559,7 +569,7 @@ switch step
             
             % search for input files
             files = [dir(prevStep1); dir(prevStep2)];
-            filesTrlDef = [dir('trlDef_run*.mat'); dir('trlDef_nobuttons*.mat')];
+            filesTrlDef = [dir('trlDef_*.mat')];
             
             for f=1:length(files)
                 
@@ -785,7 +795,7 @@ switch step
             
             % search for input files
             files = [dir(prevStep1); dir(prevStep2)];
-            filesTrlDef = [dir('trlDef_run*.mat'); dir('trlDef_nobuttons*.mat')];
+            filesTrlDef = [dir('trlDef_*.mat')];
             
             for f=1:length(files)
                 
@@ -854,7 +864,7 @@ switch step
             
             % search for input files
             files = [dir(prevStep1); dir(prevStep2)];
-            filesTrlDef = [dir('trlDef*run*.mat'); dir('trlDef*nobuttons*.mat')];
+            filesTrlDef = [dir('trlDef*.mat')];
             
             for f=1:length(files)
                 
@@ -1026,7 +1036,7 @@ switch step
             fprintf([ '\n\nCurrent subject = ' subjects '...\n\n' ]);
             
             % change to input directory
-            filePath = [pathstem subjects];
+            filePath = [pathstem subjects(1,:)];
             cd(filePath);
             
             % search for input files
@@ -1062,7 +1072,14 @@ switch step
             S.D = files2merge;
             
             % main process
-            spm_eeg_merge(S);
+            if length(files) > 1
+                spm_eeg_merge(S);
+            else
+                warning(['Only one file for subject ' subjects(1,:) ', renaming it with the prefix ''c'' but check this is correct for your data'])
+                S = rmfield(S,'recode');
+                S.outfile = ['c' S.D];
+                spm_eeg_copy(S)
+            end
             
         end % subjects
         
@@ -1503,7 +1520,7 @@ switch step
         
         fprintf([ '\n\n Copying ' files ' to ' filePath '...\n\n' ]);
         S.D = files;
-        S.outfile = [filePath dates];
+        S.outfile = [filePath newfilename];
         spm_eeg_copy(S);
         cd(originaldir);
         

@@ -60,9 +60,9 @@ for ss = 1:length(Participant)
     %2011, 32ms until 2015, then 26ms
     temp_split = strsplit(Participant{ss}.name,'meg');
     this_year(ss) = str2num(temp_split{2}(1:2));
-    if this_year<=11
+    if this_year(ss)<=11
         all_times{ss}= D{ss}.time-0.013;
-    elseif this_year>=15
+    elseif this_year(ss)>=15
         all_times{ss} = D{ss}.time-0.026;
     else
         all_times{ss} = D{ss}.time-0.032;
