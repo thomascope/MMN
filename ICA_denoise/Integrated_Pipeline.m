@@ -366,6 +366,10 @@ for todonumber = 1:nsubj
         for i = 1:size(Participant{todonumber}.MF,2)
             Participant{todonumber}.name{i} = [this_participant_name '_' num2str(i)];
         end
+    elseif iscell(Participant{todonumber}.name)
+        error(['Participant ' num2str(thodonumber) ' is already a cell array - check']);
+    else
+        Participant{todonumber}.namepostmerge = Participant{todonumber}.name;
     end
 end
 % 
@@ -459,17 +463,17 @@ end
 
 %% Convert Holly's Participant structure into my pipeline's expected structure
 for cnt = 1:nsubj
-    subjects{cnt} = Participant{cnt}.name;
+    subjects{cnt} = Participant{cnt}.namepostmerge;
     badeeg{cnt} = {}; %No eeg in this analysis
 end
 
 %% Pre-processing - definetrials
 parfor cnt = 1:nsubj
-    Preprocessing_mainfunction('definetrials',['M' Participant{cnt}.name '.mat'],p,[pathstem Participant{cnt}.groupfolder '/'], [], subjects{cnt},cnt,[],[],[],[], badeeg);
+    Preprocessing_mainfunction('definetrials',['M' Participant{cnt}.namepostmerge '*.mat'],p,[pathstem Participant{cnt}.groupfolder '/'], [], subjects{cnt},cnt,[],[],[],[], badeeg);
 end
 %% Pre-processing - epoch
 parfor cnt = 1:nsubj
-    Preprocessing_mainfunction('epoch',['M' Participant{cnt}.name '.mat'],p,[pathstem Participant{cnt}.groupfolder '/'], [], subjects{cnt},cnt,[],[],[],[], badeeg);
+    Preprocessing_mainfunction('epoch',['M' Participant{cnt}.namepostmerge '*.mat'],p,[pathstem Participant{cnt}.groupfolder '/'], [], subjects{cnt},cnt,[],[],[],[], badeeg);
 end
 %% Pre-processing - baseline correct - obvigates the need to highpass filter (note, no downsampling here and no re-referencing as EEG discarded where present) 
 parfor cnt = 1:nsubj
