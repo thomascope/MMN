@@ -222,7 +222,7 @@ p.postBase = 0;
 p.preEpoch = -500; % pre stimulus time (ms)
 p.postEpoch = 1500; % post stimulus time (ms)
 p.triggers = {11, [1,2,3,4,5,6,7,8], [7,8], [5,6], 1, 4, [2,3], 7, 3, 6, 8, 5, 2}; % trigger values (correspond to p.conditions specified above)
-p.delay = 32; % delay time (ms) between trigger and stimulus
+% p.delay = 32; % delay time (ms) between trigger and stimulus - here varies by year due to soundcard changes
 p.minduration = 950; % if using definetrials_jp, minimum duration of a trial (ms)
 p.maxduration = 1150; % if using definetrials_jp, maximum duration of a trial (ms)
 %p.stimuli_list_fname = 'stimuli_list.txt';
@@ -271,11 +271,11 @@ for todonumber = 1:nsubj
     temp_split = strsplit(Participant{todonumber}.name,'meg');
     this_year(todonumber) = str2num(temp_split{2}(1:2));
     if this_year(todonumber)<=11
-        Participant{todonumber}.delay = 0.013;
+        Participant{todonumber}.delay = 13; %Needs to be in ms
     elseif this_year(todonumber)>=15
-        Participant{todonumber}.delay = 0.026;
+        Participant{todonumber}.delay = 26;
     else
-        Participant{todonumber}.delay = 0.032;
+        Participant{todonumber}.delay = 32;
     end
     p.delay(todonumber) = Participant{todonumber}.delay;
 end
