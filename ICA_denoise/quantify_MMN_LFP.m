@@ -56,17 +56,18 @@ for ss = 1:length(Participant)
             all_abs_MMN(i,ss,:,j)=abs(all_MMN(i,ss,:,j));
         end
     end
-    %Correct for changing sound system latency over the years - 13ms until
-    %2011, 32ms until 2015, then 26ms
-    temp_split = strsplit(Participant{ss}.name,'meg');
-    this_year(ss) = str2num(temp_split{2}(1:2));
-    if this_year(ss)<=11
-        all_times{ss}= D{ss}.time-0.013;
-    elseif this_year(ss)>=15
-        all_times{ss} = D{ss}.time-0.026;
-    else
-        all_times{ss} = D{ss}.time-0.032;
-    end
+% %     %Correct for changing sound system latency over the years - 13ms until
+% %     %2011, 32ms until 2015, then 26ms - no longer needed, integrated
+% %     % pipeline accounts for this
+% %     temp_split = strsplit(Participant{ss}.name,'meg');
+% %     this_year(ss) = str2num(temp_split{2}(1:2));
+% %     if this_year(ss)<=11
+% %         all_times{ss}= D{ss}.time-0.013;
+% %     elseif this_year(ss)>=15
+% %         all_times{ss} = D{ss}.time-0.026;
+% %     else
+% %         all_times{ss} = D{ss}.time-0.032;
+% %     end
 end
 
 

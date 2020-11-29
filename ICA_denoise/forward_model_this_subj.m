@@ -15,8 +15,8 @@ inv_meth        = p.inv_meth;
 %% Define steps to be done
 forward_modeling = 1;
 segment_only = 0;    % Flag whether only MRI segmentation (up to, not including, coregistration) shall be done (1: only segment; 0: do it all)
-redoreg_flag = 0;    % Flag whether to redo MRI and registration model (eg if want to change fids)
-redoformod_flag = 0; % Flag whether to redo forward modelling (eg if only one for_typ above)
+redoreg_flag = 1;    % Flag whether to redo MRI and registration model (eg if want to change fids)
+redoformod_flag = 1; % Flag whether to redo forward modelling (eg if only one for_typ above)
 display_flag = 0;    % display results on the fly
 write3Dflag = 1;     % write SPM volumes of results
 DoInv_contrast = 1;
@@ -36,7 +36,7 @@ freq_end = 100;
 
 % Forward model options, for_typ{EEG/MEG}
 for_typ{1} = 'Single Shell'; % MEG (mags+grads)
-for_typ{2} = 'EEG BEM'; % EEG
+%for_typ{2} = 'EEG BEM'; % EEG - no EEG here
 
 % Which sensor types to use
 inv_mods = p.mod;   % Not EEG - sunbalanced acquisition by group
@@ -63,21 +63,22 @@ for inv_cnt = 1:length(inv_meth)
     clear D
     if forward_modeling == 1
         for ss = 1:nr_subs
-            
+            redo_this_reg = redoreg_flag;
+            redo_this_formod = redoformod_flag;
             % Make sure in right starting place:
             [sourceloc_path, megfname, ~] = fileparts(megpath{ss});
             cd(sourceloc_path)
-            delete s*
-            delete SPM*
+            %delete s*
+            %delete SPM*
             D = spm_eeg_load(megpath{ss});
             
             % Initialise... (if want to be safe!)
             val = inv_cnt;
-            D.inv{val} = {struct('mesh', [], 'gainmat', [])};
+            D.inv{val} = struct('mesh', [], 'gainmat', []);
 
             
             %% MRI processing and coregistration
-            if redoreg_flag == 1 || ~isfield(D.inv{1},'mesh') || ~isfield(D.inv{1},'datareg')
+            if redo_this_reg == 1 || ~isfield(D.inv{1},'mesh') || ~isfield(D.inv{1},'datareg')
                 
                 D.val = val;
                 D.inv{val}.date    = strvcat(date,datestr(now,15));
@@ -122,7 +123,7 @@ for inv_cnt = 1:length(inv_meth)
                 end
                 fprintf(1, '\n');
                 
-                redoreg_flag = 0;
+                redo_this_reg = 0;
                 
             else
                 D.inv{val}.mesh    = D.inv{1}.mesh;
@@ -130,7 +131,7 @@ for inv_cnt = 1:length(inv_meth)
             end % if redoreg_flag...
             
             %% Computing forward model/leadfield
-            if redoformod_flag == 1 || ~isfield(D.inv{val},'forward') || ~isfield(D.inv{val}, 'gainmat')
+            if redo_this_formod == 1 || ~isfield(D.inv{val},'forward') || ~isfield(D.inv{val}, 'gainmat')
                 
                 fprintf(1, 'Creating forward model\n');
                 %% Create forward model (BEM) (could conditionalise this bit on modality inverted...)
@@ -159,9 +160,12 @@ for inv_cnt = 1:length(inv_meth)
                 %                 end
                 %             end
                 current_formod = val;
-                redoformod_flag = 0;
+                redo_this_formod = 0;
                 D.save;
             else
+                if ~exist('current_formod','var')
+                    current_formod = val;
+                end
                 D.inv{val}.forward = D.inv{current_formod}.forward;
                 D.inv{val}.gainmat = D.inv{current_formod}.gainmat;
                 D.save;

@@ -11,7 +11,7 @@ end
 
 script_dir = '/group/language/data/thomascope/MMN/ICA_denoise/';
 %pathstem = '/imaging/tc02/Holly_MMN/ICA_denoise/';
-pathstem = '/imaging/tc02/Holly_MMN/ICA_denoise_longwindow/';
+pathstem = '/imaging/tc02/Holly_MMN/Integrated_pipeline/';
 data_definition_dir = '/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/';
 folder_structure_file_maindata = 'participant_folder_structure.m';
 mridirectory = '/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/';
@@ -299,118 +299,139 @@ else
     cbupool(92,'--mem-per-cpu=8G --time=167:00:00 --exclude=node-i[01-15]')
 end
 
-% %% First maxfilter and convert MCI/AD data
-% maxfilterworkedcorrectly = zeros(1,size(fullpath,2));
-% assert((size(fullpath,2)+old_nsubj)==nsubj,'There don''t seem to be the right number of Participants in the definition files')
-% parfor todonumber = 1:size(fullpath,2)
-%     thesepaths = Participant{todonumber+old_nsubj}.MF
-%     subjfolder = [pathstem 'MCI/'];
-%     this_participant_name = [Participant{todonumber+old_nsubj}.name]
-%     Participant{todonumber+old_nsubj}.namepostmerge = Participant{todonumber+old_nsubj}.name;
-%     Participant{todonumber+old_nsubj}.name = {};
-%     repeatmaxfilter = 0;
-%     try
-%         if maxfilterworkedcorrectly(todonumber) == 0
-%             Participant{todonumber+old_nsubj}.name = maxfilter_this_participant(thesepaths,subjfolder,this_participant_name,repeatmaxfilter)
-%         end
-%         maxfilterworkedcorrectly(todonumber) = 1
-%         fprintf('\n\nMaxfilter and convert complete for subject number %d,\n\n',todonumber);
-%     catch
-%         maxfilterworkedcorrectly(todonumber) = 0;
-%         fprintf('\n\nMaxfilter and convert failed for subject number %d\n\n',todonumber);
-%     end
-% end
-%
-% %% Then copy other subjects' maxfiltered data to new folder
-% copycomplete = zeros(1,old_nsubj);
-% parfor todonumber = 1:old_nsubj
-%     this_input_full_fname = [preproc_path Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.name '.mat']
-%     this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/']
-%     try
-%         Preprocessing_mainfunction('Holly_data_copy',this_input_full_fname,p,pathstem, [], this_output_folder_tail,todonumber,[Participant{todonumber}.name '.mat'])
-%         copycomplete(todonumber) = 1
-%         fprintf('\n\nCopy complete for subject number %d,\n\n',todonumber);
-%     catch
-%         copycomplete(todonumber) = 0;
-%         fprintf('\n\nCopy failed for subject number %d\n\n',todonumber);
-%     end
-% end
+%% First maxfilter and convert all data
+maxfilterworkedcorrectly = zeros(1,size(fullpath,2));
+parfor todonumber = 1:size(fullpath,2)
+    thesepaths = Participant{todonumber+old_nsubj}.MF
+    subjfolder = [pathstem 'MCI/'];
+    this_participant_name = [Participant{todonumber+old_nsubj}.name]
+    Participant{todonumber+old_nsubj}.namepostmerge = Participant{todonumber+old_nsubj}.name;
+    Participant{todonumber+old_nsubj}.name = {};
+    repeatmaxfilter = 0;
+    try
+        if maxfilterworkedcorrectly(todonumber) == 0
+            Participant{todonumber+old_nsubj}.name = maxfilter_this_participant(thesepaths,subjfolder,this_participant_name,repeatmaxfilter)
+        end
+        maxfilterworkedcorrectly(todonumber) = 1
+        fprintf('\n\nMaxfilter and convert complete for subject number %d,\n\n',todonumber);
+    catch
+        maxfilterworkedcorrectly(todonumber) = 0;
+        fprintf('\n\nMaxfilter and convert failed for subject number %d\n\n',todonumber);
+    end
+end
 
-% %% ensure naming convention is as desired, if maxfilter step has not run
-% for todonumber = 1:nsubj
-%     if iscell(Participant{todonumber}.MF) && size(Participant{todonumber}.MF,2) > 1 && ~iscell(Participant{todonumber}.name)
-%         this_participant_name = [Participant{todonumber}.name];
-%         Participant{todonumber}.namepostmerge = Participant{todonumber}.name;
-%         Participant{todonumber}.name = {};
-%         for i = 1:size(Participant{todonumber}.MF,2)
-%             Participant{todonumber}.name{i} = [this_participant_name '_' num2str(i)];
-%         end
-%     end
-% end
-% 
-% %% Copy maxfiltered data to new directory structure
-% preproc_path_tc = '/imaging/tc02/Holly_MMN/ICA_denoise/';
-% copycomplete = zeros(1,old_nsubj);
-% parfor todonumber = 1:nsubj
-%     if iscell(Participant{todonumber}.name)
-%         for this_file = 1:length(Participant{todonumber}.name)
-%             this_input_full_fname = [preproc_path_tc Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/' Participant{todonumber}.name{this_file} '.mat']
-%             this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/']
-%             try
-%                 Preprocessing_mainfunction('Holly_data_copy',this_input_full_fname,p,pathstem, [], this_output_folder_tail,todonumber,[Participant{todonumber}.name{this_file} '.mat'])
-%                 copycomplete(todonumber) = 1
-%                 fprintf('\n\nCopy complete for subject number %d,\n\n',todonumber);
-%             catch
-%                 copycomplete(todonumber) = 0;
-%                 fprintf('\n\nCopy failed for subject number %d\n\n',todonumber);
-%             end
-%         end
-%     else
-%         
-%         this_input_full_fname = [preproc_path_tc Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.name '.mat']
-%         this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/']
-%         try
-%             %Preprocessing_mainfunction('Holly_data_copy',this_input_full_fname,p,pathstem, [], this_output_folder_tail,todonumber,[Participant{todonumber}.name '.mat'])
-%             copycomplete(todonumber) = 1
-%             fprintf('\n\nCopy complete for subject number %d,\n\n',todonumber);
-%         catch
-%             copycomplete(todonumber) = 0;
-%             fprintf('\n\nCopy failed for subject number %d\n\n',todonumber);
-%         end
-%     end
-% end
-% 
-% %% Now run ICA_denoise
-% copyfile('/imaging/tc02/Holly_MMN/ICA_denoise/MEGArtifactTemplateTopographies.mat',[pathstem 'MEGArtifactTemplateTopographies.mat'])
-% copyfile('/imaging/tc02/Holly_MMN/ICA_denoise/tec_montage_all.mat',[pathstem 'tec_montage_all.mat'])
-% ICAcomplete = zeros(1,nsubj);
-% parfor todonumber = 1:nsubj
-%     if iscell(Participant{todonumber}.name)
-%         for this_file = 1:length(Participant{todonumber}.name)
-%             this_input_fname = [Participant{todonumber}.name{this_file} '.mat']
-%             this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/']
-%             try
-%                 Preprocessing_mainfunction('ICA_artifacts',this_input_fname,p,pathstem, [], this_output_folder_tail,todonumber)
-%                 ICAcomplete(todonumber) = 1
-%                 fprintf('\n\nICA complete for subject number %d file %d,\n\n',todonumber,this_file);
-%             catch
-%                 ICAcomplete(todonumber) = 0;
-%                 fprintf('\n\nICA failed for subject number %d file %d,\n\n',todonumber,this_file);
-%             end
-%         end
-%     else
-%         this_input_fname = [Participant{todonumber}.name '.mat']
-%         this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/']
-%         try
-%             Preprocessing_mainfunction('ICA_artifacts',this_input_fname,p,pathstem, [], this_output_folder_tail,todonumber)
-%             ICAcomplete(todonumber) = 1
-%             fprintf('\n\nICA complete for subject number %d,\n\n',todonumber);
-%         catch
-%             ICAcomplete(todonumber) = 0;
-%             fprintf('\n\nICA failed for subject number %d,\n\n',todonumber);
-%         end
-%     end
-% end
+% % % % %% First maxfilter and convert MCI/AD data
+% % % % maxfilterworkedcorrectly = zeros(1,size(fullpath,2));
+% % % % assert((size(fullpath,2)+old_nsubj)==nsubj,'There don''t seem to be the right number of Participants in the definition files')
+% % % % parfor todonumber = 1:size(fullpath,2)
+% % % %     thesepaths = Participant{todonumber+old_nsubj}.MF
+% % % %     subjfolder = [pathstem 'MCI/'];
+% % % %     this_participant_name = [Participant{todonumber+old_nsubj}.name]
+% % % %     Participant{todonumber+old_nsubj}.namepostmerge = Participant{todonumber+old_nsubj}.name;
+% % % %     Participant{todonumber+old_nsubj}.name = {};
+% % % %     repeatmaxfilter = 0;
+% % % %     try
+% % % %         if maxfilterworkedcorrectly(todonumber) == 0
+% % % %             Participant{todonumber+old_nsubj}.name = maxfilter_this_participant(thesepaths,subjfolder,this_participant_name,repeatmaxfilter)
+% % % %         end
+% % % %         maxfilterworkedcorrectly(todonumber) = 1
+% % % %         fprintf('\n\nMaxfilter and convert complete for subject number %d,\n\n',todonumber);
+% % % %     catch
+% % % %         maxfilterworkedcorrectly(todonumber) = 0;
+% % % %         fprintf('\n\nMaxfilter and convert failed for subject number %d\n\n',todonumber);
+% % % %     end
+% % % % end
+
+% % % % %% Then copy other subjects' maxfiltered data to new folder
+% % % % copycomplete = zeros(1,old_nsubj);
+% % % % parfor todonumber = 1:old_nsubj
+% % % %     this_input_full_fname = [preproc_path Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.name '.mat']
+% % % %     this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/']
+% % % %     try
+% % % %         Preprocessing_mainfunction('Holly_data_copy',this_input_full_fname,p,pathstem, [], this_output_folder_tail,todonumber,[Participant{todonumber}.name '.mat'])
+% % % %         copycomplete(todonumber) = 1
+% % % %         fprintf('\n\nCopy complete for subject number %d,\n\n',todonumber);
+% % % %     catch
+% % % %         copycomplete(todonumber) = 0;
+% % % %         fprintf('\n\nCopy failed for subject number %d\n\n',todonumber);
+% % % %     end
+% % % % end
+
+%% ensure naming convention is as desired, if maxfilter step has not run
+for todonumber = 1:nsubj
+    if iscell(Participant{todonumber}.MF) && size(Participant{todonumber}.MF,2) > 1 && ~iscell(Participant{todonumber}.name)
+        this_participant_name = [Participant{todonumber}.name];
+        Participant{todonumber}.namepostmerge = Participant{todonumber}.name;
+        Participant{todonumber}.name = {};
+        for i = 1:size(Participant{todonumber}.MF,2)
+            Participant{todonumber}.name{i} = [this_participant_name '_' num2str(i)];
+        end
+    end
+end
+
+%% Copy maxfiltered data to new directory structure
+preproc_path_tc = '/imaging/tc02/Holly_MMN/ICA_denoise/';
+copycomplete = zeros(1,old_nsubj);
+parfor todonumber = 1:nsubj
+    if iscell(Participant{todonumber}.name)
+        for this_file = 1:length(Participant{todonumber}.name)
+            this_input_full_fname = [preproc_path_tc Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/' Participant{todonumber}.name{this_file} '.mat']
+            this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/']
+            try
+                Preprocessing_mainfunction('Holly_data_copy',this_input_full_fname,p,pathstem, [], this_output_folder_tail,todonumber,[Participant{todonumber}.name{this_file} '.mat'])
+                copycomplete(todonumber) = 1
+                fprintf('\n\nCopy complete for subject number %d,\n\n',todonumber);
+            catch
+                copycomplete(todonumber) = 0;
+                fprintf('\n\nCopy failed for subject number %d\n\n',todonumber);
+            end
+        end
+    else
+        
+        this_input_full_fname = [preproc_path_tc Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.name '.mat']
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/']
+        try
+            %Preprocessing_mainfunction('Holly_data_copy',this_input_full_fname,p,pathstem, [], this_output_folder_tail,todonumber,[Participant{todonumber}.name '.mat'])
+            copycomplete(todonumber) = 1
+            fprintf('\n\nCopy complete for subject number %d,\n\n',todonumber);
+        catch
+            copycomplete(todonumber) = 0;
+            fprintf('\n\nCopy failed for subject number %d\n\n',todonumber);
+        end
+    end
+end
+
+%% Now run ICA_denoise
+copyfile('/imaging/tc02/Holly_MMN/ICA_denoise/MEGArtifactTemplateTopographies.mat',[pathstem 'MEGArtifactTemplateTopographies.mat'])
+copyfile('/imaging/tc02/Holly_MMN/ICA_denoise/tec_montage_all.mat',[pathstem 'tec_montage_all.mat'])
+ICAcomplete = zeros(1,nsubj);
+parfor todonumber = 1:nsubj
+    if iscell(Participant{todonumber}.name)
+        for this_file = 1:length(Participant{todonumber}.name)
+            this_input_fname = [Participant{todonumber}.name{this_file} '.mat']
+            this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.namepostmerge '/']
+            try
+                Preprocessing_mainfunction('ICA_artifacts',this_input_fname,p,pathstem, [], this_output_folder_tail,todonumber)
+                ICAcomplete(todonumber) = 1
+                fprintf('\n\nICA complete for subject number %d file %d,\n\n',todonumber,this_file);
+            catch
+                ICAcomplete(todonumber) = 0;
+                fprintf('\n\nICA failed for subject number %d file %d,\n\n',todonumber,this_file);
+            end
+        end
+    else
+        this_input_fname = [Participant{todonumber}.name '.mat']
+        this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/']
+        try
+            Preprocessing_mainfunction('ICA_artifacts',this_input_fname,p,pathstem, [], this_output_folder_tail,todonumber)
+            ICAcomplete(todonumber) = 1
+            fprintf('\n\nICA complete for subject number %d,\n\n',todonumber);
+        catch
+            ICAcomplete(todonumber) = 0;
+            fprintf('\n\nICA failed for subject number %d,\n\n',todonumber);
+        end
+    end
+end
 
 
 % % % % %% Now run Holly's preprocessing - NO DON'T DO THIS! Delay not
@@ -486,10 +507,10 @@ parfor cnt = 1:nsubj
     Preprocessing_mainfunction('filter','average',p,[pathstem Participant{cnt}.groupfolder '/'], [], subjects{cnt},cnt,[],[],[],[], badeeg);
 end
 %% Pre-processing - combine planar gradiometers
-p.filter = 'low'; % type of filter (lowpass or highpass)- never bandpass!
-p.freq = 100; % filter cutoff (Hz)
+% for combining planar gradiometer data
+p.correctPlanar = 0; % whether to baseline correct planar gradiometer data after RMSing (using baseline period specified in preBase and postBase)
 parfor cnt = 1:nsubj
-    Preprocessing_mainfunction('filter','fmcffbMdeM*.mat',p,[pathstem Participant{cnt}.groupfolder '/'], [], subjects{cnt},cnt,[],[],[],[], badeeg);
+    Preprocessing_mainfunction('combineplanar_spm','fmcffbeM*.mat',p,[pathstem Participant{cnt}.groupfolder '/'], [], subjects{cnt},cnt,[],[],[],[], badeeg);
 end
 
 %% Now specify forward model
@@ -503,6 +524,11 @@ parfor todonumber = 1:nsubj
         megpaths = {[pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/fmcffbeM' Participant{todonumber}.name '.mat'],
             [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/cffbeM' Participant{todonumber}.name '.mat']
             };
+        if ~exist(megpaths{1},'file')
+            for i = 1:length(megpaths)
+                megpaths{i} = ls([megpaths{i}(1:end-4) '*.mat'])
+            end
+        end
         mripath = [mridirectory Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.MRI '.nii'];
         if ~exist(mripath,'file') && strcmp(Participant{todonumber}.MRI,'single_subj_T1')
             mripath = ['/group/language/data/thomascope/spm12_fil_r6906/canonical/single_subj_T1.nii'];
@@ -539,11 +565,16 @@ parfor todonumber = 1:nsubj
             megpaths = {[pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' 's_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_fmcffbeM' Participant{todonumber}.name '.mat'],
                 [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' 's_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_cffbeM' Participant{todonumber}.name '.mat']
                 };
+            if ~exist(megpaths{1},'file')
+                for i = 1:length(megpaths)
+                    megpaths{i} = ls([megpaths{i}(1:end-4) '*.mat'])
+                end
+            end
             outpath = [pathstem 'LFPs'];
             for thismeg = 1:length(megpaths)
                 try
                     
-                    [~] = Fullpipeline_extraction(megpaths{thismeg},Participant{todonumber}.diag,outpath,time_windowt);
+                    [~] = Fullpipeline_extraction(megpaths{thismeg},Participant{todonumber}.diag,outpath,inv_cnt);
                     LFPExtractioncomplete(todonumber) = LFPExtractioncomplete(todonumber)+1;
                     
                     
@@ -566,6 +597,11 @@ parfor todonumber = 1:nsubj
             this_input_fname = {['8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_fmcffbeM' Participant{todonumber}.name '.mat'],
                 ['8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_cffbeM' Participant{todonumber}.name '.mat']
                 };
+            if ~exist(this_input_fname{1},'file')
+                for i = 1:length(this_input_fname)
+                    this_input_fname{i} = ls([this_input_fname{i}(1:end-4) '*.mat'])
+                end
+            end
             this_output_folder_tail = [Participant{todonumber}.diag '/']
             for thismeg = 1:length(this_input_fname)
                 try
