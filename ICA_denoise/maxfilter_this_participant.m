@@ -103,8 +103,8 @@ for this_file = 1:max(size(rawdatapath))
         transfstfile = [outfile '.fif'];
         transtr = '';
         
-        %dsstr = ' -ds 4';   % downsample to 250Hz
-        dsstr = ' -ds 1';   % don't downsample
+        dsstr = ' -ds 4';   % downsample to 250Hz
+        %dsstr = ' -ds 1';   % don't downsample
         
         filestr = sprintf(' -f %s -o %s.fif',raw_file,outfile);
         finstr = [maxfstr filestr basestr badstr tSSSstr compstr origstr transtr dsstr sprintf(' -v | tee %s.log',outfile)]

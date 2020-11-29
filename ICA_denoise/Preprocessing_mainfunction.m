@@ -193,7 +193,11 @@ switch step
             
             % correct for trigger-to-sound delay
             if isfield(p,'delay')
-                trials.trl(:,1:2) = trials.trl(:,1:2) + ceil((p.delay/1000)*fs);
+                if length(p.delay)==1
+                    trials.trl(:,1:2) = trials.trl(:,1:2) + ceil((p.delay/1000)*fs);
+                else
+                    trials.trl(:,1:2) = trials.trl(:,1:2) + ceil((p.delay(subjcnt)/1000)*fs);
+                end
             end
             
             % incorporate event information for P6E1 (if stimulus list
@@ -269,7 +273,11 @@ switch step
             
             % correct for trigger-to-sound delay
             if isfield(p,'delay')
-                trials.trl(:,1:2) = trials.trl(:,1:2) + ceil((p.delay/1000)*fs);
+                if length(p.delay)==1
+                    trials.trl(:,1:2) = trials.trl(:,1:2) + ceil((p.delay/1000)*fs);
+                else
+                    trials.trl(:,1:2) = trials.trl(:,1:2) + ceil((p.delay(subjcnt)/1000)*fs);
+                end
             end
             
             % incorporate event information for P6E1 (if stimulus list
@@ -348,9 +356,12 @@ switch step
                 
                 % correct for trigger-to-sound delay
                 if isfield(p,'delay')
-                    trials.trl(:,1:2) = trials.trl(:,1:2) + ceil((p.delay/1000)*cfg.fs);
+                    if length(p.delay)==1
+                        trials.trl(:,1:2) = trials.trl(:,1:2) + ceil((p.delay/1000)*fs);
+                    else
+                        trials.trl(:,1:2) = trials.trl(:,1:2) + ceil((p.delay(subjcnt)/1000)*fs);
+                    end
                 end
-                
                 % incorporate event information for P6E1 (if stimulus list
                 % filename supplied)
                 if exist('stimuli_list_fname','var')
