@@ -530,7 +530,7 @@ parfor todonumber = 1:nsubj
             };
         if ~exist(megpaths{1},'file')
             for i = 1:length(megpaths)
-                megpaths{i} = ls([megpaths{i}(1:end-4) '*.mat'])
+                megpaths{i} = deblank(ls([megpaths{i}(1:end-4) '*.mat']))
             end
         end
         mripath = [mridirectory Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.MRI '.nii'];
@@ -571,7 +571,7 @@ parfor todonumber = 1:nsubj
                 };
             if ~exist(megpaths{1},'file')
                 for i = 1:length(megpaths)
-                    megpaths{i} = ls([megpaths{i}(1:end-4) '*.mat'])
+                    megpaths{i} = deblank(ls([megpaths{i}(1:end-4) '*.mat']))
                 end
             end
             outpath = [pathstem 'LFPs'];
