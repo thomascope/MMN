@@ -21,7 +21,10 @@ end
 
 for ss = 1:length(Participant)
     
-    megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.name '/' 's_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_' prefix Participant{ss}.namepostmerge '.mat'];
+    megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.namepostmerge '/' 's_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_' prefix Participant{ss}.namepostmerge '.mat'];
+    if ~exist(megpath{ss},'file')
+       megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.namepostmerge '/' 's_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_' prefix Participant{ss}.name{1} '.mat']; 
+    end
     diagnosis{ss} = Participant{ss}.diag;
     
     [f1,f2,f3] = fileparts(megpath{ss});

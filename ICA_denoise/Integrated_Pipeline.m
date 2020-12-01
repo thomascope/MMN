@@ -367,7 +367,7 @@ for todonumber = 1:nsubj
             Participant{todonumber}.name{i} = [this_participant_name '_' num2str(i)];
         end
     elseif iscell(Participant{todonumber}.name)
-        error(['Participant ' num2str(thodonumber) ' is already a cell array - check']);
+        error(['Participant ' num2str(todonumber) ' is already a cell array - check']);
     else
         Participant{todonumber}.namepostmerge = Participant{todonumber}.name;
     end
@@ -522,9 +522,9 @@ forwardmodelcomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     if forwardmodelcomplete(todonumber)~=1
         
-        try
-            Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
-        end
+%         try
+%             Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+%         end
         megpaths = {[pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/fmcffbeM' Participant{todonumber}.name '.mat'],
             [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/cffbeM' Participant{todonumber}.name '.mat']
             };
@@ -533,6 +533,8 @@ parfor todonumber = 1:nsubj
                 megpaths{i} = deblank(ls([megpaths{i}(1:end-4) '*.mat']))
               
             end
+                this_name = strsplit(megpaths{i}, [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/cffbeM']);
+                Participant{todonumber}.namepostmerge = this_name{2}(1:end-4); %Ensure naming convention is correct
         end
         mripath = [mridirectory Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.MRI '.nii'];
         if ~exist(mripath,'file') && strcmp(Participant{todonumber}.MRI,'single_subj_T1')
@@ -605,13 +607,14 @@ parfor todonumber = 1:nsubj
             this_input_fname = {['8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_fmcffbeM' Participant{todonumber}.namepostmerge '.mat'],
                 ['8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_cffbeM' Participant{todonumber}.namepostmerge '.mat']
                 };
+
+            this_output_folder_tail = [Participant{todonumber}.diag '/']
             if ~exist(this_input_fname{1},'file')
                 for i = 1:length(this_input_fname)
-                    this_input_fname{i} = deblank(ls([this_input_fname{i}(1:end-4) '*.mat']))
+                    this_input_fname{i} = deblank(ls([pathstem 'LFPs/' this_output_folder_tail '/' this_input_fname{i}(1:end-4) '*.mat']))
        
                 end
             end
-            this_output_folder_tail = [Participant{todonumber}.diag '/']
             for thismeg = 1:length(this_input_fname)
                 try
                     Preprocessing_mainfunction('baseline',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,todonumber)
@@ -631,7 +634,7 @@ end
 %% Now plot the LFPs for sanity check
 for todonumber = 1:nsubj
     try
-        Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+%         Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
     end
 end
 prefix = 'fmcffbeM';
@@ -668,7 +671,7 @@ p.inv_cnt = val;
 
 for todonumber = 1:nsubj
     try
-        Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+        % Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
     end
 end
 for method = {'granger','coh'}
@@ -679,7 +682,7 @@ end
 %% Now do a time-frequency analysis
 for todonumber = 1:nsubj
     try
-        Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+        % Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
     end
 end
 
@@ -1059,7 +1062,7 @@ conditions_to_invert = {'STD','DVT','location','intensity','duration','gap','fre
 
 %Open a parallel pool with lots of memory and spmd disabled to allow
 %continuation if a worker fails
-Poolinfo = cbupool(48,'--mem-per-cpu=16G --time=167:00:00 --exclude=node-i[01-15]');
+Poolinfo = cbupool(36,'--mem-per-cpu=24G --time=167:00:00 --exclude=node-i[01-15]');
 parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 
 clear all_names
@@ -1271,7 +1274,7 @@ visualise_bygroup(dirname_DCM,p.diagnosis_list,regions,conductances)
 %% Now plot the whole scalp ERPs for sanity check
 for todonumber = 1:nsubj
     try
-        Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+        % Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
     end
 end
 prefix = 'PfmcffbeM';
@@ -1295,7 +1298,7 @@ quantify_MMN_ERP(Participant,pathstem,p,prefix,thesediagnoses)
 
 for todonumber = 1:nsubj
     try
-        Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+        % Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
     end
 end
 prefix = 'fmcffbeM';
