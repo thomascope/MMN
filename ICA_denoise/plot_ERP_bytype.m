@@ -5,10 +5,10 @@ addpath(['/group/language/data/thomascope/MMN/ICA_denoise/stdshade']);
 conditions = {'STD','DVT','Loc','Int','Dur','Gap','Freq','Loc_L','Freq_hi','Int_hi','Loc_R','Freq_lo','Int_lo'};
 
 for ss = 1:length(Participant)
-    try
-        Participant{ss}.name = Participant{ss}.namepostmerge;
-    end
-    megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.name '/' prefix Participant{ss}.name '.mat'];
+%     try
+%         Participant{ss}.name = Participant{ss}.namepostmerge;
+%     end
+    megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.name '/' prefix Participant{ss}.namepostmerge '.mat'];
     diagnosis{ss} = Participant{ss}.diag;
    
 end

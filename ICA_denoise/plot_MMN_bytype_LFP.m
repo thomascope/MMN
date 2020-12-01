@@ -20,11 +20,8 @@ if ~exist('baselined', 'var')
 end
 
 for ss = 1:length(Participant)
-    try
-        Participant{ss}.name = Participant{ss}.namepostmerge;
-    end
     
-    megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.name '/' 's_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_' prefix Participant{ss}.name '.mat'];
+    megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.name '/' 's_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_' prefix Participant{ss}.namepostmerge '.mat'];
     diagnosis{ss} = Participant{ss}.diag;
     
     [f1,f2,f3] = fileparts(megpath{ss});

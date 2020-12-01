@@ -221,7 +221,7 @@ p.postBase = 0;
 % for trial definitions
 p.preEpoch = -500; % pre stimulus time (ms)
 p.postEpoch = 1500; % post stimulus time (ms)
-p.triggers = {11, [1,2,3,4,5,6,7,8], [7,8], [5,6], 1, 4, [2,3], 7, 3, 6, 8, 5, 2}; % trigger values (correspond to p.conditions specified above)
+p.triggers = {11, [1,2,3,4,5,6,7,8], [7,8], [5,6], 1, 4, [2,3], 7, 3, 6, 8, 2, 5}; % trigger values (correspond to p.conditions specified above)
 % p.delay = 32; % delay time (ms) between trigger and stimulus - here varies by year due to soundcard changes
 p.minduration = 950; % if using definetrials_jp, minimum duration of a trial (ms)
 p.maxduration = 1150; % if using definetrials_jp, maximum duration of a trial (ms)
@@ -531,6 +531,7 @@ parfor todonumber = 1:nsubj
         if ~exist(megpaths{1},'file')
             for i = 1:length(megpaths)
                 megpaths{i} = deblank(ls([megpaths{i}(1:end-4) '*.mat']))
+              
             end
         end
         mripath = [mridirectory Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.MRI '.nii'];
@@ -571,8 +572,11 @@ parfor todonumber = 1:nsubj
                 };
             if ~exist(megpaths{1},'file')
                 for i = 1:length(megpaths)
-                    megpaths{i} = deblank(ls([megpaths{i}(1:end-4) '*.mat']))
+                    megpaths{i} = deblank(ls([megpaths{i}(1:end-4) '*.mat']));
                 end
+                this_name = strsplit(megpaths{i}, [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' 's_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_cffbeM']);
+                Participant{todonumber}.namepostmerge = this_name{2}(1:end-4); %Ensure naming convention is correct
+                
             end
             outpath = [pathstem 'LFPs'];
             for thismeg = 1:length(megpaths)
@@ -598,12 +602,13 @@ LFPBaselinecomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     if LFPBaselinecomplete(todonumber)~=4
         for inv_cnt = 1:length(inv_meth)
-            this_input_fname = {['8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_fmcffbeM' Participant{todonumber}.name '.mat'],
-                ['8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_cffbeM' Participant{todonumber}.name '.mat']
+            this_input_fname = {['8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_fmcffbeM' Participant{todonumber}.namepostmerge '.mat'],
+                ['8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_cffbeM' Participant{todonumber}.namepostmerge '.mat']
                 };
             if ~exist(this_input_fname{1},'file')
                 for i = 1:length(this_input_fname)
-                    this_input_fname{i} = ls([this_input_fname{i}(1:end-4) '*.mat'])
+                    this_input_fname{i} = deblank(ls([this_input_fname{i}(1:end-4) '*.mat']))
+       
                 end
             end
             this_output_folder_tail = [Participant{todonumber}.diag '/']

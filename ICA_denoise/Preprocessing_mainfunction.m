@@ -407,14 +407,16 @@ switch step
             
             % search for input files
             files = [dir(prevStep1); dir(prevStep2)];
-            filesTrlDef = [dir('*trlDef_*.mat')];
+            %filesTrlDef = [dir('*trlDef_*.mat')];
             
             for f=1:length(files)
                 
                 fprintf([ '\n\nProcessing ' files(f).name '...\n\n' ]);
                 
                 % loads trial structure containg trial def
-                load(filesTrlDef(f).name);
+                %load(filesTrlDef(f).name);
+                fname = strtok(S.D,'.');
+                load(['trlDef_' fname],'trials');
                 
                 % exclude bad EEG/EOG channels (if specified)
                 channels_clean = {};
@@ -593,7 +595,9 @@ switch step
                 end
                 
                 % load trial structure
-                load(filesTrlDef(f).name); % loads trial structure
+                %load(filesTrlDef(f).name); % loads trial structure
+                fname = strtok(S.D,'.');
+                load(['trlDef_' fname],'trials');
                 
                 % set trial definition
                 S.trl = trials.trl;
@@ -806,7 +810,7 @@ switch step
             
             % search for input files
             files = [dir(prevStep1); dir(prevStep2)];
-            filesTrlDef = [dir('trlDef_*.mat')];
+            %filesTrlDef = [dir('trlDef_*.mat')];
             
             for f=1:length(files)
                 
@@ -816,7 +820,9 @@ switch step
                 S.D = files(f).name;
                 
                 % load trial structure
-                load(filesTrlDef(f).name); % loads trial structure
+                %load(filesTrlDef(f).name); % loads trial structure NB NOT SAFELY - changed as below 20201201
+                fname = strtok(S.D,'.');
+                load(['trlDef_' fname],'trials');
                 
                 % set trial definition
                 S.trl = trials.trl;
@@ -875,7 +881,7 @@ switch step
             
             % search for input files
             files = [dir(prevStep1); dir(prevStep2)];
-            filesTrlDef = [dir('trlDef*.mat')];
+            %filesTrlDef = [dir('trlDef*.mat')];
             
             for f=1:length(files)
                 
@@ -885,7 +891,9 @@ switch step
                 S.D = files(f).name;
                 
                 % load trial structure
-                load(filesTrlDef(f).name); % loads trial structure
+                %load(filesTrlDef(f).name); % loads trial structure
+                fname = strtok(S.D,'.');
+                load(['trlDef_' fname],'trials');
                 
                 % set trial definition
                 S.trl = trials.trl;
