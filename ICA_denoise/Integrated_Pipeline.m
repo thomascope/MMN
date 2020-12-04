@@ -1062,12 +1062,12 @@ conditions_to_invert = {'STD','DVT','location','intensity','duration','gap','fre
 
 %Open a parallel pool with lots of memory and spmd disabled to allow
 %continuation if a worker fails
-Poolinfo = cbupool(36,'--mem-per-cpu=24G --time=167:00:00 --exclude=node-i[01-15]');
+Poolinfo = cbupool(48,'--mem-per-cpu=16G --time=167:00:00 --exclude=node-i[01-15]');
 parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 
 clear all_names
 for i = 1:length(Participant)
-    all_names{i} = Participant{i}.name;
+    all_names{i} = Participant{i}.namepostmerge;
 end
 
 % Parallelise subject and condition to avoid failure stoppages
@@ -1080,9 +1080,9 @@ p.subjcntforcondition = 1;
 p.conditions = conditions_to_invert;
 p.multilevel = 0; %for first run
 parfor todonumber = 1:size(allrunsarray,1)
-    this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix Participant{allrunsarray(todonumber,1)}.name '.mat']};
+    this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix Participant{allrunsarray(todonumber,1)}.name(1:end-3) '*.mat']};
     this_output_folder_tail = [Participant{allrunsarray(todonumber,1)}.diag '/']
-    pause(mod(todonumber,60)); %Introduce a pause to stagger the workers - otherwise sometimes the pool fails if trying to read or write simultaneously
+    %pause(mod(todonumber,60)); %Introduce a pause to stagger the workers - otherwise sometimes the pool fails if trying to read or write simultaneously
     for thismeg = 1:length(this_input_fname)
         try
             Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,allrunsarray(todonumber,2))
