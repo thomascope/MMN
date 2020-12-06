@@ -41,14 +41,20 @@ addpath('/group/language/data/thomascope/MMN/ICA_denoise/Tallie_extDCM/mfiles_al
 
 for k = groups
     for c = 1:length(conditions)
-                
+        
         this_group = find(p.group==k);
         dcm_files={};
         for subj = 1:length(this_group)
             if exist([dirname_DCM filestem all_names{this_group(subj)} '_dcm_' conditions{c} '.mat'],'file')
                 dcm_files{end+1} = [dirname_DCM filestem all_names{this_group(subj)} '_dcm_' conditions{c} '.mat'];
             else
-                warning([dirname_DCM filestem all_names{this_group(subj)} '_dcm_' conditions{c} '.mat does not exist'])
+                if exist([dirname_DCM filestem all_names{this_group(subj)} '_1_dcm_' conditions{c} '.mat'],'file')
+                    try
+                        movefile([dirname_DCM filestem all_names{this_group(subj)} '_1_dcm_' conditions{c} '.mat'],[dirname_DCM filestem all_names{this_group(subj)} '_dcm_' conditions{c} '.mat'])
+                    catch
+                        error([dirname_DCM filestem all_names{this_group(subj)} '_dcm_' conditions{c} '.mat does not exist'])
+                    end
+                end
             end
         end
         

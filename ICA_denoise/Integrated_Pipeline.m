@@ -1186,7 +1186,7 @@ parfor this_comb = 1:length(all_combinations)
     %for this_comb = 1:length(all_combinations) %falls over in parallel due to tmp.mat and unpredictable cd behaviour - needs fixing for bigger datasets
     k = all_combinations(1,this_comb)
     c = all_combinations(2,this_comb)
-    c(dirname_DCM,filestem,conditions(c),k,p,all_names)
+    extDCM_firstlevel_PEB(dirname_DCM,filestem,conditions(c),k,p,all_names)
 end
 rmdir([dirname_DCM 'PEB_firstlevel' filesep 'tempdir_*'])
 delete(gcp)
