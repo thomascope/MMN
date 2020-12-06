@@ -640,22 +640,25 @@ DCM.M.Nmax     = DCM.options.Nmax;
 %disp(' -- RUNNING THE FIRST INVERSION')
 %DCM = spm_nlsi_N_TEC_modified(DCM);
 
-disp('Loading the inversion from the unfailed run as a template for DCM.x')
-if strcmp(condition,'STD')
-    DCM_template = load(['/imaging/tc02/Holly_MMN/extDCMs/' nout(2,@fileparts,megfilename) '_dcm_DVT.mat'],'DCM');
-else
-    DCM_template = load(['/imaging/tc02/Holly_MMN/extDCMs/' nout(2,@fileparts,megfilename) '_dcm_STD.mat'],'DCM');
+disp('Attempting to load the inversion from the unfailed run as a template for DCM.x')
+try
+    if strcmp(condition,'STD')
+        DCM_template = load(['/imaging/tc02/Holly_MMN/extDCMs/' nout(2,@fileparts,megfilename) '_dcm_DVT.mat'],'DCM');
+    else
+        DCM_template = load(['/imaging/tc02/Holly_MMN/extDCMs/' nout(2,@fileparts,megfilename) '_dcm_STD.mat'],'DCM');
+    end
+    
+    DCM.pE      = DCM_template.DCM.Ep;
+    DCM.pC      = diag(diag(DCM_template.DCM.Cp));
+    DCM.gE       = DCM_template.DCM.Eg;
+    DCM.gC       = diag(diag(DCM_template.DCM.Cg));
+    
+    DCM.M.x = reshape(mean(DCM_template.DCM.x{1},1),[8,6,7]);
+    
+    disp(' -- NOW RE-RUNNING THE INVERSION USING THE POSTERIOR AS A PRIOR')
+catch
+    disp('Unable to load the posteriors from an unfailed run - starting again from scratch with default priors')
 end
-
-DCM.pE      = DCM_template.DCM.Ep;
-DCM.pC      = diag(diag(DCM_template.DCM.Cp));
-DCM.gE       = DCM_template.DCM.Eg;
-DCM.gC       = diag(diag(DCM_template.DCM.Cg));
-
-DCM.M.x = reshape(mean(DCM_template.DCM.x{1},1),[8,6,7]);
-
-disp(' -- NOW RE-RUNNING THE INVERSION USING THE POSTERIOR AS A PRIOR')
-
 DCM = spm_nlsi_N_TEC_modified(DCM);
 
 function restore_env(old_path)

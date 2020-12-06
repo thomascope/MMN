@@ -1080,7 +1080,7 @@ p.subjcntforcondition = 1;
 p.conditions = conditions_to_invert;
 p.multilevel = 0; %for first run
 parfor todonumber = 1:size(allrunsarray,1)
-    this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix Participant{allrunsarray(todonumber,1)}.name(1:end-3) '*.mat']};
+    this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix all_names{allrunsarray(todonumber,1)} '*.mat']};
     this_output_folder_tail = [Participant{allrunsarray(todonumber,1)}.diag '/']
     %pause(mod(todonumber,60)); %Introduce a pause to stagger the workers - otherwise sometimes the pool fails if trying to read or write simultaneously
     for thismeg = 1:length(this_input_fname)
@@ -1129,7 +1129,7 @@ subjcondpair = firstwavedata;
 p.subjcntforcondition = 1;
 p.multilevel = 1;
 parfor this_one = 1:size(subjcondpair,1)
-    this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix subjcondpair{this_one,1} '.mat']};
+    this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix subjcondpair{this_one,1} '*.mat']};
     this_output_folder_tail = [Participant{find(strcmp(subjcondpair{this_one,1},all_names))}.diag '/']
     this_cond = find(strcmp(subjcondpair{this_one,2}, p.conditions));
     %pause(mod(this_one*30,90)); %Introduce a pause to stagger the workers - otherwise sometimes the pool fails if trying to read or write simultaneously

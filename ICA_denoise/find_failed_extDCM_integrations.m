@@ -8,7 +8,7 @@ filelist = dir(extDCM_directory);
 %Inverted_Conditions = {'STD','DVT','location','intensity','duration','gap','frequency'};
 
 for j = 1:length(filelist)
-    if contains(filelist(j).name,Participant{1}.name) && contains(filelist(j).name,Inverted_Conditions{1})
+    if contains(filelist(j).name,Participant{1}.namepostmerge) && contains(filelist(j).name,Inverted_Conditions{1})
         first_subj_file = j;
         break
     end
@@ -17,14 +17,14 @@ subjcondpair = {};
 for j = 1:length(Participant)
     for i = 1:length(Inverted_Conditions)
         try
-            D = load([filelist(j).folder filesep strrep(strrep(filelist(first_subj_file).name,Participant{1}.name,Participant{j}.name),Inverted_Conditions{1},Inverted_Conditions{i})]);
+            D = load([filelist(j).folder filesep strrep(strrep(filelist(first_subj_file).name,Participant{1}.namepostmerge,Participant{j}.namepostmerge),Inverted_Conditions{1},Inverted_Conditions{i})]);
         catch
-            disp(['Missing file ' strrep(strrep(filelist(first_subj_file).name,Participant{1}.name,Participant{j}.name),Inverted_Conditions{1},Inverted_Conditions{i})])
-            subjcondpair(end+1,:) = {Participant{j}.name,Inverted_Conditions{i}};
+            disp(['Missing file ' strrep(strrep(filelist(first_subj_file).name,Participant{1}.namepostmerge,Participant{j}.namepostmerge),Inverted_Conditions{1},Inverted_Conditions{i})])
+            subjcondpair(end+1,:) = {Participant{j}.namepostmerge,Inverted_Conditions{i}};
         end
         if any(any(isnan(D.DCM.H{1}))) %Debugging of NaNs
-            disp(['NaNs found in file ' strrep(strrep(filelist(first_subj_file).name,Participant{1}.name,Participant{j}.name),Inverted_Conditions{1},Inverted_Conditions{i})])
-            subjcondpair(end+1,:) = {Participant{j}.name,Inverted_Conditions{i}};
+            disp(['NaNs found in file ' strrep(strrep(filelist(first_subj_file).name,Participant{1}.namepostmerge,Participant{j}.namepostmerge),Inverted_Conditions{1},Inverted_Conditions{i})])
+            subjcondpair(end+1,:) = {Participant{j}.namepostmerge,Inverted_Conditions{i}};
         end
     end
 end
