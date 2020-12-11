@@ -43,6 +43,13 @@ for k = groups
     for c = 1:length(conditions)
         
         this_group = find(p.group==k);
+        if isempty(this_group)
+            if strcmp(p.diagnosis_list{k},'All_AD')
+                this_group = [find(p.group==find(contains(p.diagnosis_list,'pca')));find(p.group==find(contains(p.diagnosis_list,'ADMCI')))];
+            elseif strcmp(p.diagnosis_list{k},'All_FTD')
+                this_group = [find(p.group==find(contains(p.diagnosis_list,'bvFTD')));find(p.group==find(contains(p.diagnosis_list,'nfvppa')))];
+            end
+        end
         dcm_files={};
         for subj = 1:length(this_group)
             if exist([dirname_DCM filestem all_names{this_group(subj)} '_dcm_' conditions{c} '.mat'],'file')

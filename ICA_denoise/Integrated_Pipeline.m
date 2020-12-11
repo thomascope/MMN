@@ -1175,19 +1175,23 @@ delete(gcp)
 dirname_DCM = '/imaging/tc02/Holly_MMN/extDCMs/';
 filestem = 'b8LFP_s_-100_500_LOR_fmcffbeM';
 conditions = {'STD','DVT','location','intensity','duration','gap','frequency'};
-all_combinations = combvec(unique(p.group)',1:length(conditions));
+old_diagnosislist = p.diagnosis_list;
+p.diagnosis_list = [p.diagnosis_list, {'All_FTD'}, {'All_AD'}];
+all_combinations = combvec([unique(p.group)', max(unique(p.group))+1:max(unique(p.group))+2],1:length(conditions));
 if length(all_combinations) < 48
     Poolinfo = cbupool(length(all_combinations),'--mem-per-cpu=16G --time=167:00:00 --exclude=node-i[01-15]');
 else
     Poolinfo = cbupool(48,'--mem-per-cpu=16G --time=167:00:00 --exclude=node-i[01-15]');
 end
 parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
+
 parfor this_comb = 1:length(all_combinations)
     %for this_comb = 1:length(all_combinations) %falls over in parallel due to tmp.mat and unpredictable cd behaviour - needs fixing for bigger datasets
     k = all_combinations(1,this_comb)
     c = all_combinations(2,this_comb)
     extDCM_firstlevel_PEB(dirname_DCM,filestem,conditions(c),k,p,all_names)
 end
+p.diagnosis_list = old_diagnosislist;
 rmdir([dirname_DCM 'PEB_firstlevel' filesep 'tempdir_*'])
 delete(gcp)
 
@@ -1217,7 +1221,9 @@ Poolinfo = cbupool(numworkersreq,'--mem-per-cpu=8G --time=167:00:00 --exclude=no
 parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 
 secondlevelPEBcomplete = zeros(1,length(PEB_focuses)*length(unique(p.group)'));
-parfor k = 1:length(PEB_focuses)*length(unique(p.group)')
+old_diagnosislist = p.diagnosis_list;
+p.diagnosis_list = [p.diagnosis_list, {'All_FTD'}, {'All_AD'}];
+parfor k = 1:length(PEB_focuses)*(length(unique(p.group)')+2)
     this_focus = mod(k,length(PEB_focuses));
     if this_focus == 0
         this_focus = length(PEB_focuses);
@@ -1242,24 +1248,36 @@ end
 Poolinfo = cbupool(numworkersreq,'--mem-per-cpu=16G --time=167:00:00 --exclude=node-i[01-15]');
 parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 
-PEBofPEBscomplete = zeros(1,length(PEB_focuses)*length(unique(p.group)'));
+PEBofPEBscomplete = zeros(1,2*length(PEB_focuses));
 
 conditions = {'STD','DVT'}; %Can only be what went into the second level
-parfor k = 1:length(PEB_focuses)
+parfor k = 1:2*length(PEB_focuses)
+    if k<= length(PEB_focuses)
+        combinegroups = 0; %Each group separately
+    else
+        combinegroups = 1; %Controls, FTD, AD
+    end
+    this_focus = mod(k,length(PEB_focuses));
+    if this_focus == 0
+        this_focus = length(PEB_focuses);
+    end
     try
-        extDCM_PEB_of_PEBs(dirname_DCM,conditions,unique(p.group)',p,PEB_focuses(k),regions,conductances)
-        disp(['PEB of PEBs complete for focus ' PEB_focuses{k}])
+        extDCM_PEB_of_PEBs(dirname_DCM,conditions,unique(p.group)',p,PEB_focuses(this_focus),regions,conductances,combinegroups)
+        disp(['PEB of PEBs complete for focus ' PEB_focuses{this_focus}])
         PEBofPEBscomplete(k) = 1;
     catch
-        disp(['PEB of PEBs failed for focus ' PEB_focuses{k}])
+        disp(['PEB of PEBs failed for focus ' PEB_focuses{this_focus}])
     end
 end
+p.diagnosis_list = old_diagnosislist;
+
 delete(gcp)
 
 %% Now visualise the PEB results
 addpath('./extDCM_visualisation')
 dirname_DCM = '/imaging/tc02/Holly_MMN/extDCMs/';
 circuit_diagram(dirname_DCM,p.diagnosis_list,regions,conductances,0.7)
+circuit_diagram_combined(dirname_DCM,[{'Control'}, {'All_FTD'}, {'All_AD'}],regions,conductances,0.7)
 p.Sname = {'left A1';
          'left STG';
          'left IFG';
@@ -1269,7 +1287,10 @@ p.Sname = {'left A1';
          'right IFG';
          'right IPC'};
 Inter_region(dirname_DCM,p.diagnosis_list,p.Sname,0.7)
+Inter_region_combined(dirname_DCM,[{'Control'}, {'All_FTD'}, {'All_AD'}],p.Sname,0.7)
 visualise_bygroup(dirname_DCM,p.diagnosis_list,regions,conductances)
+visualise_bygroup_combined(dirname_DCM,[{'Control'}, {'All_FTD'}, {'All_AD'}],regions,conductances)
+
 
 %% Now plot the whole scalp ERPs for sanity check
 for todonumber = 1:nsubj
