@@ -14,7 +14,7 @@ addpath('/group/language/data/thomascope/vespa/SPM12version/Standalone preproces
 
 pathstem_LFPs = '/imaging/tc02/Holly_MMN/ICA_denoise/LFPs';
 
-outdir = ['/imaging/tc02/Holly_MMN/Coherence_Connectivity_ICA_' p.inv_meth{p.inv_cnt} '/'];
+outdir = ['/imaging/tc02/Holly_MMN/Coherence_Connectivity_Integrated_' p.inv_meth{p.inv_cnt} '/'];
 
 %A script to calculate Imaginary Coherence and Granger Causailty from LFP
 %data for the MMN project
@@ -34,7 +34,7 @@ Sname = {'left A1';
     'right IPC'};
 
 for ss = 1:length(Participant)
-    megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.name '/' 's_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_' prefix Participant{ss}.name '.mat'];
+    megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.namepostmerge '/' 's_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_' prefix Participant{ss}.namepostmerge '.mat'];
     diagnosis{ss} = Participant{ss}.diag;
         
     [f1,f2,f3] = fileparts(megpath{ss});
@@ -43,6 +43,14 @@ for ss = 1:length(Participant)
     else
         fn{ss} = sprintf('%s/%s/%dLFP_%s%s',[pathstem 'LFPs'],diagnosis{ss}, length(Sname), f2, f3);
     end
+    if ~exist(fn{ss},'file')
+        if exist([fn{ss}(1:end-4) '_1.mat'])
+            movefile([fn{ss}(1:end-4) '_1.mat'],fn{ss})
+        else
+            error(['File ' fn{ss} ' not found'])
+        end        
+    end
+    
 end
 
 fft_method = 'mtmfft'; % 'wavelet' for morlet; can leave blank for multitaper.
@@ -52,15 +60,12 @@ fft_method = 'mtmfft'; % 'wavelet' for morlet; can leave blank for multitaper.
 decompositionworkedcorrectly = zeros(1,length(Participant));
 parfor subj = 1:length(Participant)
     warning('off','all')
-    if strcmp(method,'coh')
-        this_outdir = [outdir 'crosshem/' method '/' groupstodo{all_subjs(subj,1)} '/'];
-    else
-        this_outdir = [outdir 'crosshem/' method '/' groupstodo{all_subjs(subj,1)} '/'];
-    end
+    this_outdir = [outdir 'crosshem/' method '/' groupstodo{all_subjs(subj,1)} '/'];
+
     
-    if exist([this_outdir 's' num2str(all_subjs(subj,:)) '_grangerdata_highfreq_averagesubtracted_100_' num2str(start_times) '_' num2str(end_times) '_z' num2str(1) '.mat'],'file')
+    if exist([this_outdir 's' num2str(subj) '_grangerdata_highfreq_averagesubtracted_100_' num2str(start_times) '_' num2str(end_times) '_z' num2str(1) '.mat'],'file')
         disp(['Found some existing files for subject s' num2str(subj)])
-        existing_files = dir([this_outdir 's' num2str(subj) '_grangerdata_highfreq_averagesubtracted_100_' num2str(start_times) '_' num2str(end_times) '_z*'])
+        existing_files = dir([this_outdir 's' num2str(subj) '_grangerdata_highfreq_averagesubtracted_100_' num2str(start_times) '_' num2str(end_times) '_z*']);
         this_file_num = [];
         for i = 1:length(existing_files)
         temp_files = strsplit(existing_files(i).name,'z');
@@ -74,7 +79,7 @@ parfor subj = 1:length(Participant)
         decompositionworkedcorrectly(subj) = 1;
         end
     else
-        disp(['job started on worker ' num2str(subj)])
+        disp(['job started on subject ' num2str(subj)])
         try
         parallel_MMN_coherence_granger(fn{subj},[],this_outdir,subj,start_times,end_times,fft_method,method)
         decompositionworkedcorrectly(subj) = 1;

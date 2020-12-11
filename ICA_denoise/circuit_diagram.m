@@ -1,10 +1,13 @@
 function circuit_diagram(dirname_DCM,diagnosis_list,source_names,conductances,thresh)
 %A script for plotting the results of extDCM across all diagnoses and
 %sources. PEB of PEBs on H matrix.
+addpath(['/group/language/data/thomascope/MMN/ICA_denoise/extDCM_visualisation/ojwoodford-export_fig-216b30e'])
 addpath('/group/language/data/thomascope/MMN/ICA_denoise/Helperfiles')
 thisdir = pwd;
 mkdir([thisdir '/circuit_diagrams'])
 cd([dirname_DCM 'PEB_secondlevel'])
+
+cleanupObj = onCleanup(@()cd(thisdir));
 
 %Load any input DCM and PEB of PEBs as template
 this_DCM = load(['PEB_H_' source_names{1} '_' conductances{1} '_' diagnosis_list{1} '.mat']);
@@ -18,7 +21,7 @@ assert(all(template_PEB.M.X(:,1)==1),'The first column of the PEB of PEBs contra
 xw = 400; %X_width
 yw = 600; %Y_width
 
-for this_contrast = 1:size(template_PEB.M.X,2)
+for this_contrast = 0:size(template_PEB.M.X,2)
     for this_source = 1:length(source_names)
         
         %Create figure
@@ -104,7 +107,7 @@ for this_contrast = 1:size(template_PEB.M.X,2)
         % Population Order: AMPA, NMDA, GABAa, GABAb
         population_colors=['kbrg'];
         
-        if this_contrast == 1
+        if this_contrast == 0
             for i = 1:size(this_DCM.Ep.H,4)
                 line_code=[population_colors(i) '--'];
                 for from = 1:6
@@ -127,53 +130,63 @@ for this_contrast = 1:size(template_PEB.M.X,2)
             set(findall(gca, 'type', 'text'), 'visible', 'on')
             saveas(circuit_diagram,[thisdir '/circuit_diagrams/' this_title '.jpg'])
             saveas(circuit_diagram,[thisdir '/circuit_diagrams/' this_title '.pdf'])
+              eval(['export_fig ''' thisdir '/circuit_diagrams/' this_title '.png'' -transparent -nocrop'])
             break
         else
             for condition = 1:2
-            all_to_froms = [];
-            for this_conductance = 1:length(conductances)
-                load(['PEB_H_' source_names{this_source} '_' conductances{this_conductance} '_Overall.mat'])
-                these_differences = find(BMA_Overall.Pp(:,this_contrast)>thresh);
-                
-                for this_difference = 1:length(these_differences)
-                    if condition == 1 
-                    if BMA_Overall.Ep(these_differences(this_difference),this_contrast)>0 %Controls greater, dashed line
-                        line_code=[population_colors(this_conductance) '--'];
-                    else
-                        line_code=[population_colors(this_conductance) '-']; %Patients greater, solid line
-                    end
-                    else
-                        line_code=[population_colors(this_conductance) ':']; %Interaction, dotted line
-                    end
+                all_to_froms = [];
+                for this_conductance = 1:length(conductances)
+                    load(['PEB_H_' source_names{this_source} '_' conductances{this_conductance} '_Overall.mat'])
+                    these_differences = find(BMA_Overall.Pp(:,this_contrast)>thresh);
                     
-                    this_connection = BMA_Overall.Pnames{these_differences(this_difference)};
-                    Condition_Split = strsplit(this_connection,'Covariate ');
-                    if str2num(Condition_Split{2}(1))~=condition %Not the condition we want
-                        continue
-                    else
-                        Connection_Split = strsplit(this_connection,'H(');
-                        to = str2num(Connection_Split{2}(1));
-                        from = str2num(Connection_Split{2}(3));
-                        if isempty(all_to_froms)||~any(ismember(all_to_froms,[from,to],'rows'))
-                            draw_arrow(from, to, coords_top, coords_bot, coords_cen, xw, yw, line_code)
-                        else %Make slight offset to avoid overlapping lines
-                            overlapping_lines_before = sum(ismember(all_to_froms,[from,to],'rows'));
-                            this_coords_bot = coords_bot-(overlapping_lines_before*(xw/200));
-                            this_coords_top = coords_top-(overlapping_lines_before*(xw/200));
-                            draw_arrow(from, to, this_coords_top, this_coords_bot, coords_cen, xw, yw, line_code)
+                    for this_difference = 1:length(these_differences)
+                        if condition == 1
+                            if BMA_Overall.Ep(these_differences(this_difference),this_contrast)>0 %Controls greater, dashed line
+                                line_code=[population_colors(this_conductance) '--'];
+                            else
+                                line_code=[population_colors(this_conductance) '-']; %Patients greater, solid line
+                            end
+                        else
+                            line_code=[population_colors(this_conductance) ':']; %Interaction, dotted line
                         end
-                        all_to_froms = [all_to_froms; from,to];
+                        
+                        this_connection = BMA_Overall.Pnames{these_differences(this_difference)};
+                        Condition_Split = strsplit(this_connection,'Covariate ');
+                        if str2num(Condition_Split{2}(1))~=condition %Not the condition we want
+                            continue
+                        else
+                            Connection_Split = strsplit(this_connection,'H(');
+                            to = str2num(Connection_Split{2}(1));
+                            from = str2num(Connection_Split{2}(3));
+                            if isempty(all_to_froms)||~any(ismember(all_to_froms,[from,to],'rows'))
+                                draw_arrow(from, to, coords_top, coords_bot, coords_cen, xw, yw, line_code)
+                            else %Make slight offset to avoid overlapping lines
+                                overlapping_lines_before = sum(ismember(all_to_froms,[from,to],'rows'));
+                                this_coords_bot = coords_bot-(overlapping_lines_before*(xw/200));
+                                this_coords_top = coords_top-(overlapping_lines_before*(xw/200));
+                                draw_arrow(from, to, this_coords_top, this_coords_bot, coords_cen, xw, yw, line_code)
+                            end
+                            all_to_froms = [all_to_froms; from,to];
+                        end
                     end
                 end
+                daspect([1 1 1])
+                
+                
             end
-            daspect([1 1 1])
-            
-                this_title = [diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' minus ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' ' source_names{this_source}];
+            if this_contrast == 1
+                this_title = ['All positives ' source_names{this_source}];
+            else
+            this_title = [diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' minus ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' ' source_names{this_source}];
+            end
             title(this_title)
             set(findall(gca, 'type', 'text'), 'visible', 'on')
-            saveas(circuit_diagram,[thisdir '/circuit_diagrams/' this_title '.jpg'])
+            
+            %eval(['export_fig ' thisdir '/circuit_diagrams/' this_title '.pdf -transparent'])
+            %             saveas(circuit_diagram,[thisdir '/circuit_diagrams/' this_title '.png'])
             saveas(circuit_diagram,[thisdir '/circuit_diagrams/' this_title '.pdf'])
-            end
+            eval(['export_fig ''' thisdir '/circuit_diagrams/' this_title '.png'' -transparent -nocrop'])
+            close all
         end
     end
 end
@@ -228,4 +241,3 @@ else
     end
     
 end
-

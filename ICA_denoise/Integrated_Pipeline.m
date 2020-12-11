@@ -1259,7 +1259,7 @@ delete(gcp)
 %% Now visualise the PEB results
 addpath('./extDCM_visualisation')
 dirname_DCM = '/imaging/tc02/Holly_MMN/extDCMs/';
-circuit_diagram(dirname_DCM,p.diagnosis_list,regions,conductances,1)
+circuit_diagram(dirname_DCM,p.diagnosis_list,regions,conductances,0.7)
 p.Sname = {'left A1';
          'left STG';
          'left IFG';
