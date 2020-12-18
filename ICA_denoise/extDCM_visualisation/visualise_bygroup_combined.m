@@ -1,4 +1,4 @@
-function visualise_bygroup(dirname_DCM,diagnosis_list,source_names,conductances)
+function visualise_bygroup_combined(dirname_DCM,diagnosis_list,source_names,conductances)
 % A simple function for combining the extDCM circuit diagrams
 
 dirname_circuit = [pwd '/circuit_diagrams'];

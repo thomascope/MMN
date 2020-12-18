@@ -136,7 +136,7 @@ for this_contrast = 0:size(template_PEB.M.X,2)
             for condition = 1:2
                 all_to_froms = [];
                 for this_conductance = 1:length(conductances)
-                    load(['PEB_H_' source_names{this_source} '_' conductances{this_conductance} '_Overall.mat'])
+                    load(['PEB_H_' source_names{this_source} '_' conductances{this_conductance} '_Overall_combined.mat'])
                     these_differences = find(BMA_Overall.Pp(:,this_contrast)>thresh);
                     
                     for this_difference = 1:length(these_differences)

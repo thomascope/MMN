@@ -75,3 +75,15 @@ for i = 1:length(Inverted_Conditions)
         sgtitle(Inverted_Conditions{i})
     end
 end
+
+figure('Position',[10 10 1010 610])
+for i = 1:2
+    for j = 1:8
+        subplot(4,4,j+((i-1)*8))
+        plot(D{i}.DCM.xY.pst, squeeze(squeeze(nanmean(all_data(:,j,:,i),3))),'r-')
+        hold on
+        plot(D{i}.DCM.xY.pst, squeeze(squeeze(nanmean(all_modelled(:,j,:,i),3))),'b-')
+        title(D{1}.DCM.xY.name{j})
+        sgtitle(Inverted_Conditions{i})
+    end
+end

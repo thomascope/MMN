@@ -1171,6 +1171,9 @@ end
 
 delete(gcp)
 
+%% Plot the model fits as a sanity check
+Plot_extDCM_fit
+
 %% Now do a first level PEB on the extDCM data -  Separately per group and condition to optimise the DCM parameters. The PEB output is discarded. This step takes the place of spm_dcm_peb_fit
 dirname_DCM = '/imaging/tc02/Holly_MMN/extDCMs/';
 filestem = 'b8LFP_s_-100_500_LOR_fmcffbeM';
@@ -1290,6 +1293,10 @@ Inter_region(dirname_DCM,p.diagnosis_list,p.Sname,0.7)
 Inter_region_combined(dirname_DCM,[{'Control'}, {'All_FTD'}, {'All_AD'}],p.Sname,0.7)
 visualise_bygroup(dirname_DCM,p.diagnosis_list,regions,conductances)
 visualise_bygroup_combined(dirname_DCM,[{'Control'}, {'All_FTD'}, {'All_AD'}],regions,conductances)
+
+%% Now combine the inter-region PEB with Granger Causality and Imaginary Coherence - work in progress - also will later possibly add Cross-frequency coupling
+Combine_PEB_Connectivity
+
 
 
 %% Now plot the whole scalp ERPs for sanity check
