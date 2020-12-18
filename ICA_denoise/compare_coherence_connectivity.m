@@ -3,7 +3,7 @@
 thisdir = pwd;
 
 
-datapathstem = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_ICA_LOR/crosshem/'; %With minimum norm source reconstruction
+datapathstem = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_Integrated_LOR/crosshem/'; %With sLORETA source reconstruction
 addpath(['/group/language/data/thomascope/vespa/SPM12version/Standalone preprocessing pipeline/tc_source_stats/ojwoodford-export_fig-216b30e']);
 addpath(['/group/language/data/thomascope/MMN/ICA_denoise/stdshade']);
 
@@ -33,8 +33,8 @@ topfreqband = 20;
 
 closeafter = 1;
 
-%analysis_type = 'Granger';
-analysis_type = 'icoh';
+analysis_type = 'Granger';
+%analysis_type = 'icoh';
 
 switch(analysis_type)
     case 'Granger'
@@ -48,6 +48,8 @@ addpath('/imaging/tc02/toolboxes/rsatoolbox/Engines/')
 cd(datapathstem)
 filenames = {};
 all_subjs = [];
+
+set(0,'DefaultLegendAutoUpdate','off')
 
 runningtotal = 1;
 for i = 1:length(groupstodo)
@@ -247,8 +249,8 @@ for t = 1:size(timewins)
         title(['All ' analysis_type ' time ' num2str(start_times) '-' num2str(end_times)])
         legend(linehandle(1:2), {[from_name '-' to_name],[to_name '-' from_name]})
         for i = 1:topfreqband %Compare across group permutation
-            p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(mean(all_random_granger_data(from,to,:,i,:,:,:),5),7)),squeeze(mean(mean(all_granger_data(from,to,:,i,:,:),5),6)))
-            p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(mean(all_random_granger_data(to,from,:,i,:,:,:),5),7)),squeeze(mean(mean(all_granger_data(to,from,:,i,:,:),5),6)))
+            p_tf(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(mean(all_random_granger_data(from,to,:,i,:,:,:),5),7)),squeeze(mean(mean(all_granger_data(from,to,:,i,:,:),5),6)));
+            p_ft(i) = 1-relRankIn_includeValue_lowerBound(squeeze(mean(mean(all_random_granger_data(to,from,:,i,:,:,:),5),7)),squeeze(mean(mean(all_granger_data(to,from,:,i,:,:),5),6)));
             if p_tf(i)<=0.05 || p_tf(i)>=0.95
                 plot(foi(i),0,'g*')
             end
@@ -258,7 +260,9 @@ for t = 1:size(timewins)
         end
         savestring = ['./figures/' from_name '_' to_name '_All_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
         savestring = strrep(savestring,' ','_');
-        eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
+        
+        print(savestring,'-depsc','-painters'); %eval(['export_fig ' savestring ' -transparent']); 
+        eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
         
         
         switch(analysis_type)
@@ -286,7 +290,8 @@ for t = 1:size(timewins)
                 end
                 savestring = ['./figures/' from_name '_' to_name '_All_mean_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
                 savestring = strrep(savestring,' ','_');
-                eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
+                print(savestring,'-depsc','-painters'); %eval(['export_fig ' savestring ' -transparent']); 
+                eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
                 
                 %             if closeafter == 1; close all; end; figure
                 %             stdshade_TEC(squeeze(median(all_granger_data(from,to,:,:,:,:),5))',0.2,'g',foi,1,1)
@@ -310,7 +315,7 @@ for t = 1:size(timewins)
                 %             end
                 %             savestring = ['./figures/' from_name '_' to_name '_All_median_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
                 %             savestring = strrep(savestring,' ','_');
-                %             eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
+                %             print(savestring,'-depsc','-painters'); eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
                 
                 if closeafter == 1; close all; end; figure
                 linehandle(1) = stdshade_TEC(squeeze(mean(demeaned_all_granger_data(from,to,:,:,:,:),5))',0.2,'g',foi,1,1);
@@ -350,7 +355,8 @@ for t = 1:size(timewins)
                 end
                 savestring = ['./figures/' from_name '_' to_name '_All_demeaned_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
                 savestring = strrep(savestring,' ','_');
-                eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
+                print(savestring,'-depsc','-painters'); %eval(['export_fig ' savestring ' -transparent']); 
+                eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
                 
                 if closeafter == 1; close all; end; figure
                 difference_demeaned = demeaned_all_granger_data(from,to,:,:,:,:)-demeaned_all_granger_data(to,from,:,:,:,:);
@@ -362,7 +368,8 @@ for t = 1:size(timewins)
                 savestring = ['./figures/' from_name '_' to_name '_Difference_demeaned_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
                 title(['Direction difference ' analysis_type ' ' from_name ' to ' to_name])
                 savestring = strrep(savestring,' ','_');
-                eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
+                print(savestring,'-depsc','-painters'); %eval(['export_fig ' savestring ' -transparent']); 
+                eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
                 
         end
     
@@ -448,7 +455,8 @@ for t = 1:size(timewins)
     %             end
     savestring = ['./figures/' from_name '_' to_name '_By_group_mean_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
     savestring = strrep(savestring,' ','_');
-    eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
+    print(savestring,'-depsc','-painters'); %eval(['export_fig ' savestring ' -transparent']); 
+    eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
     
     
 %     if closeafter == 1; close all; end; figure
@@ -473,7 +481,7 @@ for t = 1:size(timewins)
 %     end
 %     savestring = ['./figures/' from_name '_' to_name '_By_group_mean_withSEM_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
 %     savestring = strrep(savestring,' ','_');
-%     eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
+%     print(savestring,'-depsc','-painters'); eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
 %     
     
 %     if closeafter == 1; close all; end; figure
@@ -497,7 +505,7 @@ for t = 1:size(timewins)
 %     
 %     savestring = ['./figures/' from_name '_' to_name '_By_group_median_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
 %     savestring = strrep(savestring,' ','_');
-%     eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
+%     print(savestring,'-depsc','-painters'); eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
     
     
 %     if closeafter == 1; close all; end; figure
@@ -707,7 +715,8 @@ for t = 1:size(timewins)
     xlabel('Frequency, Hz')
     savestring = ['./figures/' from_name '_' to_name '_All_mean_std-dvt_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
     savestring = strrep(savestring,' ','_');
-    eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
+    print(savestring,'-depsc','-painters'); %eval(['export_fig ' savestring ' -transparent']); 
+    eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
     
     if closeafter == 1; close all; end; figure
     hold on
@@ -734,7 +743,8 @@ for t = 1:size(timewins)
     xlabel('Frequency, Hz')
     savestring = ['./figures/' from_name '_' to_name '_All_median_std-dvt_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
     savestring = strrep(savestring,' ','_');
-    eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
+    print(savestring,'-depsc','-painters'); %eval(['export_fig ' savestring ' -transparent']); 
+    eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
     
 %     if closeafter == 1; close all; end; figure
 %     hold on
@@ -789,7 +799,7 @@ for t = 1:size(timewins)
         linehandle(grp) = stdshade_TEC_cmap(squeeze(all_mismatch_contrasts(from,to,:,:,group==ceil(grp/2)))',0.2,cmap(ceil(grp/2),:),foi,1,1,':');
         switch(analysis_type)
             case 'Granger'
-                linehandle(grp+1) = stdshade_TEC_cmap(squeeze(mean(all_granger_data(to,from,:,:,:,group==ceil(grp/2)),5))',0.2,cmap(ceil(grp/2),:),foi,1,1,'--');
+                linehandle(grp+1) = stdshade_TEC_cmap(squeeze(all_mismatch_contrasts(to,from,:,:,group==ceil(grp/2)))',0.2,cmap(ceil(grp/2),:),foi,1,1,'--');
                 legend_text{grp+1} = [to_name '-' from_name ' ' groupstodo{ceil(grp/2)}];
         end
         legend_text{grp} = [from_name '-' to_name ' ' groupstodo{ceil(grp/2)}];
@@ -801,7 +811,8 @@ for t = 1:size(timewins)
     xlabel('Frequency, Hz')
     savestring = ['./figures/' from_name '_' to_name '_Group_mean_std-dvt_' analysis_type '_time_' num2str(start_times) '-' num2str(end_times) '.pdf'];
     savestring = strrep(savestring,' ','_');
-    eval(['export_fig ' savestring ' -transparent']); eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
+    print(savestring,'-depsc','-painters'); %eval(['export_fig ' savestring ' -transparent']); 
+    eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
 
 %     for i = 1:topfreqband %Rough initial parametric stats - better to use permutation
 %         [h_tf(i) p_tf(i)] = ttest2(squeeze(all_patients_mismatch_contrasts(from,to,:,i,:)),squeeze(all_controls_mismatch_contrasts(from,to,:,i,:)));

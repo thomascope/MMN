@@ -15,10 +15,13 @@ conditions = {'STD','DVT','Loc','Int','Dur','Gap','Freq'};
 mkdir('./outputfigures/scalp/stats/')
 
 for ss = 1:length(Participant)
-    try
-        Participant{ss}.name = Participant{ss}.namepostmerge;
+%     try
+%         Participant{ss}.name = Participant{ss}.namepostmerge;
+%     end
+    megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.namepostmerge '/' prefix Participant{ss}.namepostmerge '.mat'];
+    if ~exist(megpath{ss},'file')
+        megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.namepostmerge '/' prefix Participant{ss}.name{1} '.mat'];
     end
-    megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.name '/' prefix Participant{ss}.name '.mat'];
     diagnosis{ss} = Participant{ss}.diag;
     
 end
@@ -44,7 +47,7 @@ for ss = 1:length(Participant)
 end
 
 
-plot_points = 0;
+plot_points = 1;
 for ss = 1:length(Participant)
     STD_M100_amplitude(ss)=max(abs(all_STD(ss,D{ss}.time>=0.05&D{ss}.time<=0.15))); %STD amplitude
     if plot_points == 1
@@ -117,7 +120,6 @@ xticks([1:length(groups)])
 xticklabels(groups)
 xtickangle(30)
 ylabel('Magnetometer Amplitude (fT/mm)')
-end
 saveas(M100_plot,['./outputfigures/scalp/stats/M100 Amplitude (AU).png']);
 
 MMN_latency_plot = figure(20000);

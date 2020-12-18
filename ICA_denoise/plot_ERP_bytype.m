@@ -8,7 +8,10 @@ for ss = 1:length(Participant)
 %     try
 %         Participant{ss}.name = Participant{ss}.namepostmerge;
 %     end
-    megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.name '/' prefix Participant{ss}.namepostmerge '.mat'];
+    megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.namepostmerge '/' prefix Participant{ss}.namepostmerge '.mat'];
+    if ~exist(megpath{ss},'file')
+        megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.namepostmerge '/' prefix Participant{ss}.name{1} '.mat'];
+    end
     diagnosis{ss} = Participant{ss}.diag;
    
 end
