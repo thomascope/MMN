@@ -147,6 +147,19 @@ for n = uptohere:21
                             cfg.tapsmofrq = fres;
                     end
                     
+                       switch method
+                        case 'pdc'
+                            cfg         = [];
+                            cfg.order   = 5;
+                            cfg.toolbox = 'bsmart';                            
+                            ftdata       = ft_mvaranalysis(cfg, ftdata);
+                            cfg         = [];
+                            cfg.method = 'mvar';
+                            cfg.foi     = foi;
+                            cfg.channelcmb=channelcmb;
+                            cfg.keeptrials = 'yes';
+                    end
+                    
                     inp = ft_freqanalysis(cfg, ftdata);
                     
                     cfg = [];
@@ -155,6 +168,8 @@ for n = uptohere:21
                     cfg.method = method;
                     switch method
                         case 'coh'
+                            cfg.complex = 'imag';
+                        case 'plv'
                             cfg.complex = 'imag';
                     end
                     %cfg.granger.init = 'rand';
@@ -199,6 +214,19 @@ for n = uptohere:21
                             end
                             temp_granger_data(chan_from,chan_to,t,:,cond,p) = res.cohspctrm(1,2,2:length(foi));
                             temp_granger_data(chan_to,chan_from,t,:,cond,p) = res.cohspctrm(2,1,2:length(foi));
+                        case 'plv'
+                            if ~exist('temp_granger_data','var')
+                                temp_granger_data = nan(nchans,nchans,ntimes,length(foi)-1,numel(conditions),nptmp);
+                            end
+                            temp_granger_data(chan_from,chan_to,t,:,cond,p) = res.plvspctrm(1,2,2:length(foi));
+                            temp_granger_data(chan_to,chan_from,t,:,cond,p) = res.plvspctrm(2,1,2:length(foi));
+                        case 'pdc'
+                            if ~exist('temp_granger_data','var')
+                                temp_granger_data = nan(nchans,nchans,ntimes,length(foi)-1,numel(conditions),nptmp);
+                            end
+                            temp_granger_data(chan_from,chan_to,t,:,cond,p) = res.pdcspctrm(1,2,2:length(foi));
+                            temp_granger_data(chan_to,chan_from,t,:,cond,p) = res.pdcspctrm(2,1,2:length(foi));
+                            
                     end
                     
                     fprintf(['\n\n\nBlock ',num2str(n),', perm ',num2str(p),', time ',num2str(t),', channel ',num2str(chan_from),'-',num2str(chan_to),', cond ',num2str(cond),'\n\n\n']);

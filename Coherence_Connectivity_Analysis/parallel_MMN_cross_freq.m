@@ -1,8 +1,7 @@
 % possible fft methods: mtmfft mtmconvol wavelet
-function parallel_MMN_coherence_granger(filename,pathstem,outdir,this_subj,start_times,end_times,fft_method,method)
+function parallel_MMN_cross_freq(filename,pathstem,outdir,this_subj,start_times,end_times,fft_method,method)
 
-addpath(genpath('/group/language/data/thomascope/MMN/ICA_denoise/bsmart')); % For mvar modelling
-
+error(['This function does not work, and will give an all zero output because ft_crossfreq does not support between channel connectivity']);
 subtract_average = 1;
 
 % matchconds = [2,4,6];
@@ -150,19 +149,6 @@ for n = 1:21
                             cfg.tapsmofrq = fres;
                     end
                     
-                    switch method
-                        case 'pdc'
-                            cfg         = [];
-                            cfg.order   = 5;
-                            cfg.toolbox = 'bsmart';                            
-                            ftdata       = ft_mvaranalysis(cfg, ftdata);
-                            cfg         = [];
-                            cfg.method = 'mvar';
-                            cfg.foi     = foi;
-                            cfg.channelcmb=channelcmb;
-                            cfg.keeptrials = 'yes';
-                    end
-                    
                     inp = ft_freqanalysis(cfg, ftdata);
                     
                     cfg = [];
@@ -172,11 +158,9 @@ for n = 1:21
                     switch method
                         case 'coh'
                             cfg.complex = 'imag';
-                        case 'plv'
-                            cfg.complex = 'imag';
                     end
                     %cfg.granger.init = 'rand';
-                    res = ft_connectivityanalysis(cfg, inp);
+                    res = ft_crossfrequencyanalysis(cfg, inp);
                     
                     %% plot
                     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -217,19 +201,6 @@ for n = 1:21
                             end
                             temp_granger_data(chan_from,chan_to,t,:,cond,p) = res.cohspctrm(1,2,2:length(foi));
                             temp_granger_data(chan_to,chan_from,t,:,cond,p) = res.cohspctrm(2,1,2:length(foi));
-                        case 'plv'
-                            if ~exist('temp_granger_data','var')
-                                temp_granger_data = nan(nchans,nchans,ntimes,length(foi)-1,numel(conditions),nptmp);
-                            end
-                            temp_granger_data(chan_from,chan_to,t,:,cond,p) = res.plvspctrm(1,2,2:length(foi));
-                            temp_granger_data(chan_to,chan_from,t,:,cond,p) = res.plvspctrm(2,1,2:length(foi));
-                        case 'pdc'
-                            if ~exist('temp_granger_data','var')
-                                temp_granger_data = nan(nchans,nchans,ntimes,length(foi)-1,numel(conditions),nptmp);
-                            end
-                            temp_granger_data(chan_from,chan_to,t,:,cond,p) = res.pdcspctrm(1,2,2:length(foi));
-                            temp_granger_data(chan_to,chan_from,t,:,cond,p) = res.pdcspctrm(2,1,2:length(foi));
-                            
                     end
                     
                     fprintf(['\n\n\nBlock ',num2str(n),', perm ',num2str(p),', time ',num2str(t),', channel ',num2str(chan_from),'-',num2str(chan_to),', cond ',num2str(cond),'\n\n\n']);
