@@ -36,7 +36,7 @@ Sname = {'left A1';
 for ss = 1:length(Participant)
     megpath{ss} = [pathstem Participant{ss}.groupfolder '/' Participant{ss}.namepostmerge '/' 's_' p.time_wind_path{p.wind_cnt} '_' p.inv_meth{p.inv_cnt} '_' prefix Participant{ss}.namepostmerge '.mat'];
     diagnosis{ss} = Participant{ss}.diag;
-        
+    
     [f1,f2,f3] = fileparts(megpath{ss});
     if strcmp(diagnosis{ss},'AD_MCI_pos')
         fn{ss} = sprintf('%s/%s/%dLFP_%s%s',[pathstem 'LFPs'],'MCI', length(Sname), f2, f3);
@@ -48,7 +48,7 @@ for ss = 1:length(Participant)
             movefile([fn{ss}(1:end-4) '_1.mat'],fn{ss})
         else
             error(['File ' fn{ss} ' not found'])
-        end        
+        end
     end
     
 end
@@ -61,28 +61,37 @@ decompositionworkedcorrectly = zeros(1,length(Participant));
 parfor subj = 1:length(Participant)
     warning('off','all')
     this_outdir = [outdir 'crosshem/' method '/' groupstodo{all_subjs(subj,1)} '/'];
-
+    
     
     if exist([this_outdir 's' num2str(subj) '_grangerdata_highfreq_averagesubtracted_100_' num2str(start_times) '_' num2str(end_times) '_z' num2str(1) '.mat'],'file')
         disp(['Found some existing files for subject s' num2str(subj)])
         existing_files = dir([this_outdir 's' num2str(subj) '_grangerdata_highfreq_averagesubtracted_100_' num2str(start_times) '_' num2str(end_times) '_z*']);
         this_file_num = [];
         for i = 1:length(existing_files)
-        temp_files = strsplit(existing_files(i).name,'z');
-        temp_files = strsplit(temp_files{2},'.mat');
-        this_file_num = [this_file_num str2num(temp_files{1})];
+            temp_files = strsplit(existing_files(i).name,'z');
+            temp_files = strsplit(temp_files{2},'.mat');
+            this_file_num = [this_file_num str2num(temp_files{1})];
         end
         uptohere = max(this_file_num)+1;
         disp(['Resuming at file ' num2str(uptohere)])
         try
-        parallel_MMN_coherence_granger_resume(fn{subj},[],this_outdir,subj,start_times,end_times,fft_method,method,uptohere)
-        decompositionworkedcorrectly(subj) = 1;
+            if strcmp(method,'mi')
+                disp(['Resumption not implemented for cross-frequency coupling yet, starting again'])
+                parallel_MMN_cross_freq(fn{subj},[],this_outdir,subj,start_times,end_times,fft_method,method)
+            else
+                parallel_MMN_coherence_granger_resume(fn{subj},[],this_outdir,subj,start_times,end_times,fft_method,method,uptohere)
+            end
+            decompositionworkedcorrectly(subj) = 1;
         end
     else
         disp(['job started on subject ' num2str(subj)])
         try
-        parallel_MMN_coherence_granger(fn{subj},[],this_outdir,subj,start_times,end_times,fft_method,method)
-        decompositionworkedcorrectly(subj) = 1;
+            if strcmp(method,'mi')
+                parallel_MMN_cross_freq(fn{subj},[],this_outdir,subj,start_times,end_times,fft_method,method)
+            else
+                parallel_MMN_coherence_granger(fn{subj},[],this_outdir,subj,start_times,end_times,fft_method,method)
+            end
+            decompositionworkedcorrectly(subj) = 1;
         end
     end
 end

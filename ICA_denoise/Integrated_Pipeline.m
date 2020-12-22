@@ -3,6 +3,7 @@ spmpath = '/group/language/data/thomascope/spm12_fil_r6906/';
 thisspm = which('spm');
 if ~strcmp(thisspm(1:end-5), spmpath)
     rmpath(genpath('/imaging/local/software/spm_cbu_svn/releases/spm12_latest/'));
+    rmpath(genpath('/group/language/data/thomascope/MMN/ICA_denoise/Tallie_extDCM/spm12_latestTA/'));
     addpath(spmpath)
     spm eeg
 end
@@ -675,6 +676,28 @@ for todonumber = 1:nsubj
     end
 end
 for method = {'granger','coh'}
+    p.decompmethod = char(method);
+    decompositionworkedcorrectly{end+1} = Coherence_Connectivity(Participant,pathstem,p,prefix);
+end
+
+%% Now do a frequency coupling analysis using phase locking value and partial directed coherence
+p.start_times = 0;
+p.end_times = 500;
+prefix = 'cffbeM';
+decompositionworkedcorrectly = {};
+val = 2; %for LORETA
+%val = 1 %for IID
+p.time_wind_path = time_wind_path;
+p.wind_cnt = wind_cnt;
+p.inv_meth = inv_meth;
+p.inv_cnt = val;
+
+for todonumber = 1:nsubj
+    try
+        % Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+    end
+end
+for method = {'plv','pdc'} % modulation index after Tort 2010 - https://doi.org/10.1152/jn.00106.2010
     p.decompmethod = char(method);
     decompositionworkedcorrectly{end+1} = Coherence_Connectivity(Participant,pathstem,p,prefix);
 end
