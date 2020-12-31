@@ -33,14 +33,18 @@ topfreqband = 20;
 
 closeafter = 1;
 
-analysis_type = 'Granger';
+%analysis_type = 'Granger';
 %analysis_type = 'icoh';
+%analysis_type = 'plv';
+analysis_type = 'pdc';
 
 switch(analysis_type)
     case 'Granger'
         datapathstem = [datapathstem 'granger/'];
     case 'icoh'
         datapathstem = [datapathstem 'coh/'];
+    otherwise
+        datapathstem = [datapathstem analysis_type '/'];
 end
 
 addpath('/imaging/tc02/toolboxes/rsatoolbox/Engines/')
