@@ -697,7 +697,7 @@ for todonumber = 1:nsubj
         % Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
     end
 end
-for method = {'plv','pdc'} % modulation index after Tort 2010 - https://doi.org/10.1152/jn.00106.2010
+for method = {'plv','pdc'} % 
     p.decompmethod = char(method);
     decompositionworkedcorrectly{end+1} = Coherence_Connectivity(Participant,pathstem,p,prefix);
 end
