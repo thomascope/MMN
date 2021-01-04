@@ -149,7 +149,7 @@ for t = 1:size(timewins)
         %     foi = foi(1:end-1);
         %     granger_data = granger_data(:,:,:,1:end-1,:,:);
         switch(analysis_type)
-            case 'icoh'
+            case {'icoh', 'partial_icoh'}
                 granger_data = abs(granger_data);
         end
         
