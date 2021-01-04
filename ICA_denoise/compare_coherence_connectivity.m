@@ -37,12 +37,16 @@ closeafter = 1;
 %analysis_type = 'icoh';
 %analysis_type = 'plv';
 analysis_type = 'pdc';
+%analysis_type = 'partial_plv';
+%analysis_type = 'partial_icoh';
 
 switch(analysis_type)
     case 'Granger'
         datapathstem = [datapathstem 'granger/'];
     case 'icoh'
         datapathstem = [datapathstem 'coh/'];
+    case 'partial_icoh'
+        datapathstem = [datapathstem 'partial_coh/'];
     otherwise
         datapathstem = [datapathstem analysis_type '/'];
 end

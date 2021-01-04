@@ -702,6 +702,28 @@ for method = {'plv','pdc'} %
     decompositionworkedcorrectly{end+1} = Coherence_Connectivity(Participant,pathstem,p,prefix);
 end
 
+%% Now do an analysis with connected nodes partialled out with phase locking value and imaginary coherence
+p.start_times = 0;
+p.end_times = 500;
+prefix = 'cffbeM';
+decompositionworkedcorrectly = {};
+val = 2; %for LORETA
+%val = 1 %for IID
+p.time_wind_path = time_wind_path;
+p.wind_cnt = wind_cnt;
+p.inv_meth = inv_meth;
+p.inv_cnt = val;
+
+for todonumber = 1:nsubj
+    try
+        % Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+    end
+end
+for method = {'partial_coh','partial_plv'} % 
+    p.decompmethod = char(method);
+    decompositionworkedcorrectly{end+1} = Coherence_Connectivity(Participant,pathstem,p,prefix);
+end
+
 %% Now do a time-frequency analysis
 for todonumber = 1:nsubj
     try
