@@ -1340,7 +1340,7 @@ visualise_bygroup(dirname_DCM,p.diagnosis_list,regions,conductances)
 visualise_bygroup_combined(dirname_DCM,[{'Control'}, {'All_FTD'}, {'All_AD'}],regions,conductances)
 
 %% Now combine the inter-region PEB with Granger Causality and Imaginary Coherence - work in progress - also will later possibly add Cross-frequency coupling
-Combine_PEB_Connectivity
+Combine_PEB_Connectivity(dirname_DCM,p.diagnosis_list,p.Sname,0.7,Participant)
 
 
 

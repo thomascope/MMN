@@ -31,8 +31,9 @@ sources = source_names;
 
 averagesubtracted = 1;
 highfreq = 1;
-timewins = [0 500];
-%topfreqband = 49;
+start_times = 0;
+end_times = 500;
+%topfreqband = 40; % Include gamma
 topfreqband = 20;
 
 closeafter = 1;
@@ -102,7 +103,7 @@ for i = 1:length(analysis_type)
         granger_data = granger_data(:,:,:,1:topfreqband,:,:);
         
         switch(analysis_type{i})
-            case {'icoh', 'partial_icoh'}
+            case {'icoh', 'partial_icoh', 'plv', 'partial_plv'} % Not sure if taking the abs is correct for PLV theoretically, but I note that from/to reversals reverse the plv, so there must be a confound of directionality
                 granger_data = abs(granger_data);
         end
         
@@ -155,6 +156,7 @@ for this_contrast = 2:size(template_PEB.M.X,2)
         this_fig = figure;
         set(gcf,'Position',[100 100 1600 800]);
         set(gcf, 'PaperPositionMode', 'auto');
+        clear linehandle legend_text
         % Reminder: size(all_granger_data{1}) =     8     8     1    20     2   123
         % From, to, time_window, foi, STD-DVT, subj
         for this_subplot = 1:4*length(all_granger_data)
@@ -168,8 +170,8 @@ for this_contrast = 2:size(template_PEB.M.X,2)
                 % by individual, not meaningful for the icoh contrasts
                 difference_demeaned = demeaned_all_granger_data{this_measure}(from,to,:,:,:,:)-demeaned_all_granger_data{this_measure}(to,from,:,:,:,:);
                 hold on
-                plot([0 40],[0 0],'k--','LineWidth',1);
-                hold on
+                plot([0 ceil(max(foi))],[0 0],'k--','LineWidth',1);
+                xlim([0 ceil(max(foi)/10)*10])
                 legend_text = cell(1,2*length(groupstodo));
                 for grp = 1:2:2*length(groupstodo)
                     linehandle(grp) = stdshade_TEC_cmap(squeeze(mean(difference_demeaned(1,1,:,:,:,group==ceil(grp/2)),5))',0.2,cmap(ceil(grp/2),:),foi,1,1,':');
@@ -183,14 +185,56 @@ for this_contrast = 2:size(template_PEB.M.X,2)
             elseif this_connectivity_contrast == 2
                 % Next look at the overall connection strength by group -
                 % confounded by SNR for Granger and perhaps pdc
+                hold on
+                plot([0 ceil(max(foi))],[0 0],'k--','LineWidth',1);
+                xlim([0 ceil(max(foi)/10)*10])
+                for grp = 1:2:2*length(groupstodo)
+                    stdshade_TEC_cmap(squeeze(mean(all_granger_data{this_measure}(from,to,:,:,:,group==ceil(grp/2)),5))',0.2,cmap(ceil(grp/2),:),foi,1,1,':');
+                end
+                title(['Strength ' analysis_type{this_measure}], 'Interpreter', 'none')
+                xlabel('Frequency, Hz')
+            elseif this_connectivity_contrast == 3
+                % Next look at the modulation by STD-DVT
+                hold on
+                plot([0 ceil(max(foi))],[0 0],'k--','LineWidth',1);
+                xlim([0 ceil(max(foi)/10)*10])
+                for grp = 1:2:2*length(groupstodo)
+                    stdshade_TEC_cmap(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,:,group==ceil(grp/2)))',0.2,cmap(ceil(grp/2),:),foi,1,1,':');
+                end
+                title(['STD-DVT ' analysis_type{this_measure}], 'Interpreter', 'none')
+                xlabel('Frequency, Hz')
+            elseif this_connectivity_contrast == 4
+                % Finally look at the power for the reverse direction of the same pair -
+                % only meaningful for some measures
+                 % Next look at the overall connection strength by group -
+                % confounded by SNR for Granger and perhaps pdc
+                hold on
+                plot([0 ceil(max(foi))],[0 0],'k--','LineWidth',1);
+                xlim([0 ceil(max(foi)/10)*10])
+                for grp = 1:2:2*length(groupstodo)
+                    stdshade_TEC_cmap(squeeze(mean(all_granger_data{this_measure}(to,from,:,:,:,group==ceil(grp/2)),5))',0.2,cmap(ceil(grp/2),:),foi,1,1,':');
+                end
+                title(['Strength ' analysis_type{this_measure}], 'Interpreter', 'none')
+                xlabel('Frequency, Hz')
+                
             end
         end
-                
+        suptitle(['Connectivity from ' source_names{from}  ' to ' source_names{to}]);
+        if ceil(max(foi)) > 45
+            savestring = ['./figures/' source_names{from} '_' source_names{to} '_Multifig_highfreq.pdf'];
+        else
+            savestring = ['./figures/' source_names{from} '_' source_names{to} '_Multifig.pdf'];
+        end
+        savestring = strrep(savestring,' ','_');
+        print(savestring,'-depsc','-painters'); %eval(['export_fig ' savestring ' -transparent']);
+        eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
         
     end
 end
 
+cd([dirname_DCM 'PEB_secondlevel'])
 load('PEB_D_Overall.mat')
+cd(thisdir)
 
 for this_contrast = 2:size(template_PEB.M.X,2)
     these_differences = find(BMA_Overall.Pp(:,this_contrast)>thresh);
@@ -219,4 +263,158 @@ for this_contrast = 2:size(template_PEB.M.X,2)
     end
 end
 
+
+cd([dirname_DCM 'PEB_secondlevel'])
+load('PEB_A_Overall_combined.mat')
+template_PEB = PEB_Overall;
 cd(thisdir)
+
+assert(all(template_PEB.M.X(:,1)==1),'The first column of the PEB of PEBs contrast should be all ones, check please.')
+
+for this_contrast = 2:size(template_PEB.M.X,2)
+    these_differences = find(BMA_Overall.Pp(:,this_contrast)>thresh);
+    
+    for this_difference = 1:length(these_differences)
+        
+        this_connection = BMA_Overall.Pnames{these_differences(this_difference)};
+        Condition_Split = strsplit(this_connection,'Covariate ');
+        condition = str2num(Condition_Split{2}(1));
+        
+        Connection_Split = strsplit(this_connection,'A{');
+        direction = Connection_Split{2}(1);
+        if strcmp(direction,'1')
+            direction = 'forwards';
+        elseif strcmp(direction,'2')
+            direction = 'backwards';
+        end
+        to = str2num(Connection_Split{2}(4));
+        from = str2num(Connection_Split{2}(6));
+        
+        
+        if condition == 1
+            if BMA_Overall.Ep(these_differences(this_difference),this_contrast)>0
+                disp([diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' stronger than ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' for ' direction ' ' source_names{from} ' to ' source_names{to}])
+            else
+                disp([diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' stronger than ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' direction ' ' source_names{from} ' to ' source_names{to}])
+            end
+        else
+            disp(['Interaction between ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' and ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' direction ' ' source_names{from} ' to ' source_names{to}])
+        end
+        
+         %Now repeat combining FTD and AD
+        merged_groups = group;
+        merged_groups(merged_groups==4) = 2; % combine nfvPPA and bvFTD
+        merged_groups(merged_groups==5) = 3; % combine pca and ADMCI
+        new_groupstodo = {'Control','FTD','AD'};
+        
+        this_fig = figure;
+        set(gcf,'Position',[100 100 1600 800]);
+        set(gcf, 'PaperPositionMode', 'auto');
+        clear linehandle legend_text
+        % Reminder: size(all_granger_data{1}) =     8     8     1    20     2   123
+        % From, to, time_window, foi, STD-DVT, subj
+        for this_subplot = 1:4*length(all_granger_data)
+            subplot(4,length(all_granger_data),this_subplot)
+            this_measure = mod(this_subplot,length(all_granger_data));
+            if this_measure == 0;  this_measure = length(all_granger_data); end
+            this_connectivity_contrast = ceil(this_subplot/length(all_granger_data));
+            
+            if this_connectivity_contrast == 1
+                % First look at the overall directionality by group - de-meaned
+                % by individual, not meaningful for the icoh contrasts
+                difference_demeaned = demeaned_all_granger_data{this_measure}(from,to,:,:,:,:)-demeaned_all_granger_data{this_measure}(to,from,:,:,:,:);
+                hold on
+                plot([0 ceil(max(foi))],[0 0],'k--','LineWidth',1);
+                xlim([0 ceil(max(foi)/10)*10])
+                legend_text = cell(1,length(merged_groups));
+                for grp = 1:length(unique(merged_groups))
+                    linehandle(grp) = stdshade_TEC_cmap(squeeze(mean(difference_demeaned(1,1,:,:,:,merged_groups==grp),5))',0.2,cmap(grp,:),foi,1,1,':');
+                    legend_text{grp} = [new_groupstodo{grp}];
+                end
+                if this_measure == length(all_granger_data)
+                    legend(linehandle(~cellfun('isempty',legend_text)),legend_text(~cellfun('isempty',legend_text)));
+                end
+                title(['Directionality ' analysis_type{this_measure}], 'Interpreter', 'none')
+                xlabel('Frequency, Hz')
+            elseif this_connectivity_contrast == 2
+                % Next look at the overall connection strength by group -
+                % confounded by SNR for Granger and perhaps pdc
+                hold on
+                plot([0 ceil(max(foi))],[0 0],'k--','LineWidth',1);
+                xlim([0 ceil(max(foi)/10)*10])
+                for grp = 1:length(unique(merged_groups))
+                    stdshade_TEC_cmap(squeeze(mean(all_granger_data{this_measure}(from,to,:,:,:,merged_groups==grp),5))',0.2,cmap(grp,:),foi,1,1,':');
+                end
+                title(['Strength ' analysis_type{this_measure}], 'Interpreter', 'none')
+                xlabel('Frequency, Hz')
+            elseif this_connectivity_contrast == 3
+                % Next look at the modulation by STD-DVT
+                hold on
+                plot([0 ceil(max(foi))],[0 0],'k--','LineWidth',1);
+                xlim([0 ceil(max(foi)/10)*10])
+                for grp = 1:length(unique(merged_groups))
+                    stdshade_TEC_cmap(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,:,merged_groups==grp))',0.2,cmap(grp,:),foi,1,1,':');
+                end
+                title(['STD-DVT ' analysis_type{this_measure}], 'Interpreter', 'none')
+                xlabel('Frequency, Hz')
+            elseif this_connectivity_contrast == 4
+                % Finally look at the power for the reverse direction of the same pair -
+                % only meaningful for some measures
+                 % Next look at the overall connection strength by group -
+                % confounded by SNR for Granger and perhaps pdc
+                hold on
+                plot([0 ceil(max(foi))],[0 0],'k--','LineWidth',1);
+                xlim([0 ceil(max(foi)/10)*10])
+                for grp = 1:length(unique(merged_groups))
+                    stdshade_TEC_cmap(squeeze(mean(all_granger_data{this_measure}(to,from,:,:,:,merged_groups==grp),5))',0.2,cmap(grp,:),foi,1,1,':');
+                end
+                title(['Strength ' analysis_type{this_measure}], 'Interpreter', 'none')
+                xlabel('Frequency, Hz')
+                
+            end
+        end
+        suptitle(['Connectivity from ' source_names{from}  ' to ' source_names{to} ' combined groups']);
+        if ceil(max(foi))> 45
+            savestring = ['./figures/' source_names{from} '_' source_names{to} '_Multifig_combined_highfreq.pdf'];
+        else
+            savestring = ['./figures/' source_names{from} '_' source_names{to} '_Multifig_combined.pdf'];
+        end
+        savestring = strrep(savestring,' ','_');
+        print(savestring,'-depsc','-painters'); %eval(['export_fig ' savestring ' -transparent']);
+        eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
+       
+    end
+end
+
+cd([dirname_DCM 'PEB_secondlevel'])
+load('PEB_D_Overall_combined.mat')
+
+for this_contrast = 2:size(template_PEB.M.X,2)
+    these_differences = find(BMA_Overall.Pp(:,this_contrast)>thresh);
+    
+    for this_difference = 1:length(these_differences)
+        
+        delays = {'local','cortico-cortical','cor-thalamo-cor'};
+        
+        this_connection = BMA_Overall.Pnames{these_differences(this_difference)};
+        Condition_Split = strsplit(this_connection,'Covariate ');
+        condition = str2num(Condition_Split{2}(1));
+        
+        Connection_Split = strsplit(this_connection,'D(');
+        connection = delays{str2num(Connection_Split{2}(1))};
+                
+        if condition == 1
+            if BMA_Overall.Ep(these_differences(this_difference),this_contrast)>0
+                disp([diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' longer than ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' for ' connection])
+            else
+                disp([diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' longer than ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' connection])
+            end
+        else
+            disp(['Interaction between ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' and ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' connection])
+        end
+        
+    end
+end
+
+cd(thisdir)
+

@@ -21,7 +21,7 @@ if exist('smth','var'); if isempty(smth); smth=1; end
 else smth=1;
 end  
 
-if exist('steflag','var'); if isempty(steflag); smth=0; end
+if exist('steflag','var'); if isempty(steflag); steflag=0; end
 else steflag=0;
 end  
 
