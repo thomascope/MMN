@@ -1,8 +1,12 @@
 function Combine_PEB_Connectivity_focused(dirname_DCM,diagnosis_list,source_names,thresh,Participant)
 %A script for plotting the results of extDCM across all diagnoses by
 %inter-regional connection
+save_figures = 0;
+defaultStream=RandStream('mt19937ar','Seed',15); % For later permutation tests - ensure that the same seed is used for reproducability
+
 Frequency_bands = [4 8; 8 20; 20 30; 30 45; 55 70]; % Avoid 50 because of electrical noise and filtering.
 Frequence_band_names = {'Theta','Alpha','Beta','Low Gamma','High Gamma'};
+post_thresh = 0.05; % Threshold for post-hoc tests;
 
 addpath('/group/language/data/thomascope/MMN/ICA_denoise/Helperfiles')
 thisdir = pwd;
@@ -38,8 +42,6 @@ start_times = 0;
 end_times = 500;
 topfreqband = 40; % Include gamma
 %topfreqband = 20;
-
-save_figures = 1;
 
 analysis_type = {};
 analysis_type{end+1} = 'Granger';
@@ -125,6 +127,8 @@ for i = 1:length(analysis_type)
 end
 
 cd(thisdir)
+main_effect_significances = [];
+interaction_significances = [];
 
 for this_contrast = 2:size(template_PEB.M.X,2)
     these_differences = find(BMA_Overall.Pp(:,this_contrast)>thresh);
@@ -162,6 +166,11 @@ for this_contrast = 2:size(template_PEB.M.X,2)
         clear linehandle legend_text
         % Reminder: size(all_granger_data{1}) =     8     8     1    20     2   123
         % From, to, time_window, foi, STD-DVT, subj
+        if condition == 1
+            main_effect_significances(end+1) = 0;
+        else
+            interaction_significances(end+1) = 0;
+        end
         for this_subplot = 1:4*length(all_granger_data)
             subplot(4,length(all_granger_data),this_subplot)
             this_measure = mod(this_subplot,length(all_granger_data));
@@ -202,7 +211,8 @@ for this_contrast = 2:size(template_PEB.M.X,2)
                     for this_band = 1:size(Frequency_bands,1)
                         these_fois = foi>Frequency_bands(this_band,1)&foi<Frequency_bands(this_band,2);
                         [~, pval] = ttest2(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,group==find(template_PEB.M.X(:,this_contrast)==1)),5)),1)),squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,group==find(template_PEB.M.X(:,this_contrast)==-1)),5)),1)),'vartype','unequal');
-                        if pval <0.05
+                        if pval < post_thresh
+                            main_effect_significances(end) = 1;
                             if mean(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,group==find(template_PEB.M.X(:,this_contrast)==1)),5)),1)))>mean(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,group==find(template_PEB.M.X(:,this_contrast)==-1)),5)),1)))
                                 disp([groupstodo{find(template_PEB.M.X(:,this_contrast)==1)} ' stronger than ' groupstodo{find(template_PEB.M.X(:,this_contrast)==-1)} ' in the ' Frequence_band_names{this_band} ' band using metric ' analysis_type{this_measure} ' p= ' num2str(pval)])
                             else
@@ -227,7 +237,8 @@ for this_contrast = 2:size(template_PEB.M.X,2)
                     for this_band = 1:size(Frequency_bands,1)
                         these_fois = foi>Frequency_bands(this_band,1)&foi<Frequency_bands(this_band,2);
                         [~, pval] = ttest2(squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,group==find(template_PEB.M.X(:,this_contrast)==1))),1)),squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,group==find(template_PEB.M.X(:,this_contrast)==-1))),1)),'vartype','unequal');
-                        if pval <0.05
+                        if pval < post_thresh
+                            interaction_significances(end) = 1;
                             disp([groupstodo{find(template_PEB.M.X(:,this_contrast)==1)} ' interacts with ' groupstodo{find(template_PEB.M.X(:,this_contrast)==-1)} ' in the ' Frequence_band_names{this_band} ' band using metric ' analysis_type{this_measure} ' p= ' num2str(pval)])
                         end
                     end
@@ -267,6 +278,98 @@ for this_contrast = 2:size(template_PEB.M.X,2)
         
     end
 end
+
+overall_main_effect_significances = [];
+overall_interaction_significances = [];
+permutation_main_effect_significances = [];
+permutation_interaction_significances = [];
+% Now find out what proportion of non-DCM PEB connections are significant in coherence/Granger/plv
+for this_contrast = 2:size(template_PEB.M.X,2)
+    
+    for this_difference = 1:length(BMA_Overall.Pnames)
+        this_connection = BMA_Overall.Pnames{this_difference};
+        Condition_Split = strsplit(this_connection,'Covariate ');
+        condition = str2num(Condition_Split{2}(1));
+        
+        Connection_Split = strsplit(this_connection,'A{');
+        direction = Connection_Split{2}(1);
+        if strcmp(direction,'1')
+            direction = 'forwards';
+        elseif strcmp(direction,'2')
+            direction = 'backwards';
+        end
+        to = str2num(Connection_Split{2}(4));
+        from = str2num(Connection_Split{2}(6));
+        
+        if condition == 1
+            overall_main_effect_significances(end+1) = 0;
+            permutation_main_effect_significances(end+1) = 0;
+            for this_measure = 1:length(all_granger_data)
+                data_for_test = [];
+                data_for_test_2 = [];
+                for this_band = 1:size(Frequency_bands,1)
+                    these_fois = foi>Frequency_bands(this_band,1)&foi<Frequency_bands(this_band,2);
+                    [~, pval] = ttest2(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,group==find(template_PEB.M.X(:,this_contrast)==1)),5)),1)),squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,group==find(template_PEB.M.X(:,this_contrast)==-1)),5)),1)),'vartype','unequal');
+                    if pval < post_thresh
+                        overall_main_effect_significances(end) = 1;
+                        if mean(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,group==find(template_PEB.M.X(:,this_contrast)==1)),5)),1)))>mean(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,group==find(template_PEB.M.X(:,this_contrast)==-1)),5)),1)))
+                            %disp([groupstodo{find(template_PEB.M.X(:,this_contrast)==1)} ' stronger than ' groupstodo{find(template_PEB.M.X(:,this_contrast)==-1)} ' in the ' Frequence_band_names{this_band} ' band using metric ' analysis_type{this_measure} ' p= ' num2str(pval)])
+                        else
+                            %disp([groupstodo{find(template_PEB.M.X(:,this_contrast)==-1)} ' stronger than ' groupstodo{find(template_PEB.M.X(:,this_contrast)==1)} ' in the ' Frequence_band_names{this_band} ' band using metric ' analysis_type{this_measure} ' p= ' num2str(pval)])
+                        end
+                    end
+                    data_for_test = [data_for_test;squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,group==find(template_PEB.M.X(:,this_contrast)==1))),1))];
+                    data_for_test_2 = [data_for_test_2;squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,group==find(template_PEB.M.X(:,this_contrast)==-1))),1))];
+                end
+                
+                pval=mult_comp_perm_t2(data_for_test',data_for_test_2',5000,0,0.05,0,'w',0,defaultStream.State);
+                for this_band = 1:size(Frequency_bands,1)
+                    if pval(this_band) < post_thresh
+                        permutation_main_effect_significances(end) = 1;
+                        if mean(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,group==find(template_PEB.M.X(:,this_contrast)==1)),5)),1)))>mean(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,group==find(template_PEB.M.X(:,this_contrast)==-1)),5)),1)))
+                            disp([groupstodo{find(template_PEB.M.X(:,this_contrast)==1)} ' stronger than ' groupstodo{find(template_PEB.M.X(:,this_contrast)==-1)} ' in the ' Frequence_band_names{this_band} ' band using metric ' analysis_type{this_measure} ' permutation p= ' num2str(pval(this_band))])
+                        else
+                            disp([groupstodo{find(template_PEB.M.X(:,this_contrast)==-1)} ' stronger than ' groupstodo{find(template_PEB.M.X(:,this_contrast)==1)} ' in the ' Frequence_band_names{this_band} ' band using metric ' analysis_type{this_measure} ' permutation p= ' num2str(pval(this_band))])
+                        end
+                    end
+                    
+                end
+            end
+        elseif condition ~= 1
+            overall_interaction_significances(end+1) = 0;
+            permutation_interaction_significances(end+1) = 0;
+            for this_measure = 1:length(all_granger_data)
+                data_for_test = [];
+                data_for_test_2 = [];
+                for this_band = 1:size(Frequency_bands,1)
+                    these_fois = foi>Frequency_bands(this_band,1)&foi<Frequency_bands(this_band,2);
+                    [~, pval] = ttest2(squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,group==find(template_PEB.M.X(:,this_contrast)==1))),1)),squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,group==find(template_PEB.M.X(:,this_contrast)==-1))),1)),'vartype','unequal');
+                    if pval < post_thresh
+                        overall_interaction_significances(end) = 1;
+                        %disp([groupstodo{find(template_PEB.M.X(:,this_contrast)==1)} ' interacts with ' groupstodo{find(template_PEB.M.X(:,this_contrast)==-1)} ' in the ' Frequence_band_names{this_band} ' band using metric ' analysis_type{this_measure} ' p= ' num2str(pval)])
+                    end
+                    data_for_test = [data_for_test;squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,group==find(template_PEB.M.X(:,this_contrast)==1))),1))];
+                    data_for_test_2 = [data_for_test_2;squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,group==find(template_PEB.M.X(:,this_contrast)==-1))),1))];
+                end
+                
+                pval=mult_comp_perm_t2(data_for_test',data_for_test_2',5000,0,0.05,0,'w',0,defaultStream.State);
+                for this_band = 1:size(Frequency_bands,1)
+                    if pval(this_band) < post_thresh
+                        permutation_interaction_significances(end) = 1;
+                        disp([groupstodo{find(template_PEB.M.X(:,this_contrast)==1)} ' interacts with ' groupstodo{find(template_PEB.M.X(:,this_contrast)==-1)} ' in the ' Frequence_band_names{this_band} ' band using metric ' analysis_type{this_measure} ' permutation p= ' num2str(pval(this_band))])
+                    end
+                end
+                
+            end
+        end
+    end
+end
+
+prop_verified = sum(main_effect_significances) / length(main_effect_significances)
+prop_overall = (sum(overall_main_effect_significances)-sum(main_effect_significances))/(length(overall_main_effect_significances)-length(main_effect_significances))
+prop_inter_verified = sum(interaction_significances) / length(interaction_significances)
+prop_inter_overall = (sum(overall_interaction_significances)-sum(interaction_significances))/(length(overall_interaction_significances)-length(interaction_significances))
+
 
 cd([dirname_DCM 'PEB_secondlevel'])
 load('PEB_D_Overall.mat')
@@ -392,7 +495,7 @@ for this_contrast = 2:size(template_PEB.M.X,2)
                     for this_band = 1:size(Frequency_bands,1)
                         these_fois = foi>Frequency_bands(this_band,1)&foi<Frequency_bands(this_band,2);
                         [~, pval] = ttest2(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,merged_groups==comp_grp),5)),1)),squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,merged_groups==grp),5)),1)),'vartype','unequal');
-                        if pval <0.05
+                        if pval < post_thresh
                             if mean(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,merged_groups==grp),5)),1)))>mean(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,merged_groups==comp_grp),5)),1)))
                                 disp([new_groupstodo{grp} ' stronger than ' new_groupstodo{comp_grp} ' in the ' Frequence_band_names{this_band} ' band using metric ' analysis_type{this_measure} ' p= ' num2str(pval)])
                             else
@@ -420,7 +523,7 @@ for this_contrast = 2:size(template_PEB.M.X,2)
                     for this_band = 1:size(Frequency_bands,1)
                         these_fois = foi>Frequency_bands(this_band,1)&foi<Frequency_bands(this_band,2);
                         [~, pval] = ttest2(squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,merged_groups==comp_grp)),1)),squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,merged_groups==grp)),1)),'vartype','unequal');
-                        if pval <0.05
+                        if pval < post_thresh
                             disp([new_groupstodo{grp} ' interacts with ' new_groupstodo{comp_grp} ' in the ' Frequence_band_names{this_band} ' band using metric ' analysis_type{this_measure} ' p= ' num2str(pval)])
                         end
                     end
