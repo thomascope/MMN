@@ -1,8 +1,8 @@
-function Combine_PEB_Connectivity(dirname_DCM,diagnosis_list,source_names,thresh,Participant)
+function Combine_PEB_Connectivity_focused(dirname_DCM,diagnosis_list,source_names,thresh,Participant)
 %A script for plotting the results of extDCM across all diagnoses by
 %inter-regional connection
-Frequency_bands = [4 8; 8 12; 12 20; 20 30; 30 45; 55 70]; % Avoid 50 because of electrical noise and filtering.
-Frequence_band_names = {'Theta','Alpha','Low Beta','High Beta','Low Gamma','High Gamma'};
+Frequency_bands = [4 8; 8 20; 20 30; 30 45; 55 70]; % Avoid 50 because of electrical noise and filtering.
+Frequence_band_names = {'Theta','Alpha','Beta','Low Gamma','High Gamma'};
 
 addpath('/group/language/data/thomascope/MMN/ICA_denoise/Helperfiles')
 thisdir = pwd;
@@ -39,13 +39,13 @@ end_times = 500;
 topfreqband = 40; % Include gamma
 %topfreqband = 20;
 
-save_figures = 0;
+save_figures = 1;
 
 analysis_type = {};
 analysis_type{end+1} = 'Granger';
-analysis_type{end+1} = 'icoh';
-analysis_type{end+1} = 'plv';
-analysis_type{end+1} = 'pdc';
+%analysis_type{end+1} = 'icoh'; % Redundant given partialled versions
+%analysis_type{end+1} = 'plv'; % Redundant given partialled versions
+%analysis_type{end+1} = 'pdc'; % I don't trust this metric
 analysis_type{end+1} = 'partial_plv';
 analysis_type{end+1} = 'partial_icoh';
 
@@ -148,12 +148,12 @@ for this_contrast = 2:size(template_PEB.M.X,2)
         
         if condition == 1
             if BMA_Overall.Ep(these_differences(this_difference),this_contrast)>0
-                disp([diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' stronger than ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' for ' direction ' ' source_names{from} ' to ' source_names{to}])
+                disp([diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' stronger than ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' for ' direction ' ' source_names{from} ' to ' source_names{to} ' with posterior probability ' num2str(BMA_Overall.Pp(these_differences(this_difference),this_contrast))])
             else
-                disp([diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' stronger than ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' direction ' ' source_names{from} ' to ' source_names{to}])
+                disp([diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' stronger than ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' direction ' ' source_names{from} ' to ' source_names{to} ' with posterior probability ' num2str(BMA_Overall.Pp(these_differences(this_difference),this_contrast))])
             end
         else
-            disp(['Interaction between ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' and ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' direction ' ' source_names{from} ' to ' source_names{to}])
+            disp(['Interaction between ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' and ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' direction ' ' source_names{from} ' to ' source_names{to} ' with posterior probability ' num2str(BMA_Overall.Pp(these_differences(this_difference),this_contrast))])
         end
         
         this_fig = figure;
@@ -288,12 +288,12 @@ for this_contrast = 2:size(template_PEB.M.X,2)
         
         if condition == 1
             if BMA_Overall.Ep(these_differences(this_difference),this_contrast)>0
-                disp([diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' longer than ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' for ' connection])
+                disp([diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' longer than ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' for ' connection ' with posterior probability ' num2str(BMA_Overall.Pp(these_differences(this_difference),this_contrast))])
             else
-                disp([diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' longer than ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' connection])
+                disp([diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' longer than ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' connection ' with posterior probability ' num2str(BMA_Overall.Pp(these_differences(this_difference),this_contrast))])
             end
         else
-            disp(['Interaction between ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' and ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' connection])
+            disp(['Interaction between ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==-1)} ' and ' diagnosis_list{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' connection ' with posterior probability ' num2str(BMA_Overall.Pp(these_differences(this_difference),this_contrast))])
         end
         
     end
@@ -330,12 +330,12 @@ for this_contrast = 2:size(template_PEB.M.X,2)
         
         if condition == 1
             if BMA_Overall.Ep(these_differences(this_difference),this_contrast)>0
-                disp([new_groupstodo{find(template_PEB.M.X(:,this_contrast)==1)} ' stronger than ' new_groupstodo{find(template_PEB.M.X(:,this_contrast)==-1)} ' for ' direction ' ' source_names{from} ' to ' source_names{to}])
+                disp([new_groupstodo{find(template_PEB.M.X(:,this_contrast)==1)} ' stronger than ' new_groupstodo{find(template_PEB.M.X(:,this_contrast)==-1)} ' for ' direction ' ' source_names{from} ' to ' source_names{to} ' with posterior probability ' num2str(BMA_Overall.Pp(these_differences(this_difference),this_contrast))])
             else
-                disp([new_groupstodo{find(template_PEB.M.X(:,this_contrast)==-1)} ' stronger than ' new_groupstodo{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' direction ' ' source_names{from} ' to ' source_names{to}])
+                disp([new_groupstodo{find(template_PEB.M.X(:,this_contrast)==-1)} ' stronger than ' new_groupstodo{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' direction ' ' source_names{from} ' to ' source_names{to} ' with posterior probability ' num2str(BMA_Overall.Pp(these_differences(this_difference),this_contrast))])
             end
         else
-            disp(['Interaction between ' new_groupstodo{find(template_PEB.M.X(:,this_contrast)==-1)} ' and ' new_groupstodo{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' direction ' ' source_names{from} ' to ' source_names{to}])
+            disp(['Interaction between ' new_groupstodo{find(template_PEB.M.X(:,this_contrast)==-1)} ' and ' new_groupstodo{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' direction ' ' source_names{from} ' to ' source_names{to} ' with posterior probability ' num2str(BMA_Overall.Pp(these_differences(this_difference),this_contrast))])
         end
         
         %Now repeat combining FTD and AD
@@ -370,7 +370,7 @@ for this_contrast = 2:size(template_PEB.M.X,2)
                     end
                 end
                 if this_measure == length(all_granger_data)
-                    legend(linehandle(~cellfun('isempty',legend_text)),legend_text(~cellfun('isempty',legend_text)));
+                    legend(linehandle(~cellfun('isempty',legend_text)),legend_text(~cellfun('isempty',legend_text)), 'Interpreter', 'none');
                 end
                 title(['Directionality ' analysis_type{this_measure}], 'Interpreter', 'none')
                 xlabel('Frequency, Hz')
@@ -479,12 +479,12 @@ for this_contrast = 2:size(template_PEB.M.X,2)
         
         if condition == 1
             if BMA_Overall.Ep(these_differences(this_difference),this_contrast)>0
-                disp([new_groupstodo{find(template_PEB.M.X(:,this_contrast)==1)} ' longer than ' new_groupstodo{find(template_PEB.M.X(:,this_contrast)==-1)} ' for ' connection])
+                disp([new_groupstodo{find(template_PEB.M.X(:,this_contrast)==1)} ' longer than ' new_groupstodo{find(template_PEB.M.X(:,this_contrast)==-1)} ' for ' connection ' with posterior probability ' num2str(BMA_Overall.Pp(these_differences(this_difference),this_contrast))])
             else
-                disp([new_groupstodo{find(template_PEB.M.X(:,this_contrast)==-1)} ' longer than ' new_groupstodo{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' connection])
+                disp([new_groupstodo{find(template_PEB.M.X(:,this_contrast)==-1)} ' longer than ' new_groupstodo{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' connection ' with posterior probability ' num2str(BMA_Overall.Pp(these_differences(this_difference),this_contrast))])
             end
         else
-            disp(['Interaction between ' new_groupstodo{find(template_PEB.M.X(:,this_contrast)==-1)} ' and ' new_groupstodo{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' connection])
+            disp(['Interaction between ' new_groupstodo{find(template_PEB.M.X(:,this_contrast)==-1)} ' and ' new_groupstodo{find(template_PEB.M.X(:,this_contrast)==1)} ' for ' connection ' with posterior probability ' num2str(BMA_Overall.Pp(these_differences(this_difference),this_contrast))])
         end
         
     end
