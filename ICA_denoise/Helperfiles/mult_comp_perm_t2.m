@@ -219,11 +219,9 @@ if reports,
     warning('on','all');
 end
 if alpha_level<=.01 && n_perm<5000,
-    watchit(sprintf('You are probably using too few permutations for an alpha level of %f. Type ">>help mult_comp_perm_t2.m" for more info.', ...
-        alpha_level));
+    watchit(sprintf('You are probably using too few permutations for an alpha level of %f. Type ">>help mult_comp_perm_t2.m" for more info.', alpha_level));
 elseif alpha_level<=.05 && n_perm<1000,
-    watchit(sprintf('You are probably using too few permutations for an alpha level of %f. Type ">>help mult_comp_perm_t2.m" for more info.', ...
-        alpha_level));
+    %watchit(sprintf('You are probably using too few permutations for an alpha level of %f. Type ">>help mult_comp_perm_t2.m" for more info.', alpha_level));
 end
 %% Remove null hypothesis mean from data
 if isscalar(mu),
