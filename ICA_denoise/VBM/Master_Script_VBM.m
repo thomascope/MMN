@@ -13,12 +13,15 @@ all_subjs = [];
 
 pathstem_structurals = '/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/';
 outdir = '/imaging/tc02/Holly_MMN/ICA_Denoise/VBM/';
+
+mkdir(outdir)
+
 workingdir = pwd;
 
 %% Which stages to run
 
-segment_this = 1;
-tiv_this = 1;
+segment_this = 0;
+tiv_this = 0;
 make_dartel_this = 1;
 normalise_this = 1;
 make_average_brain_this = 1;
@@ -625,6 +628,9 @@ if normalise_this == 1
     jobs = repmat(jobfile, 1, 1);
     
     parfor crun = 1:nrun
+        if normaliseworkedcorrectly(crun) == 1;
+            continue
+        end
         spm('defaults', 'PET');
         spm_jobman('initcfg')
         try
@@ -637,7 +643,7 @@ if normalise_this == 1
 end
 
 %% Now read in TIV file and do group stats with TIV and age file as covariates in the ANOVA
-if stats_this ==1 ;
+if stats_this ==1;
     if exist(tiv_filename)
         filename =tiv_filename;
     else
@@ -653,21 +659,21 @@ if stats_this ==1 ;
     tiv= dataArray{2}+dataArray{3}+dataArray{4};
     
     nrun = 1;
-    jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_multigroup_TIV_age.m'};
+    jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_multigroup_MCI_TIV_age.m'};
     jobs = repmat(jobfile, 1, nrun);
     inputs = cell(8, nrun);
     
     stats_folder = {[outdir 'VBM_stats/factorial_full_group_vbm_TIVnormalised_agecovaried_unsmoothedmask']};
     
-    split_stem = cell(1,4);
-    for i = 1:4
+    split_stem = cell(1,5);
+    for i = 1:5
         split_stem{i} = regexp(filenames{i}, '/', 'split');
     end
     
     inputs{1, 1} = stats_folder;
     
     for crun = 1:nrun
-        for i = 1:4
+        for i = 1:5
             inputs{1+i, crun} = cell(length(filenames{i}),1);
             for j = 1:length(filenames{i})
                 inputs{1+i,crun}(j) = cellstr(['/' fullfile(split_stem{i}{j}{1:end-1}) '/smwc1' split_stem{i}{j}{end}]);
@@ -676,7 +682,7 @@ if stats_this ==1 ;
     end
     
     try
-        inputs{6, 1} = tiv;
+        inputs{7, 1} = tiv;
     catch
         filename = tiv_filename;
         delimiter = ',';
@@ -689,10 +695,10 @@ if stats_this ==1 ;
         tiv= dataArray{2}+dataArray{3}+dataArray{4};
         inputs{6, 1} = tiv;
     end
-    inputs{7, 1} = all_agelist;
-    inputs{8, 1} = {'control_majority_unsmoothed_mask_c1_thr0.05_cons0.8.img'};
+    inputs{8, 1} = all_agelist;
+    inputs{9, 1} = {'control_majority_unsmoothed_mask_c1_thr0.05_cons0.8.img'};
     
-    if ~exist(char(inputs{8, 1}),'file')
+    if ~exist(char(inputs{9, 1}),'file')
         split_stem_template = regexp(all_mrilist, '/', 'split');
         path_to_template_6 = cellstr(['/' fullfile(split_stem_template{1}{1:end-1}) '/Template_6.nii']);
         make_VBM_explicit_mask(filenames{1}, path_to_template_6, 'control')
@@ -708,15 +714,15 @@ if stats_this ==1 ;
     
     spm_jobman('run', jobs, inputs{:});
     
-    jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_contrast_MMN.m'};
+    jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_contrast_MMN_MCI.m'};
     jobs = repmat(jobfile, 1, nrun);
     
     spm_jobman('run', jobs, inputs{:});
     
-    %     jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_results.m'};
-    %     jobs = repmat(jobfile, 1, nrun);
-    %
-    %     spm_jobman('run', jobs, inputs{:});
+%         jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_results.m'};
+%         jobs = repmat(jobfile, 1, nrun);
+%     
+%         spm_jobman('run', jobs, inputs{:});
     
 end
 
