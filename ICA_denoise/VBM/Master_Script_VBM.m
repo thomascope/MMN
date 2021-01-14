@@ -22,9 +22,9 @@ workingdir = pwd;
 
 segment_this = 0;
 tiv_this = 0;
-make_dartel_this = 1;
-normalise_this = 1;
-make_average_brain_this = 1;
+make_dartel_this = 0;
+normalise_this = 0;
+make_average_brain_this = 0;
 stats_this = 1;
 
 
@@ -364,6 +364,55 @@ all_ages = [
     63.72
     ];
 
+biomarker_positive_mci = {'meg17_0144_pp110119'
+    'meg18_0065_pp113409'
+    'meg17_0199_pp114823'
+    'meg17_0217_pp117582'
+    'meg17_0171_pp119159'
+    'meg17_0196_pp126264'
+    'meg18_0011_pp167931'
+    'meg18_0066_pp167967'
+    'meg17_0193_pp175738'
+    'meg17_0163_pp183667'
+    'meg18_0001_pp187628'
+    'meg17_0153_pp196609'
+    'meg17_0116_pp142632'
+    'meg17_0159_pp108210'
+    'meg17_0247_pp114097'
+    };
+
+biomarker_negative_mci = {'meg17_0200_pp111738'
+    'meg18_0051_pp112035'
+    'meg17_0216_pp128346'
+    'meg17_0162_pp135832'
+    'meg17_0206_pp136246'
+    'meg17_0160_pp167487'
+    'meg18_0053_pp137551'
+    };
+
+biomarker_unknown_mci = {'meg17_0154_pp136072'
+    'meg17_0248_pp156841'
+    'meg17_0108_pp167844'
+    'meg17_0120_pp168080'
+    'meg18_0047_pp170827'
+    'meg17_0117_pp105571'
+    };
+
+biomarker_unknown_AD = {'meg18_0010_pp102319'
+    'meg18_0039_pp113615'
+    'meg17_0238_pp117411'
+    'meg18_0048_pp138368'
+    'meg17_0240_pp141038'
+    'meg18_0052_pp142409'
+    'meg18_0035'
+    'meg18_0003_pp153538'
+    'meg18_0040_pp155559'
+    'meg17_0246_pp176327'
+    'meg18_0042_pp183367'
+    'meg17_0136_pp185442'
+    'meg18_0041_pp196451'
+    };
+
 all_ages = floor(all_ages);
 
 assert(numel(meg_numbers)==numel(all_ages),'There is a problem with the lookup tables not being the same length')
@@ -379,6 +428,9 @@ for i = 1:length(dirnames_inv)
     thesedirs = dir;
     for j = 3:length(thesedirs) %Assume that first two entries are . and ..
         if exist(thesedirs(j).name,'dir')
+            if any(strcmp(biomarker_negative_mci,thesedirs(j).name)) || any(strcmp(biomarker_unknown_mci,thesedirs(j).name))
+                continue % Exclude MCI subjects with negative or unknown biomarkers
+            end
             cd(thesedirs(j).name)
             thesefiles = dir('*.nii');
             if isempty(thesefiles) || strcmp(thesefiles(1).name,'avg152T1.nii')
