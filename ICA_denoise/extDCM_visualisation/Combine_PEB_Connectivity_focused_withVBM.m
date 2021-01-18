@@ -3,13 +3,21 @@ function Combine_PEB_Connectivity_focused_withVBM(dirname_DCM,diagnosis_list,sou
 %inter-regional connection
 addpath(genpath('/group/language/data/thomascope/MMN/ICA_denoise/VBM'))
 
+random_seed = 15; %To ensure reproducibility
 save_figures = 0;
 do_nonsigs = 0;
-defaultStream=RandStream('mt19937ar','Seed',15); % For later permutation tests - ensure that the same seed is used for reproducability
+iteratively_thresh = 0; %Threshold the post-hoc tests with random group permutations?
+defaultStream=RandStream('mt19937ar','Seed',random_seed); % For later permutation tests - ensure that the same seed is used for reproducability
 
-Frequency_bands = [4 8; 8 20; 20 30; 30 45; 55 70]; % Avoid 50 because of electrical noise and filtering.
-Frequency_band_names = {'Theta','Alpha','Beta','Low Gamma','High Gamma'};
-post_thresh = 0.05; % Threshold for post-hoc tests;
+% Frequency_bands = [4 8; 8 20; 20 30; 30 45; 55 70]; % Avoid 50 because of electrical noise and filtering.
+% Frequency_band_names = {'Theta','Alpha','Beta','Low Gamma','High Gamma'};
+Frequency_bands = [4 8; 8 20; 20 30]; % Gamma band SNR is very poor - restrict to three bands to avoid too many comparisons
+Frequency_band_names = {'Theta','Alpha','Beta',};
+if ~iteratively_thresh
+%post_thresh = 0.05; % Threshold for post-hoc tests;
+post_thresh = 0.02; % Generating the null distribution using the seed above gives 0.02 - hard coded here to save computation power if don't want to repeat iterative thresholding;
+end
+
 num_perms = 5000; % Number of permutations for the by frequency tests
 num_perms_t2 = 10; % Number of permutations for the t2 tests (not used, keep low as then this will be quick and never report as significant)
 
@@ -131,6 +139,82 @@ for i = 1:length(analysis_type)
     end
     
 end
+
+if iteratively_thresh
+    rng(random_seed)
+    %Create matrices that are dimensions: group contrast * connection difference * metric * frequency band 
+    null_main_effect_pvals = nan(size(template_PEB.M.X,2)-1,length(BMA_Overall.Pnames),length(all_granger_data),size(Frequency_bands,1));
+    null_interaction_pvals = nan(size(template_PEB.M.X,2)-1,length(BMA_Overall.Pnames),length(all_granger_data),size(Frequency_bands,1));
+    null_permutation_main_effect_pvals = nan(size(template_PEB.M.X,2)-1,length(BMA_Overall.Pnames),length(all_granger_data),size(Frequency_bands,1));
+    null_permutation_interaction_pvals = nan(size(template_PEB.M.X,2)-1,length(BMA_Overall.Pnames),length(all_granger_data),size(Frequency_bands,1));
+    % Now find out what proportion of non-DCM PEB connections are significant in coherence/Granger/plv
+    for this_contrast = 2:size(template_PEB.M.X,2)
+        
+        for this_difference = 1:length(BMA_Overall.Pnames)
+            null_group = group(randperm(length(group))); %Randomise group labels once for every difference but keep the same for frequency bands and metrics to account for shared variance
+            
+            if mod(this_difference,10) == 1 % Progress counter
+                disp(['Working on connection ' num2str(((this_contrast-2)*length(BMA_Overall.Pnames))+this_difference) ' of ' num2str((size(template_PEB.M.X,2)-1)*length(BMA_Overall.Pnames))])
+            end
+            
+            this_connection = BMA_Overall.Pnames{this_difference};
+            Condition_Split = strsplit(this_connection,'Covariate ');
+            condition = str2num(Condition_Split{2}(1));
+            
+            Connection_Split = strsplit(this_connection,'A{');
+            direction = Connection_Split{2}(1);
+            if strcmp(direction,'1')
+                direction = 'forwards';
+            elseif strcmp(direction,'2')
+                direction = 'backwards';
+            end
+            to = str2num(Connection_Split{2}(4));
+            from = str2num(Connection_Split{2}(6));
+            
+            if condition == 1
+                for this_measure = 1:length(all_granger_data)
+                    for this_band = 1:size(Frequency_bands,1)
+                        these_fois = foi>Frequency_bands(this_band,1)&foi<Frequency_bands(this_band,2);
+                        [~, pval] = ttest2(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,null_group==find(template_PEB.M.X(:,this_contrast)==1)),5)),1)),squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,null_group==find(template_PEB.M.X(:,this_contrast)==-1)),5)),1)),'vartype','unequal');
+                        permutation_p = permutationTest(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,null_group==find(template_PEB.M.X(:,this_contrast)==1)),5)),1)),squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,null_group==find(template_PEB.M.X(:,this_contrast)==-1)),5)),1)),num_perms);
+                        null_main_effect_pvals(this_contrast-1,this_difference,this_measure,this_band) = pval;
+                        null_permutation_main_effect_pvals(this_contrast-1,this_difference,this_measure,this_band) = permutation_p;
+                    end
+                end
+            elseif condition ~= 1
+                for this_measure = 1:length(all_granger_data)
+                    for this_band = 1:size(Frequency_bands,1)
+                        these_fois = foi>Frequency_bands(this_band,1)&foi<Frequency_bands(this_band,2);
+                        [~, pval] = ttest2(squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,null_group==find(template_PEB.M.X(:,this_contrast)==1))),1)),squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,null_group==find(template_PEB.M.X(:,this_contrast)==-1))),1)),'vartype','unequal');
+                        permutation_p = permutationTest(squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,null_group==find(template_PEB.M.X(:,this_contrast)==1))),1)),squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,null_group==find(template_PEB.M.X(:,this_contrast)==-1))),1)),num_perms);
+                        null_interaction_pvals(this_contrast-1,this_difference,this_measure,this_band) = pval;
+                        null_permutation_interaction_pvals(this_contrast-1,this_difference,this_measure,this_band) = permutation_p;
+                    end
+                end
+                
+            end
+        end
+    end
+    
+    assert(sum(sum(sum(sum(~isnan(null_permutation_main_effect_pvals(:,size(null_permutation_main_effect_pvals,2)/2+1:end,:,:)),2))))==0,['Code is written on the assumption only that the first half of the contrasts are main effects, plese check'])
+    assert(sum(sum(sum(sum(~isnan(null_permutation_interaction_pvals(:,1:size(null_permutation_interaction_pvals,2)/2,:,:)),2))))==0,['Code is written on the assumption only that the second half of the contrasts are interactions, plese check'])
+    
+    null_permutation_main_effect_pvals_denaned = null_permutation_main_effect_pvals(:,1:size(null_permutation_interaction_pvals,2)/2,:,:);
+    null_permutation_interaction_pvals_denaned = null_permutation_interaction_pvals(:,size(null_permutation_main_effect_pvals,2)/2+1:end,:,:);
+    
+    all_null_min_ps = nan(size(null_permutation_main_effect_pvals_denaned,1),size(null_permutation_main_effect_pvals_denaned,2),size(null_permutation_main_effect_pvals_denaned,3));
+    for i = 1:size(null_permutation_main_effect_pvals_denaned,1)
+        for j = 1:size(null_permutation_main_effect_pvals_denaned,2)
+            for k = 1:size(null_permutation_main_effect_pvals_denaned,3)
+                all_null_min_ps(i,j,k) = min(min(squeeze(null_permutation_main_effect_pvals_denaned(i,j,k,1:size(Frequency_bands,1))))); 
+            end
+        end
+    end
+    
+    post_thresh = prctile(all_null_min_ps,5,'all');
+    
+end
+
 
 cd(thisdir)
 main_effect_significances = [];
