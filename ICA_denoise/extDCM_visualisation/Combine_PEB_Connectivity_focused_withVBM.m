@@ -5,7 +5,7 @@ addpath(genpath('/group/language/data/thomascope/MMN/ICA_denoise/VBM'))
 
 random_seed = 15; %To ensure reproducibility
 save_figures = 0;
-do_nonsigs = 0;
+do_nonsigs = 1;
 iteratively_thresh = 0; %Threshold the post-hoc tests with random group permutations?
 defaultStream=RandStream('mt19937ar','Seed',random_seed); % For later permutation tests - ensure that the same seed is used for reproducability
 
@@ -796,7 +796,9 @@ end
 
 cd(thisdir)
 
-workspaceVars = who;
-findVars = strncmp(workspaceVars, 'prop_',5);
-indexVars = find(findVars);
-save('./figures/proportions.mat',workspaceVars{indexVars});
+if do_nonsigs
+    workspaceVars = who;
+    findVars = strncmp(workspaceVars, 'prop_',5);
+    indexVars = find(findVars);
+    save('./figures/proportions.mat',workspaceVars{indexVars});
+end
