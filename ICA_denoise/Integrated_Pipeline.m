@@ -143,7 +143,15 @@ for todonumber = 1:size(fullpath,2)
         mri_path = dir(['/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/MCI/' MCI_fnames{todonumber} '/*.nii']);
         
         if size(mri_path,1) ~= 1
-            error(['more than one MRI found for subject ' num2str(todonumber)])
+            mri_path = dir(['/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/MCI/' MCI_fnames{todonumber} '/c6*.nii']);
+            if size(mri_path,1) == 1
+                [~,mri_name,~] = fileparts(mri_path.name);
+                mri_name = mri_name(3:end);
+                if exist(['/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/MCI/' MCI_fnames{todonumber} '/' mri_name '.nii']) && ~strcmp(mri_name,'single_subj_T1')
+                else
+                    error(['more than one MRI found for subject ' num2str(todonumber)])
+                end
+            end
         else
             [~,mri_name,~] = fileparts(mri_path.name);
         end
@@ -373,7 +381,7 @@ for todonumber = 1:nsubj
         Participant{todonumber}.namepostmerge = Participant{todonumber}.name;
     end
 end
-% 
+%
 % %% Copy maxfiltered data to new directory structure
 % preproc_path_tc = '/imaging/tc02/Holly_MMN/ICA_denoise/';
 % copycomplete = zeros(1,old_nsubj);
@@ -392,7 +400,7 @@ end
 %             end
 %         end
 %     else
-%         
+%
 %         this_input_full_fname = [preproc_path_tc Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.name '.mat']
 %         this_output_folder_tail = [Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/']
 %         try
@@ -405,7 +413,7 @@ end
 %         end
 %     end
 % end
-% 
+%
 % %% Now run ICA_denoise
 % copyfile('/imaging/tc02/Holly_MMN/ICA_denoise/MEGArtifactTemplateTopographies.mat',[pathstem 'MEGArtifactTemplateTopographies.mat'])
 % copyfile('/imaging/tc02/Holly_MMN/ICA_denoise/tec_montage_all.mat',[pathstem 'tec_montage_all.mat'])
@@ -476,7 +484,7 @@ end
 parfor cnt = 1:nsubj
     Preprocessing_mainfunction('epoch',['M' Participant{cnt}.namepostmerge '*.mat'],p,[pathstem Participant{cnt}.groupfolder '/'], [], subjects{cnt},cnt,[],[],[],[], badeeg);
 end
-%% Pre-processing - baseline correct - obvigates the need to highpass filter (note, no downsampling here and no re-referencing as EEG discarded where present) 
+%% Pre-processing - baseline correct - obvigates the need to highpass filter (note, no downsampling here and no re-referencing as EEG discarded where present)
 parfor cnt = 1:nsubj
     Preprocessing_mainfunction('baseline','epoch',p,[pathstem Participant{cnt}.groupfolder '/'], [], subjects{cnt},cnt,[],[],[],[], badeeg);
 end
@@ -523,19 +531,19 @@ forwardmodelcomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     if forwardmodelcomplete(todonumber)~=1
         
-%         try
-%             Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
-%         end
+        %         try
+        %             Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+        %         end
         megpaths = {[pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/fmcffbeM' Participant{todonumber}.name '.mat'],
             [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/cffbeM' Participant{todonumber}.name '.mat']
             };
         if ~exist(megpaths{1},'file')
             for i = 1:length(megpaths)
                 megpaths{i} = deblank(ls([megpaths{i}(1:end-4) '*.mat']))
-              
+                
             end
-                this_name = strsplit(megpaths{i}, [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/cffbeM']);
-                Participant{todonumber}.namepostmerge = this_name{2}(1:end-4); %Ensure naming convention is correct
+            this_name = strsplit(megpaths{i}, [pathstem Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/cffbeM']);
+            Participant{todonumber}.namepostmerge = this_name{2}(1:end-4); %Ensure naming convention is correct
         end
         mripath = [mridirectory Participant{todonumber}.groupfolder '/' Participant{todonumber}.name '/' Participant{todonumber}.MRI '.nii'];
         if ~exist(mripath,'file') && strcmp(Participant{todonumber}.MRI,'single_subj_T1')
@@ -608,12 +616,12 @@ parfor todonumber = 1:nsubj
             this_input_fname = {['8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_fmcffbeM' Participant{todonumber}.namepostmerge '.mat'],
                 ['8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{inv_cnt} '_cffbeM' Participant{todonumber}.namepostmerge '.mat']
                 };
-
+            
             this_output_folder_tail = [Participant{todonumber}.diag '/']
             if ~exist(this_input_fname{1},'file')
                 for i = 1:length(this_input_fname)
                     this_input_fname{i} = deblank(ls([pathstem 'LFPs/' this_output_folder_tail '/' this_input_fname{i}(1:end-4) '*.mat']))
-       
+                    
                 end
             end
             for thismeg = 1:length(this_input_fname)
@@ -635,7 +643,7 @@ end
 %% Now plot the LFPs for sanity check
 for todonumber = 1:nsubj
     try
-%         Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+        %         Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
     end
 end
 prefix = 'fmcffbeM';
@@ -697,7 +705,7 @@ for todonumber = 1:nsubj
         % Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
     end
 end
-for method = {'plv','pdc'} % 
+for method = {'plv','pdc'} %
     p.decompmethod = char(method);
     decompositionworkedcorrectly{end+1} = Coherence_Connectivity(Participant,pathstem,p,prefix);
 end
@@ -719,7 +727,7 @@ for todonumber = 1:nsubj
         % Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
     end
 end
-for method = {'partial_coh','partial_plv'} % 
+for method = {'partial_coh','partial_plv'} %
     p.decompmethod = char(method);
     decompositionworkedcorrectly{end+1} = Coherence_Connectivity(Participant,pathstem,p,prefix);
 end
@@ -1327,13 +1335,13 @@ dirname_DCM = '/imaging/tc02/Holly_MMN/extDCMs/';
 circuit_diagram(dirname_DCM,p.diagnosis_list,regions,conductances,0.7)
 circuit_diagram_combined(dirname_DCM,[{'Control'}, {'All_FTD'}, {'All_AD'}],regions,conductances,0.7)
 p.Sname = {'left A1';
-         'left STG';
-         'left IFG';
-         'left IPC';
-         'right A1';
-         'right STG';
-         'right IFG';
-         'right IPC'};
+    'left STG';
+    'left IFG';
+    'left IPC';
+    'right A1';
+    'right STG';
+    'right IFG';
+    'right IPC'};
 Inter_region(dirname_DCM,p.diagnosis_list,p.Sname,0.7)
 Inter_region_combined(dirname_DCM,[{'Control'}, {'All_FTD'}, {'All_AD'}],p.Sname,0.7)
 visualise_bygroup(dirname_DCM,p.diagnosis_list,regions,conductances)

@@ -17,3 +17,7 @@ this_fname = 'Con-ADMCI_null';
 this_bfname = 'logbf_0024';
 spm_bms_test_null_nameoutput([VBM_path '/' this_bfname '.nii'], this_fname)
 
+this_fname = 'Con-all_null';
+this_bfname = 'logbf_0025';
+spm_bms_test_null_nameoutput([VBM_path '/' this_bfname '.nii'], this_fname)
+
