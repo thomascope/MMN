@@ -1,9 +1,14 @@
-function DCM = integrated_DCMTA(megfilename,time_window,condition)
+function DCM = integrated_DCMTA(megfilename,time_window,condition,flipdipoles)
 % An original script by Tallie Adams to apply an extended neuronal
 % model DCM to mismatch negativity data, subtly modified by Thomas Cope to be
 % more generalisable in application, but with the mechanics unchanged. It
 % still explicitly specifies the connectivity model.
 % Condition can be specified either with a number or with a code
+% Additional modification by TEC- introduction of the flipdipoles argument, which
+% specifies a time period for every source that should be positive, for
+% example to specify that all M100s in A1, STG and IPC should be positive
+% and all second deflections in IFG positive (M100 not always reliably seen in IFG)
+% for my data I would specify a vector [30 80; 30 80; 90 165; 30 80]
 
 %% First load Tallie's version of SPM, with her additional scripts, if not already loaded
 old_path = path;
@@ -317,9 +322,21 @@ disp(' -- chosen input is a simple gaussian')
 disp(' -- building DCM structure to your specification')
 
 D         = spm_eeg_load(megfilename);
+if exist('flipdipoles','var') %Flip the dipoles if this argument is specified
+    assert(size(flipdipoles,1)==length(DCM.Sname)/2,'The number of rows in the time window vector must be half the number of sources')
+    for i = 1:size(flipdipoles,1)
+        if abs(max(D(i,D.time>=flipdipoles(i,1)&D.time<=flipdipoles(i,2),1))) < abs(min(D(i,D.time>=flipdipoles(i,1)&D.time<=flipdipoles(i,2),1)))
+            D(i,:,:) = -D(i,:,:);
+        end
+    end
+end
+            
 ti        = time(D,[],'ms');
 cond      = D.condlist;
 mode      = 'LFP';
+
+
+
 if isstr(condition)
     DM_names                = condition;
     DM_trials               = find(strcmp(cond,condition));

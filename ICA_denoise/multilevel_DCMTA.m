@@ -1,4 +1,4 @@
-function DCM = multilevel_DCMTA(megfilename,time_window,condition)
+function DCM = multilevel_DCMTA(megfilename,time_window,condition,flipdipoles)
 % A new script for two participants who failed fitting, using loose
 % parameters to get a posterior that is then re-used as a prior for the
 % modelling, as suggested by Amir Jafarian, implemented by Thomas Cope,
@@ -7,6 +7,11 @@ function DCM = multilevel_DCMTA(megfilename,time_window,condition)
 % more generalisable in application, but with the mechanics unchanged. It
 % still explicitly specifies the connectivity model.
 % Condition can be specified either with a number or with a code
+% Additional modification by TEC- introduction of the flipdipoles argument, which
+% specifies a time period for every source that should be positive, for
+% example to specify that all M100s in A1, STG and IPC should be positive
+% and all second deflections in IFG positive (M100 not always reliably seen in IFG)
+% for my data I would specify a vector [30 80; 30 80; 90 165; 30 80]
 
 %% First load Tallie's version of SPM, with her additional scripts, if not already loaded
 old_path = path;
