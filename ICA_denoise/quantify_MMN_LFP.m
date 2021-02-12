@@ -21,7 +21,7 @@ Sname = {'left A1';
 
 conditions = {'STD','DVT','Loc','Int','Dur','Gap','Freq'};
 
-mkdir('./outputfigures/source/stats/')
+mkdir('./outputfigures/source_flipped/stats/')
 
 if ~exist('baselined', 'var')
     baselined = 0;
@@ -51,8 +51,24 @@ end
 
 for ss = 1:length(Participant)
     D{ss} = spm_eeg_load(fn{ss});
+    all_times{ss}= D{ss}.time;
     for i = 1:length(Sname)
+        %First check if data needs to be flipped - make all STD M100s in A1,
+        %STG and IPC negative, and all second deflections in IFG positive
+        %(M100 not always reliably seen in IFG)
         all_STD(i,ss,:)=D{ss}(i,:,1);
+        if i == 3 || i == 7
+            if abs(max(all_STD(i,ss,all_times{ss}>=0.09&all_times{ss}<=0.165))) < abs(min(all_STD(i,ss,all_times{ss}>=0.09&all_times{ss}<=0.165)))
+                D{ss}(i,:,:) = -D{ss}(i,:,:);
+                all_STD(i,ss,:)=D{ss}(i,:,1);
+            end
+        else
+            if abs(max(all_STD(i,ss,all_times{ss}>=0.03&all_times{ss}<=0.08))) > abs(min(all_STD(i,ss,all_times{ss}>=0.03&all_times{ss}<=0.08)))
+                D{ss}(i,:,:) = -D{ss}(i,:,:);
+                all_STD(i,ss,:)=D{ss}(i,:,1);
+            end
+        end
+
         for j = 1:length(conditions)
             all_DEV(i,ss,:,j)=D{ss}(i,:,j);
             all_MMN(i,ss,:,j)=D{ss}(i,:,1)-D{ss}(i,:,j);
@@ -71,7 +87,6 @@ for ss = 1:length(Participant)
 % %     else
 % %         all_times{ss} = D{ss}.time-0.032;
 % %     end
-    all_times{ss}= D{ss}.time;
 end
 
 
@@ -165,7 +180,7 @@ for i = 1:8
     title(Sname{i},'FontSize',34)
     ylabel('STD Amplitude (AU)')
 end
-saveas(M100_plot,['./outputfigures/source/stats/M100 Amplitude (AU)_nolegend.png']);
+saveas(M100_plot,['./outputfigures/source_flipped/stats/M100 Amplitude (AU)_nolegend.png']);
 
 for j = 1:length(conditions)
     addpath('./stdshade')
@@ -186,7 +201,7 @@ for j = 1:length(conditions)
             for t = 1:size(D{1}.time,2)
                 [h_bytime(t),p_bytime(t)]=ttest2(squeeze(all_DEV(i,group_inds==1,t,j)),squeeze(all_DEV(i,group_inds==grp,t,j)));
             end
-            all_fdr_p = mafdr(p_bytime(D{1}.time>0));
+            all_fdr_p = mafdr(p_bytime(D{1}.time>0),'BHFDR',true);
             all_positive_times = D{1}.time(D{1}.time>0);
             if any(all_positive_times(all_fdr_p<p_thresh))
                 plot(all_positive_times(all_fdr_p<p_thresh),these_ylims(2)+(grp*this_ylim_range/40),'.','Color',cmap(grp,:))
@@ -204,7 +219,7 @@ for j = 1:length(conditions)
             %legend(linehandle,groups)
         end
     end
-    saveas(DEV_plot,['./outputfigures/source/' conditions{j} ' Response (AU)_nolegend.png']);
+    saveas(DEV_plot,['./outputfigures/source_flipped/' conditions{j} ' Response (AU)_nolegend.png']);
     
     Abs_DEV_plot = figure(400*j);
     set(gcf,'Position',[100 100 1600 800]);
@@ -222,7 +237,7 @@ for j = 1:length(conditions)
             for t = 1:size(D{1}.time,2)
                 [h_bytime(t),p_bytime(t)]=ttest2(squeeze(abs(all_DEV(i,group_inds==1,t,j))),squeeze(abs(all_DEV(i,group_inds==grp,t,j))));
             end
-            all_fdr_p = mafdr(p_bytime(D{1}.time>0));
+            all_fdr_p = mafdr(p_bytime(D{1}.time>0),'BHFDR',true);
             all_positive_times = D{1}.time(D{1}.time>0);
             if any(all_positive_times(all_fdr_p<p_thresh))
                 plot(all_positive_times(all_fdr_p<p_thresh),these_ylims(2)+(grp*this_ylim_range/40),'.','Color',cmap(grp,:))
@@ -240,7 +255,7 @@ for j = 1:length(conditions)
             %legend(linehandle,groups)
         end
     end
-    saveas(Abs_DEV_plot,['./outputfigures/source/' conditions{j} ' Abs Response (AU)_nolegend.png']);
+    saveas(Abs_DEV_plot,['./outputfigures/source_flipped/' conditions{j} ' Abs Response (AU)_nolegend.png']);
     
     if j > 1 %Don't do MMN for STDs only
         MMN_plot = figure(8000*j);
@@ -277,7 +292,7 @@ for j = 1:length(conditions)
                 %legend(linehandle,groups)
             end
         end
-        saveas(MMN_plot,['./outputfigures/source/' conditions{j} ' Mismatch Response (AU)_nolegend.png']);
+        saveas(MMN_plot,['./outputfigures/source_flipped/' conditions{j} ' Mismatch Response (AU)_nolegend.png']);
         
         ABS_MMN_plot = figure(160000*j);
         set(gcf,'Position',[100 100 1600 800]);
@@ -313,7 +328,7 @@ for j = 1:length(conditions)
                 %legend(linehandle,groups)
             end
         end
-        saveas(ABS_MMN_plot,['./outputfigures/source/' conditions{j} ' Abs Mismatch Response (AU)_nolegend.png']);
+        saveas(ABS_MMN_plot,['./outputfigures/source_flipped/' conditions{j} ' Abs Mismatch Response (AU)_nolegend.png']);
     end
     %pause
 %     close all %To prevent Java memory error
@@ -377,7 +392,7 @@ for i = 1:8
         title(conditions{j},'FontSize',34)
         ylabel('MMN Latency (s)')
     end
-    saveas(MMN_latency_plot,['./outputfigures/source/stats/' Sname{i} ' MMN Latency (s)_nolegend.png']);
+    saveas(MMN_latency_plot,['./outputfigures/source_flipped/stats/' Sname{i} ' MMN Latency (s)_nolegend.png']);
     
         
     relative_MMN_amplitude_plot = figure(2000000*i);
@@ -435,7 +450,7 @@ for i = 1:8
         title(conditions{j},'FontSize',34)
         ylabel('Relative MMN amplitude')
     end
-    saveas(relative_MMN_amplitude_plot,['./outputfigures/source/stats/' Sname{i} ' relative MMN amplitude_nolegend.png']);
+    saveas(relative_MMN_amplitude_plot,['./outputfigures/source_flipped/stats/' Sname{i} ' relative MMN amplitude_nolegend.png']);
     
     MMN_amplitude_plot = figure(2000001*i);
     set(gcf,'Position',[100 100 1600 800]);
@@ -492,7 +507,7 @@ for i = 1:8
         title(conditions{j},'FontSize',34)
         ylabel('MMN amplitude (AU)')
     end
-    saveas(MMN_amplitude_plot,['./outputfigures/source/stats/' Sname{i} ' MMN amplitude (AU)_nolegend.png']);
+    saveas(MMN_amplitude_plot,['./outputfigures/source_flipped/stats/' Sname{i} ' MMN amplitude (AU)_nolegend.png']);
     
     all_pvals_maineffect(i,:) = [latency_ranovatbl.pValueGG(find(strcmp(latency_ranovatbl.Row,'Diagnosis'))), relative_amplitude_ranovatbl.pValueGG(find(strcmp(relative_amplitude_ranovatbl.Row,'Diagnosis'))), amplitude_ranovatbl.pValueGG(find(strcmp(relative_amplitude_ranovatbl.Row,'Diagnosis')))];
     all_pvals_interaction(i,:) = [latency_ranovatbl.pValueGG(find(strcmp(latency_ranovatbl.Row,'Diagnosis:Condition'))), relative_amplitude_ranovatbl.pValueGG(find(strcmp(relative_amplitude_ranovatbl.Row,'Diagnosis:Condition'))), amplitude_ranovatbl.pValueGG(find(strcmp(relative_amplitude_ranovatbl.Row,'Diagnosis:Condition')))];
@@ -541,7 +556,7 @@ for i = 1:8
 %         delete(linehandle)
 %         drawnow
 %     end
-%     saveas(DEV_plot,['./outputfigures/source/' Sname{i} ' Response (AU)_nolegend.png']);
+%     saveas(DEV_plot,['./outputfigures/source_flipped/' Sname{i} ' Response (AU)_nolegend.png']);
 %     
 %     Abs_DEV_plot = figure(400*i);
 %     set(gcf,'Position',[100 100 1600 800]);
@@ -586,7 +601,7 @@ for i = 1:8
 %         delete(linehandle)
 %         drawnow
 %     end
-%     saveas(Abs_DEV_plot,['./outputfigures/source/' Sname{i} ' Abs Response (AU)_nolegend.png']);
+%     saveas(Abs_DEV_plot,['./outputfigures/source_flipped/' Sname{i} ' Abs Response (AU)_nolegend.png']);
 %     
 %         MMN_plot = figure(8000*i);
 %         set(gcf,'Position',[100 100 1600 800]);
@@ -633,7 +648,7 @@ for i = 1:8
 %             delete(linehandle)
 %             drawnow
 %         end
-%         saveas(MMN_plot,['./outputfigures/source/' Sname{i} ' Mismatch Response (AU)_nolegend.png']);
+%         saveas(MMN_plot,['./outputfigures/source_flipped/' Sname{i} ' Mismatch Response (AU)_nolegend.png']);
 %         
 %         ABS_MMN_plot = figure(160000*i);
 %         set(gcf,'Position',[100 100 1600 800]);
@@ -680,11 +695,11 @@ for i = 1:8
 %             delete(linehandle)
 %             drawnow
 %         end
-%         saveas(ABS_MMN_plot,['./outputfigures/source/' Sname{i} ' Abs Mismatch Response (AU)_nolegend.png']);
+%         saveas(ABS_MMN_plot,['./outputfigures/source_flipped/' Sname{i} ' Abs Mismatch Response (AU)_nolegend.png']);
 % 
 %     %pause
     close all %To prevent Java memory error
 end
-save(['./outputfigures/source/stats/all_lfp_pvals.mat'], 'all_pvals_maineffect', 'all_pvals_interaction', 'all_pvals_key')
+save(['./outputfigures/source_flipped/stats/all_lfp_pvals.mat'], 'all_pvals_maineffect', 'all_pvals_interaction', 'all_pvals_key')
     
 pause
