@@ -325,6 +325,43 @@ disp(' -- chosen input is a simple gaussian')
 disp(' -- building DCM structure to your specification')
 
 D         = spm_eeg_load(megfilename);
+these_data = D(:,:,:); % Don't mess around with the original data
+if exist('flipdipoles','var') %Flip the dipoles if this argument is specified
+    assert(size(flipdipoles,1)==length(D.chanlabels)/2,'The number of rows in the time window vector must be half the number of sources')
+    
+    for i = 1:size(flipdipoles,1)
+        if abs(max(these_data(i,D.time>=flipdipoles(i,1)/1000&D.time<=flipdipoles(i,2)/1000,1))) < abs(min(these_data(i,D.time>=flipdipoles(i,1)/1000&D.time<=flipdipoles(i,2)/1000,1)))
+            these_data(i,:,:) = -these_data(i,:,:);
+        end
+        if abs(max(these_data(size(flipdipoles,1)+i,D.time>=flipdipoles(i,1)/1000&D.time<=flipdipoles(i,2)/1000,1))) < abs(min(these_data(size(flipdipoles,1)+i,D.time>=flipdipoles(i,1)/1000&D.time<=flipdipoles(i,2)/1000,1)))
+            these_data(size(flipdipoles,1)+i,:,:) = -these_data(size(flipdipoles,1)+i,:,:);
+        end
+    end
+end
+
+plot_flipped_data = 0; %For checking flipping
+if plot_flipped_data
+    figure
+    for i = 1:8
+        subplot(4,4,8+i)
+        plot(D.time,these_data(i,:,1),'k')
+        hold on
+        plot(D.time,these_data(i,:,2),'r')
+        title([D.chanlabels{i} ' flipped'])
+    end
+    D         = spm_eeg_load(megfilename);
+    for i = 1:8
+        subplot(4,4,i)
+        plot(D.time,D(i,:,1),'k')
+        hold on
+        plot(D.time,D(i,:,2),'r')
+        title([D.chanlabels{i} ' original'])
+        if i == 4 
+            legend({'STD','DVT'})
+        end
+    end
+end
+    
 ti        = time(D,[],'ms');
 cond      = D.condlist;
 mode      = 'LFP';
@@ -609,7 +646,7 @@ for i = 1:length(DCM.options.trials)
     DCM.xY.nt(i) = Nt;
     Y = zeros(Ns,Nc);
     for j = 1:Nt
-        Y = Y + R*(D(Ic,It,c(j)) -  nanmean(D(Ic,tv0_i(1):tv0_i(2),c(j)),2))';
+        Y = Y + R*(these_data(Ic,It,c(j)) -  nanmean(these_data(Ic,tv0_i(1):tv0_i(2),c(j)),2))';
     end
     DCM.xY.y{i} = -Y/Nt;
 end
