@@ -1,8 +1,9 @@
 addpath('/group/language/data/thomascope/MMN/ICA_denoise/Tallie_extDCM/mfiles_also_needed')
 
-filelist = dir('/imaging/tc02/Holly_MMN/extDCMs/*DVT*');
+filelist = dir([p.extDCM_outdir '/*DVT*']);
 %filelist = dir('/imaging/tc02/Holly_MMN/extDCMs_first_attempt/*DVT*');
-Inverted_Conditions = {'STD','DVT','location','intensity','duration','gap','frequency'};
+%Inverted_Conditions = {'STD','DVT','location','intensity','duration','gap','frequency'};
+Inverted_Conditions = {'STD','DVT'};
 
 all_modelled = zeros(101,8,length(filelist),length(Inverted_Conditions));
 all_data = zeros(101,8,length(filelist),length(Inverted_Conditions));
@@ -84,6 +85,6 @@ for i = 1:2
         hold on
         plot(D{i}.DCM.xY.pst, squeeze(squeeze(nanmean(all_modelled(:,j,:,i),3))),'b-')
         title(D{1}.DCM.xY.name{j})
-        sgtitle(Inverted_Conditions{i})
+        sgtitle([Inverted_Conditions{1} ' then ' Inverted_Conditions{i}])
     end
 end

@@ -2783,6 +2783,60 @@ switch step
         end % subjects
         
         fprintf('\n\nData subjected to extended DCM!\n\n');
+              
+        case 'extDCM_definedirectory'
+        % A new section to run Tallie Adams' extended DCM model on the
+        % extracted LFP data
+        
+        % Create cleanup object to make sure that the SPM path is only
+        % changed for this function
+        
+        if isfield(p,'subjcntforcondition')&& p.subjcntforcondition == 1
+            p.conditions = p.conditions(subjcnt);
+        end
+        
+        old_path = path;
+        cleanupObj = onCleanup(@()restore_env(old_path));
+        
+        % Now add paths with impunity (more are changed in the function
+        % itself)
+        addpath('/group/language/data/thomascope/MMN/ICA_denoise/Tallie_extDCM/')
+        addpath('/imaging/na01/misc/TALLIE_SCRIPTS/extDCM/extDCM scripts')
+        addpath('/imaging/na01/misc/TALLIE_SCRIPTS/extDCM/mfiles_also_needed')
+        
+        for s=1:size(subjects,1)
+            
+            fprintf([ '\n\nCurrent subject = ' subjects '...\n\n' ]);
+            
+            % change to input directory
+            filePath = [pathstem subjects];
+            cd(filePath);
+            
+            % search for input files
+            files = [dir(prevStep1); dir(prevStep2)];
+            
+            for f=1:length(files)
+                
+                fprintf([ '\n\nProcessing ' files(f).name '...\n\n' ]);
+                
+                for condition = p.conditions
+                    % main process
+                    if isfield(p,'multilevel') && p.multilevel == 1
+                        %error('Purposeful error to abort parallel loop');
+                        DCM = multilevel_DCMTA_definedirectory(files(f).name,[p.start_times p.end_times],cell2mat(condition),p);
+                    else
+                        if exist([p.extDCM_outdir nout(2,@fileparts,[files(f).name(1:end-4) '_dcm']) '_' cell2mat(condition) '.mat'],'file')
+                            fprintf('\n\nData previously processed and multilevel not requested, moving on.\n\n');
+                        else
+                            DCM = integrated_DCMTA_definedirectory(files(f).name,[p.start_times p.end_times],cell2mat(condition),p);
+                        end
+                    end
+                end
+            end
+            
+        end % subjects
+        
+        fprintf('\n\nData subjected to extended DCM!\n\n');
         
     otherwise
         

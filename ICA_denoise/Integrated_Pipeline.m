@@ -1133,13 +1133,15 @@ extDCMcomplete = zeros(1,size(allrunsarray,1));
 p.subjcntforcondition = 1;
 p.conditions = conditions_to_invert;
 p.multilevel = 0; %for first run
+p.extDCM_outdir = '/imaging/tc02/Holly_MMN/extDCMs/';
+
 parfor todonumber = 1:size(allrunsarray,1)
     this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix all_names{allrunsarray(todonumber,1)} '*.mat']};
     this_output_folder_tail = [Participant{allrunsarray(todonumber,1)}.diag '/']
     %pause(mod(todonumber,60)); %Introduce a pause to stagger the workers - otherwise sometimes the pool fails if trying to read or write simultaneously
     for thismeg = 1:length(this_input_fname)
         try
-            Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,allrunsarray(todonumber,2))
+            Preprocessing_mainfunction('extDCM_definedirectory',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,allrunsarray(todonumber,2))
             extDCMcomplete(todonumber) = extDCMcomplete(todonumber) + 1;
             fprintf('\n\nLFP DCM modelling complete for run number %d,\n\n',todonumber);
         catch
@@ -1150,7 +1152,7 @@ parfor todonumber = 1:size(allrunsarray,1)
 end
 
 % Now repeat for those few subjects who failed integration, using the posterior as a prior
-extDCM_directory = '/imaging/tc02/Holly_MMN/extDCMs/';
+extDCM_directory = p.extDCM_outdir;
 %conditions_to_invert = {'STD','DVT','location','intensity','duration','gap','frequency'};
 p.conditions = conditions_to_invert;
 [subjcondpair] = find_failed_extDCM_integrations(extDCM_directory,conditions_to_invert,Participant);
@@ -1189,11 +1191,11 @@ parfor this_one = 1:size(subjcondpair,1)
     %pause(mod(this_one*30,90)); %Introduce a pause to stagger the workers - otherwise sometimes the pool fails if trying to read or write simultaneously
     for thismeg = 1:length(this_input_fname)
         try
-            Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,this_cond)
+            Preprocessing_mainfunction('extDCM_definedirectory',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,this_cond)
             fprintf('\n\nLFP DCM modelling complete for run number %d,\n\n',find(strcmp(subjcondpair{this_one,1},all_names)));
         catch
             try %Try again
-                Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,this_cond)
+                Preprocessing_mainfunction('extDCM_definedirectory',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,this_cond)
             catch
                 fprintf('\n\nLFP DCM modelling failed for run number %d,\n\n',find(strcmp(subjcondpair{this_one,1},all_names)));
             end
@@ -1211,11 +1213,11 @@ parfor this_one = 1:size(subjcondpair,1)
     pause(mod(this_one*30,90)); %Introduce a pause to stagger the workers - otherwise sometimes the pool fails if trying to read or write simultaneously
     for thismeg = 1:length(this_input_fname)
         try
-            Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,this_cond)
+            Preprocessing_mainfunction('extDCM_definedirectory',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,this_cond)
             fprintf('\n\nLFP DCM modelling complete for run number %d,\n\n',find(strcmp(subjcondpair{this_one,1},all_names)));
         catch
             try %Try again
-                Preprocessing_mainfunction('extDCM',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,this_cond)
+                Preprocessing_mainfunction('extDCM_definedirectory',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,this_cond)
             catch
                 fprintf('\n\nLFP DCM modelling failed for run number %d,\n\n',find(strcmp(subjcondpair{this_one,1},all_names)));
             end
@@ -1229,7 +1231,7 @@ delete(gcp)
 Plot_extDCM_fit
 
 %% Now do a first level PEB on the extDCM data -  Separately per group and condition to optimise the DCM parameters. The PEB output is discarded. This step takes the place of spm_dcm_peb_fit
-dirname_DCM = '/imaging/tc02/Holly_MMN/extDCMs/';
+dirname_DCM = p.extDCM_outdir;
 filestem = 'b8LFP_s_-100_500_LOR_fmcffbeM';
 %conditions = {'STD','DVT','location','intensity','duration','gap','frequency'};
 conditions = {'STD','DVT'};
@@ -1241,7 +1243,7 @@ if length(all_combinations) < 48
 else
     Poolinfo = cbupool(48,'--mem-per-cpu=16G --time=167:00:00 --exclude=node-i[01-15]');
 end
-parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
+%parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 
 parfor this_comb = 1:length(all_combinations)
     %for this_comb = 1:length(all_combinations) %falls over in parallel due to tmp.mat and unpredictable cd behaviour - needs fixing for bigger datasets
@@ -1251,7 +1253,7 @@ parfor this_comb = 1:length(all_combinations)
 end
 p.diagnosis_list = old_diagnosislist;
 rmdir([dirname_DCM 'PEB_firstlevel' filesep 'tempdir_*'])
-delete(gcp)
+%delete(gcp)
 
 %% Now do a second level PEB on the extDCM data - Separately per group per condition, doing a first level contrast between conditions for each group
 
@@ -1276,7 +1278,7 @@ if numworkersreq > 92
 end
 
 Poolinfo = cbupool(numworkersreq,'--mem-per-cpu=8G --time=167:00:00 --exclude=node-i[01-15]');
-parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
+%parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 
 secondlevelPEBcomplete = zeros(1,length(PEB_focuses)*length(unique(p.group)'));
 old_diagnosislist = p.diagnosis_list;
@@ -1296,7 +1298,7 @@ parfor k = 1:length(PEB_focuses)*(length(unique(p.group)')+2)
     end
 end
 
-delete(gcp)
+%delete(gcp)
 
 % Now do a between group PEB of PEBS
 numworkersreq = length(PEB_focuses);
@@ -1304,7 +1306,7 @@ if numworkersreq > 46
     numworkersreq = 46;
 end
 Poolinfo = cbupool(numworkersreq,'--mem-per-cpu=16G --time=167:00:00 --exclude=node-i[01-15]');
-parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
+%parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 
 PEBofPEBscomplete = zeros(1,2*length(PEB_focuses));
 
@@ -1333,7 +1335,7 @@ delete(gcp)
 
 %% Now visualise the PEB results
 addpath('./extDCM_visualisation')
-dirname_DCM = '/imaging/tc02/Holly_MMN/extDCMs/';
+dirname_DCM = p.extDCM_outdir;
 circuit_diagram(dirname_DCM,p.diagnosis_list,regions,conductances,0.7)
 circuit_diagram_combined(dirname_DCM,[{'Control'}, {'All_FTD'}, {'All_AD'}],regions,conductances,0.7)
 p.Sname = {'left A1';

@@ -19,8 +19,12 @@ for j = 1:length(Participant)
         try
             D = load([filelist(j).folder filesep strrep(strrep(filelist(first_subj_file).name,Participant{1}.namepostmerge,Participant{j}.namepostmerge),Inverted_Conditions{1},Inverted_Conditions{i})]);
         catch
-            disp(['Missing file ' strrep(strrep(filelist(first_subj_file).name,Participant{1}.namepostmerge,Participant{j}.namepostmerge),Inverted_Conditions{1},Inverted_Conditions{i})])
-            subjcondpair(end+1,:) = {Participant{j}.namepostmerge,Inverted_Conditions{i}};
+            try
+                D = load([filelist(j).folder filesep strrep(strrep(filelist(first_subj_file).name,Participant{1}.namepostmerge,[Participant{j}.namepostmerge '_1']),Inverted_Conditions{1},Inverted_Conditions{i})]);
+            catch
+                disp(['Missing file ' strrep(strrep(filelist(first_subj_file).name,Participant{1}.namepostmerge,Participant{j}.namepostmerge),Inverted_Conditions{1},Inverted_Conditions{i})])
+                subjcondpair(end+1,:) = {Participant{j}.namepostmerge,Inverted_Conditions{i}};
+            end
         end
         if any(any(isnan(D.DCM.H{1}))) %Debugging of NaNs
             disp(['NaNs found in file ' strrep(strrep(filelist(first_subj_file).name,Participant{1}.namepostmerge,Participant{j}.namepostmerge),Inverted_Conditions{1},Inverted_Conditions{i})])
