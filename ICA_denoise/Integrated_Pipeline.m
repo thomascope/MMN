@@ -1109,9 +1109,9 @@ p.time_wind_path = time_wind_path;
 p.wind_cnt = wind_cnt;
 p.inv_meth = inv_meth;
 p.inv_cnt = val;
-conditions_to_invert = {'STD','DVT','location','intensity','duration','gap','frequency'};
+%conditions_to_invert = {'STD','DVT','location','intensity','duration','gap','frequency'};
 p.flipdipoles = [30 80; 30 80; 90 165; 30 80]; %Ensure positive deflections going into DCM in these time windows for each source
-%conditions_to_invert = {'STD','DVT'}; % Just do standards and deviants for now
+conditions_to_invert = {'STD','DVT'}; % Just do standards and deviants for now
 %conditions_to_invert = {'location','intensity','duration','gap','frequency'};
 
 %Open a parallel pool with lots of memory and spmd disabled to allow
@@ -1231,7 +1231,8 @@ Plot_extDCM_fit
 %% Now do a first level PEB on the extDCM data -  Separately per group and condition to optimise the DCM parameters. The PEB output is discarded. This step takes the place of spm_dcm_peb_fit
 dirname_DCM = '/imaging/tc02/Holly_MMN/extDCMs/';
 filestem = 'b8LFP_s_-100_500_LOR_fmcffbeM';
-conditions = {'STD','DVT','location','intensity','duration','gap','frequency'};
+%conditions = {'STD','DVT','location','intensity','duration','gap','frequency'};
+conditions = {'STD','DVT'};
 old_diagnosislist = p.diagnosis_list;
 p.diagnosis_list = [p.diagnosis_list, {'All_FTD'}, {'All_AD'}];
 all_combinations = combvec([unique(p.group)', max(unique(p.group))+1:max(unique(p.group))+2],1:length(conditions));

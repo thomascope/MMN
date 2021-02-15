@@ -323,14 +323,14 @@ disp(' -- building DCM structure to your specification')
 
 D         = spm_eeg_load(megfilename);
 these_data = D(:,:,:); % Don't mess around with the original data
-if exist('flipdipoles','var') %Flip the dipoles if this argument is specified
+if exist('flipdipoles','var') %Flip the dipoles so that all data are negative in time windows of interest if this argument is specified (note that the data are flipped again later so these deflections become positive)
     assert(size(flipdipoles,1)==length(D.chanlabels)/2,'The number of rows in the time window vector must be half the number of sources')
     
     for i = 1:size(flipdipoles,1)
-        if abs(max(these_data(i,D.time>=flipdipoles(i,1)/1000&D.time<=flipdipoles(i,2)/1000,1))) < abs(min(these_data(i,D.time>=flipdipoles(i,1)/1000&D.time<=flipdipoles(i,2)/1000,1)))
+        if abs(max(these_data(i,D.time>=flipdipoles(i,1)/1000&D.time<=flipdipoles(i,2)/1000,1))) > abs(min(these_data(i,D.time>=flipdipoles(i,1)/1000&D.time<=flipdipoles(i,2)/1000,1)))
             these_data(i,:,:) = -these_data(i,:,:);
         end
-        if abs(max(these_data(size(flipdipoles,1)+i,D.time>=flipdipoles(i,1)/1000&D.time<=flipdipoles(i,2)/1000,1))) < abs(min(these_data(size(flipdipoles,1)+i,D.time>=flipdipoles(i,1)/1000&D.time<=flipdipoles(i,2)/1000,1)))
+        if abs(max(these_data(size(flipdipoles,1)+i,D.time>=flipdipoles(i,1)/1000&D.time<=flipdipoles(i,2)/1000,1))) > abs(min(these_data(size(flipdipoles,1)+i,D.time>=flipdipoles(i,1)/1000&D.time<=flipdipoles(i,2)/1000,1)))
             these_data(size(flipdipoles,1)+i,:,:) = -these_data(size(flipdipoles,1)+i,:,:);
         end
     end
