@@ -646,7 +646,11 @@ for i = 1:length(DCM.options.trials)
     DCM.xY.nt(i) = Nt;
     Y = zeros(Ns,Nc);
     for j = 1:Nt
-        Y = Y + R*(these_data(Ic,It,c(j)) -  nanmean(these_data(Ic,tv0_i(1):tv0_i(2),c(j)),2))';
+        if isfield(p,'meancentring') && p.meancentring == 0 %Added the option not to mean center data to better recapitulate deviant response
+            Y = Y + R*(these_data(Ic,It,c(j)))';
+        else
+            Y = Y + R*(these_data(Ic,It,c(j)) -  nanmean(these_data(Ic,tv0_i(1):tv0_i(2),c(j)),2))';
+        end
     end
     DCM.xY.y{i} = -Y/Nt;
 end

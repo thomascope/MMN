@@ -1133,7 +1133,8 @@ extDCMcomplete = zeros(1,size(allrunsarray,1));
 p.subjcntforcondition = 1;
 p.conditions = conditions_to_invert;
 p.multilevel = 0; %for first run
-p.extDCM_outdir = '/imaging/tc02/Holly_MMN/extDCMs/';
+%p.extDCM_outdir = '/imaging/tc02/Holly_MMN/extDCMs/'; p.meancentring = 1;
+p.extDCM_outdir = '/imaging/tc02/Holly_MMN/extDCMs_notmeancentred/'; p.meancentring = 0;
 
 parfor todonumber = 1:size(allrunsarray,1)
     this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix all_names{allrunsarray(todonumber,1)} '*.mat']};
@@ -1352,8 +1353,8 @@ visualise_bygroup(dirname_DCM,p.diagnosis_list,regions,conductances)
 visualise_bygroup_combined(dirname_DCM,[{'Control'}, {'All_FTD'}, {'All_AD'}],regions,conductances)
 
 %% Now combine the inter-region PEB with Granger Causality and Imaginary Coherence - work in progress - also will later possibly add Cross-frequency coupling
-Combine_PEB_Connectivity(dirname_DCM,p.diagnosis_list,p.Sname,0.7,Participant)
-
+%Combine_PEB_Connectivity(dirname_DCM,p.diagnosis_list,p.Sname,0.7,Participant)
+Combine_PEB_Connectivity_focused(dirname_DCM,p.diagnosis_list,p.Sname,0.7,Participant)
 
 
 %% Now plot the whole scalp ERPs for sanity check

@@ -80,11 +80,17 @@ end
 figure('Position',[10 10 1010 610])
 for i = 1:2
     for j = 1:8
-        subplot(4,4,j+((i-1)*8))
+        subplot(6,4,j+((i-1)*8))
         plot(D{i}.DCM.xY.pst, squeeze(squeeze(nanmean(all_data(:,j,:,i),3))),'r-')
         hold on
         plot(D{i}.DCM.xY.pst, squeeze(squeeze(nanmean(all_modelled(:,j,:,i),3))),'b-')
-        title(D{1}.DCM.xY.name{j})
-        sgtitle([Inverted_Conditions{1} ' then ' Inverted_Conditions{i}])
+        title([D{1}.DCM.xY.name{j} ' ' Inverted_Conditions{i}])
     end
+end
+for j = 1:8
+    subplot(6,4,j+(i*8))
+    plot(D{i}.DCM.xY.pst, squeeze(squeeze(nanmean(all_data(:,j,:,i-1)-all_data(:,j,:,i),3))),'r-')
+    hold on
+    plot(D{i}.DCM.xY.pst, squeeze(squeeze(nanmean(all_modelled(:,j,:,i-1)-all_modelled(:,j,:,i),3))),'b-')
+    title([D{1}.DCM.xY.name{j} ' Mismatch'])
 end

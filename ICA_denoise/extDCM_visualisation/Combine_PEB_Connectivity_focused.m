@@ -1,9 +1,12 @@
 function Combine_PEB_Connectivity_focused(dirname_DCM,diagnosis_list,source_names,thresh,Participant)
 %A script for plotting the results of extDCM across all diagnoses by
 %inter-regional connection
-save_figures = 0;
-do_nonsigs = 0;
+save_figures = 1;
+do_nonsigs = 1;
 defaultStream=RandStream('mt19937ar','Seed',15); % For later permutation tests - ensure that the same seed is used for reproducability
+
+all_folders = strsplit(dirname_DCM,'/');
+all_folders = all_folders(~cellfun(@isempty,all_folders)); %For save location
 
 Frequency_bands = [4 8; 8 20; 20 30; 30 45; 55 70]; % Avoid 50 because of electrical noise and filtering.
 Frequence_band_names = {'Theta','Alpha','Beta','Low Gamma','High Gamma'};
@@ -320,9 +323,9 @@ for this_contrast = 2:size(template_PEB.M.X,2)
         end
         suptitle(['Connectivity from ' source_names{from}  ' to ' source_names{to}]);
         if ceil(max(foi)) > 45
-            savestring = ['./figures/' source_names{from} '_' source_names{to} '_Multifig_highfreq_focused.pdf'];
+            savestring = ['./figures/' all_folders{end} '_' source_names{from} '_' source_names{to} '_Multifig_highfreq_focused.pdf'];
         else
-            savestring = ['./figures/' source_names{from} '_' source_names{to} '_Multifig_focused.pdf'];
+            savestring = ['./figures/' all_folders{end} '_' source_names{from} '_' source_names{to} '_Multifig_focused.pdf'];
         end
         
         savestring = strrep(savestring,' ','_');
@@ -645,9 +648,9 @@ for this_contrast = 2:size(template_PEB.M.X,2)
         end
         suptitle(['Connectivity from ' source_names{from}  ' to ' source_names{to} ' combined groups']);
         if ceil(max(foi))> 45
-            savestring = ['./figures/' source_names{from} '_' source_names{to} '_Multifig_combined_highfreq_focused.pdf'];
+            savestring = ['./figures/' all_folders{end} '_' source_names{from} '_' source_names{to} '_Multifig_combined_highfreq_focused.pdf'];
         else
-            savestring = ['./figures/' source_names{from} '_' source_names{to} '_Multifig_combined_focused.pdf'];
+            savestring = ['./figures/' all_folders{end} '_' source_names{from} '_' source_names{to} '_Multifig_combined_focused.pdf'];
         end
         savestring = strrep(savestring,' ','_');
         if save_figures
@@ -710,4 +713,5 @@ cd(thisdir)
 workspaceVars = who;
 findVars = strncmp(workspaceVars, 'prop_',5);
 indexVars = find(findVars);
-save('./figures/proportions.mat',workspaceVars{indexVars});
+
+save(['./figures/proportions_' all_folders{end} '.mat'],workspaceVars{indexVars});
