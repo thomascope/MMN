@@ -65,18 +65,20 @@ for j = 1:length(filelist)
     end
 end
 
-for i = 1:length(Inverted_Conditions)
-    figure('Position',[10 10 1010 610])
-    for j = 1:8
-        subplot(2,4,j)
-        plot(D{i}.DCM.xY.pst, squeeze(squeeze(nanmean(all_data(:,j,:,i),3))))
-        hold on
-        plot(D{i}.DCM.xY.pst, squeeze(squeeze(nanmean(all_modelled(:,j,:,i),3))))
-        title(D{1}.DCM.xY.name{j})
-        sgtitle(Inverted_Conditions{i})
-    end
-end
+%For each condition individually if required
+% for i = 1:length(Inverted_Conditions)
+%     figure('Position',[10 10 1010 610])
+%     for j = 1:8
+%         subplot(2,4,j)
+%         plot(D{i}.DCM.xY.pst, squeeze(squeeze(nanmean(all_data(:,j,:,i),3))))
+%         hold on
+%         plot(D{i}.DCM.xY.pst, squeeze(squeeze(nanmean(all_modelled(:,j,:,i),3))))
+%         title(D{1}.DCM.xY.name{j})
+%         sgtitle(Inverted_Conditions{i})
+%     end
+% end
 
+%First plot STD and DVT
 figure('Position',[10 10 1010 610])
 for i = 1:2
     for j = 1:8
@@ -87,6 +89,9 @@ for i = 1:2
         title([D{1}.DCM.xY.name{j} ' ' Inverted_Conditions{i}])
     end
 end
+%Now un-scale the data based on the M100 and see how well the MMN is
+%recapitulated
+
 for j = 1:8
     subplot(6,4,j+(i*8))
     plot(D{i}.DCM.xY.pst, squeeze(squeeze(nanmean(all_data(:,j,:,i-1)-all_data(:,j,:,i),3))),'r-')

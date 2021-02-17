@@ -1244,7 +1244,7 @@ if length(all_combinations) < 48
 else
     Poolinfo = cbupool(48,'--mem-per-cpu=16G --time=167:00:00 --exclude=node-i[01-15]');
 end
-%parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
+parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 
 parfor this_comb = 1:length(all_combinations)
     %for this_comb = 1:length(all_combinations) %falls over in parallel due to tmp.mat and unpredictable cd behaviour - needs fixing for bigger datasets

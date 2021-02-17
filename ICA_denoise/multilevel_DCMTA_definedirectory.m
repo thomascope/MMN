@@ -326,14 +326,14 @@ disp(' -- building DCM structure to your specification')
 
 D         = spm_eeg_load(megfilename);
 these_data = D(:,:,:); % Don't mess around with the original data
-if isfield(p,'flipdipoles') %Flip the dipoles if this argument is specified
+if isfield(p,'flipdipoles') %Flip the dipoles so that all data are negative in time windows of interest if this argument is specified (note that the data are flipped again later so these deflections become positive)
     assert(size(p.flipdipoles,1)==length(D.chanlabels)/2,'The number of rows in the time window vector must be half the number of sources')
     
     for i = 1:size(p.flipdipoles,1)
-        if abs(max(these_data(i,D.time>=p.flipdipoles(i,1)/1000&D.time<=p.flipdipoles(i,2)/1000,1))) < abs(min(these_data(i,D.time>=p.flipdipoles(i,1)/1000&D.time<=p.flipdipoles(i,2)/1000,1)))
+        if abs(max(these_data(i,D.time>=p.flipdipoles(i,1)/1000&D.time<=p.flipdipoles(i,2)/1000,1))) > abs(min(these_data(i,D.time>=p.flipdipoles(i,1)/1000&D.time<=p.flipdipoles(i,2)/1000,1)))
             these_data(i,:,:) = -these_data(i,:,:);
         end
-        if abs(max(these_data(size(p.flipdipoles,1)+i,D.time>=p.flipdipoles(i,1)/1000&D.time<=p.flipdipoles(i,2)/1000,1))) < abs(min(these_data(size(p.flipdipoles,1)+i,D.time>=p.flipdipoles(i,1)/1000&D.time<=p.flipdipoles(i,2)/1000,1)))
+        if abs(max(these_data(size(p.flipdipoles,1)+i,D.time>=p.flipdipoles(i,1)/1000&D.time<=p.flipdipoles(i,2)/1000,1))) > abs(min(these_data(size(p.flipdipoles,1)+i,D.time>=p.flipdipoles(i,1)/1000&D.time<=p.flipdipoles(i,2)/1000,1)))
             these_data(size(p.flipdipoles,1)+i,:,:) = -these_data(size(p.flipdipoles,1)+i,:,:);
         end
     end
@@ -356,12 +356,12 @@ if plot_flipped_data
         hold on
         plot(D.time,D(i,:,2),'r')
         title([D.chanlabels{i} ' original'])
-        if i == 4 
+        if i == 4
             legend({'STD','DVT'})
         end
     end
 end
-    
+
 ti        = time(D,[],'ms');
 cond      = D.condlist;
 mode      = 'LFP';
@@ -473,7 +473,11 @@ DCM.options.Rft         = 5;
 DCM.options.onset       = 60;                                          % gaussian input onset time (ms)
 DCM.options.dur         = 8;                                           % standard deviation of the gaussian kernel
 DCM.options.Nmodes      = 8;                                           % number of modes in the system (default 8)
-DCM.options.h           = 1;
+if isfield(p,'meancentring') && p.meancentring == 0
+    DCM.options.h           = 0;                                           % mean centre the data?
+else
+    DCM.options.h           = 1;                                           % mean centre the data?
+end
 DCM.options.han         = 1;                                           % if you have a hanning window
 DCM.options.D           = 1;
 DCM.options.lock        = 0;
@@ -719,9 +723,9 @@ DCM.outdir= p.extDCM_outdir;
 
 DCM = spm_nlsi_N_TEC_modified_definedirectory(DCM);
 
-function restore_env(old_path)
-path(old_path);
-end
+    function restore_env(old_path)
+        path(old_path);
+    end
 
 end
 

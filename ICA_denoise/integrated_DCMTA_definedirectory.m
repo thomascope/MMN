@@ -473,7 +473,11 @@ DCM.options.Rft         = 5;
 DCM.options.onset       = 60;                                          % gaussian input onset time (ms)
 DCM.options.dur         = 8;                                           % standard deviation of the gaussian kernel
 DCM.options.Nmodes      = 8;                                           % number of modes in the system (default 8)
-DCM.options.h           = 1;
+if isfield(p,'meancentring') && p.meancentring == 0
+    DCM.options.h           = 0;                                           % mean centre the data?
+else
+    DCM.options.h           = 1;                                           % mean centre the data?
+end
 DCM.options.han         = 1;                                           % if you have a hanning window
 DCM.options.D           = 1;
 DCM.options.lock        = 0;
