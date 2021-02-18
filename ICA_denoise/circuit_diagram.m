@@ -7,6 +7,9 @@ thisdir = pwd;
 mkdir([thisdir '/circuit_diagrams'])
 cd([dirname_DCM 'PEB_secondlevel'])
 
+all_folders = strsplit(dirname_DCM,'/');
+all_folders = all_folders(~cellfun(@isempty,all_folders)); %For save location
+
 cleanupObj = onCleanup(@()cd(thisdir));
 
 %Load any input DCM and PEB of PEBs as template

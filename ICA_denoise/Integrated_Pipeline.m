@@ -1110,7 +1110,10 @@ p.wind_cnt = wind_cnt;
 p.inv_meth = inv_meth;
 p.inv_cnt = val;
 %conditions_to_invert = {'STD','DVT','location','intensity','duration','gap','frequency'};
-p.flipdipoles = [30 80; 30 80; 90 165; 30 80]; %Ensure positive deflections going into DCM in these time windows for each source
+%p.flipdipoles = [30 80; 30 80; 90 165; 30 80]; %Ensure positive deflections going into DCM in these time windows for each source
+try
+    p = rmfield(p,'flipdipoles'); %Flipping dipoles reduces free energy and con
+end
 conditions_to_invert = {'STD','DVT'}; % Just do standards and deviants for now
 %conditions_to_invert = {'location','intensity','duration','gap','frequency'};
 
@@ -1226,7 +1229,7 @@ parfor this_one = 1:size(subjcondpair,1)
     end
 end
 
-delete(gcp)
+%delete(gcp)
 
 %% Plot the model fits as a sanity check
 Plot_extDCM_fit
@@ -1244,7 +1247,7 @@ if length(all_combinations) < 48
 else
     Poolinfo = cbupool(48,'--mem-per-cpu=16G --time=167:00:00 --exclude=node-i[01-15]');
 end
-parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
+%parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
 
 parfor this_comb = 1:length(all_combinations)
     %for this_comb = 1:length(all_combinations) %falls over in parallel due to tmp.mat and unpredictable cd behaviour - needs fixing for bigger datasets
