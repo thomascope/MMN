@@ -2833,6 +2833,56 @@ switch step
                     end
                 end
             end
+        end % subjects
+        
+        fprintf('\n\nData subjected to extended DCM!\n\n');
+        
+    case 'CMC_DCM_definedirectory'
+                % A new section to run Tallie Adams' extended DCM model on the
+                % extracted LFP data
+                
+        % Create cleanup object to make sure that the SPM path is only
+        % changed for this function
+        
+        if isfield(p,'subjcntforcondition')&& p.subjcntforcondition == 1
+            p.conditions = p.conditions([1,subjcnt]); %Assumes STD is first
+        end
+        
+        old_path = path;
+        cleanupObj = onCleanup(@()restore_env(old_path));
+        
+        % Now add paths with impunity (more are changed in the function
+        % itself)
+        addpath(genpath('/group/language/data/thomascope/MMN/ICA_denoise/CMC_DCM/'))
+        addpath('/imaging/na01/misc/TALLIE_SCRIPTS/extDCM/mfiles_also_needed')
+        
+        for s=1:size(subjects,1)
+            
+            fprintf([ '\n\nCurrent subject = ' subjects '...\n\n' ]);
+            
+            % change to input directory
+            filePath = [pathstem subjects];
+            cd(filePath);
+            
+            % search for input files
+            files = [dir(prevStep1); dir(prevStep2)];
+            
+            for f=1:length(files)
+                
+                fprintf([ '\n\nProcessing ' files(f).name '...\n\n' ]);
+                
+                % main process
+                if isfield(p,'multilevel') && p.multilevel == 1
+                    error('No multilevel DCM implemented for CMC yet');
+                    %DCM = multilevel_DCMTA_definedirectory(files(f).name,[p.start_times p.end_times],cell2mat(condition),p);
+                else
+                    if exist([p.CMC_DCM_outdir nout(2,@fileparts,[files(f).name(1:end-4) '_dcm']) '_STD_' p.conditions{end} '.mat'],'file')
+                        fprintf('\n\nData previously processed and multilevel not requested, moving on.\n\n');
+                    else
+                        integrated_CMCDCM_definedirectory(files(f).name,[p.start_times p.end_times],p);
+                    end
+                end
+            end
             
         end % subjects
         

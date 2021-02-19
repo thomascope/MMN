@@ -306,6 +306,9 @@ end
 modelled_MMN = mean(squeeze(all_modelled(33:44,1,:,1)-all_modelled(33:44,1,:,2)));
 data_MMN = mean(squeeze(all_data(33:44,1,:,1)-all_data(33:44,1,:,2)));
 
+%modelled_MMN = max(abs(squeeze(all_modelled(33:44,1,:,1)-all_modelled(33:44,1,:,2))));
+%data_MMN = max(abs(squeeze(all_data(33:44,1,:,1)-all_data(33:44,1,:,2))));
+
 figure('Position',[10 10 610 1010])
 clear linehandle
 %sgtitle('MMN amplitude')

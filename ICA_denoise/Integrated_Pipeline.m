@@ -1099,6 +1099,65 @@ catch
 end
 p.conditions = p.all_conditions;
 
+%% Now run a classical DCM for model comparison - work in progress
+p.start_times = 0;
+p.end_times = 400;
+prefix = 'fmcffbeM';
+val = 2; %for LORETA
+%val = 1 %for IID
+p.time_wind_path = time_wind_path;
+p.wind_cnt = wind_cnt;
+p.inv_meth = inv_meth;
+p.inv_cnt = val;
+%conditions_to_invert = {'STD','DVT','location','intensity','duration','gap','frequency'};
+%p.flipdipoles = [30 80; 30 80; 90 165; 30 80]; %Ensure positive deflections going into DCM in these time windows for each source
+try
+    p = rmfield(p,'flipdipoles'); %Flipping dipoles reduces free energy and con
+end
+conditions_to_invert = {'STD','DVT'}; % Just do standards and deviants for now
+%conditions_to_invert = {'location','intensity','duration','gap','frequency'};
+
+%Open a parallel pool 
+if numel(gcp('nocreate')) == 0
+    Poolinfo = cbupool(length(Participant),'--mem-per-cpu=5G --time=167:00:00 --exclude=node-i[01-15]');
+    parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
+end
+
+clear all_names
+for i = 1:length(Participant)
+    all_names{i} = Participant{i}.namepostmerge;
+end
+
+% Parallelise subject and condition to avoid failure stoppages
+all_nonSTD_condition_numbers = 2:length(conditions_to_invert);
+all_subjects = 1:nsubj;
+allrunsarray = [];
+allrunsarray=combvec(all_subjects,all_nonSTD_condition_numbers)';
+CMC_DCMcomplete = zeros(1,size(allrunsarray,1));
+p.subjcntforcondition = 1;
+p.conditions = conditions_to_invert;
+p.multilevel = 0; %for first run
+p.CMC_DCM_outdir = '/imaging/tc02/Holly_MMN/CMC_DCMs/';
+
+
+parfor todonumber = 1:size(allrunsarray,1)
+    this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix all_names{allrunsarray(todonumber,1)} '*.mat']};
+    this_output_folder_tail = [Participant{allrunsarray(todonumber,1)}.diag '/']
+    %pause(mod(todonumber,60)); %Introduce a pause to stagger the workers - otherwise sometimes the pool fails if trying to read or write simultaneously
+    for thismeg = 1:length(this_input_fname)
+        try
+            Preprocessing_mainfunction('CMC_DCM_definedirectory',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,allrunsarray(todonumber,2))
+            extDCMcomplete(todonumber) = CMC_DCMcomplete(todonumber) + 1;
+            fprintf('\n\nLFP CMC DCM modelling complete for run number %d,\n\n',todonumber);
+        catch
+            extDCMcomplete(todonumber) = 0;
+            fprintf('\n\nLFP CMC DCM modelling failed for run number %d,\n\n',todonumber);
+        end
+    end
+end
+
+
+
 %% Now run Tallie's extended DCM
 p.start_times = 0;
 p.end_times = 400;
@@ -1147,10 +1206,10 @@ parfor todonumber = 1:size(allrunsarray,1)
         try
             Preprocessing_mainfunction('extDCM_definedirectory',this_input_fname{thismeg},p,[pathstem 'LFPs/'], [], this_output_folder_tail,allrunsarray(todonumber,2))
             extDCMcomplete(todonumber) = extDCMcomplete(todonumber) + 1;
-            fprintf('\n\nLFP DCM modelling complete for run number %d,\n\n',todonumber);
+            fprintf('\n\nLFP extDCM modelling complete for run number %d,\n\n',todonumber);
         catch
             extDCMcomplete(todonumber) = 0;
-            fprintf('\n\nLFP DCM modelling failed for run number %d,\n\n',todonumber);
+            fprintf('\n\nLFP extDCM modelling failed for run number %d,\n\n',todonumber);
         end
     end
 end
