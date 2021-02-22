@@ -1,5 +1,5 @@
 addpath('/group/language/data/thomascope/MMN/ICA_denoise/Tallie_extDCM/mfiles_also_needed')
-
+addpath(['/group/language/data/thomascope/MMN/ICA_denoise/stdshade']);
 filelist = dir([p.extDCM_outdir '/*DVT*']);
 %filelist = dir('/imaging/tc02/Holly_MMN/extDCMs_first_attempt/*DVT*');
 %Inverted_Conditions = {'STD','DVT','location','intensity','duration','gap','frequency'};
@@ -303,8 +303,19 @@ end
 %% Now quantify MMNs
 %first work out the mean difference between 125 and 175ms (this seems to be
 %where the majority of the difference in the raw data is)
-modelled_MMN = mean(squeeze(all_modelled(33:44,1,:,1)-all_modelled(33:44,1,:,2)));
+
+for ss = 1:length(Participant)
+diagnosis{ss} = Participant{ss}.diag;
+end
+[dcm_group_names,~, group_inds] = unique(diagnosis,'stable');
+
+modelled_MMN =  max(squeeze(all_modelled(:,1,:,1)-all_modelled(:,1,:,2)))-min(squeeze(all_modelled(:,1,:,1)-all_modelled(:,1,:,2))); % Based on difference between min and max
+data_MMN =  max(squeeze(all_data(:,1,:,1)-all_data(:,1,:,2)))-min(squeeze(all_data(:,1,:,1)-all_data(:,1,:,2)));
+modelled_MMN = mean(squeeze(all_modelled(33:44,1,:,1)-all_modelled(33:44,1,:,2))); %Based only on max deflection
 data_MMN = mean(squeeze(all_data(33:44,1,:,1)-all_data(33:44,1,:,2)));
+
+modelled_MMN = mean(squeeze(all_modelled(33:44,1,:,1)-all_modelled(33:44,1,:,2)))-mean(squeeze(all_modelled(14:20,1,:,1)-all_modelled(14:20,1,:,2))); 
+data_MMN = mean(squeeze(all_data(33:44,1,:,1)-all_data(33:44,1,:,2)))-mean(squeeze(all_data(14:20,1,:,1)-all_data(14:20,1,:,2)));
 
 %modelled_MMN = max(abs(squeeze(all_modelled(33:44,1,:,1)-all_modelled(33:44,1,:,2))));
 %data_MMN = max(abs(squeeze(all_data(33:44,1,:,1)-all_data(33:44,1,:,2))));

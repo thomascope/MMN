@@ -1119,8 +1119,8 @@ conditions_to_invert = {'STD','DVT'}; % Just do standards and deviants for now
 
 %Open a parallel pool 
 if numel(gcp('nocreate')) == 0
-    Poolinfo = cbupool(length(Participant),'--mem-per-cpu=5G --time=167:00:00 --exclude=node-i[01-15]');
-    parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
+    Poolinfo = cbupool(32,'--mem-per-cpu=7G --time=167:00:00 --exclude=node-i[01-15]');
+    parpool(Poolinfo,Poolinfo.NumWorkers);
 end
 
 clear all_names
