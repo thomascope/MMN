@@ -2844,8 +2844,12 @@ switch step
         % Create cleanup object to make sure that the SPM path is only
         % changed for this function
         
-        if isfield(p,'subjcntforcondition')&& p.subjcntforcondition == 1
+        if isfield(p,'subjcntforcondition') && isfield(p,'subjcntformodel') && p.subjcntforcondition == 1 && p.subjcntformodel == 1
+            error('You have to parallelise by subject number or model, not both')
+        elseif isfield(p,'subjcntforcondition') && p.subjcntforcondition == 1
             p.conditions = p.conditions([1,subjcnt]); %Assumes STD is first
+        elseif isfield(p,'subjcntformodel') && p.subjcntformodel == 1 % Parallelise by model
+            p.this_model = subjcnt; 
         end
         
         old_path = path;

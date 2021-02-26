@@ -287,8 +287,9 @@ for dc = 1:length(datafit)
         DCMsub.options.gety = 0;
         DCMsub.options.nograph  = 1;
         
-        for n=1:numel(model)
-            %n
+        if isfield(p,'subjcntformodel') && p.subjcntformodel == 1
+            n = p.this_model;
+            
             DCM      = DCMsub;
             DCM.name = sprintf([p.CMC_DCM_outdir 'mod_' num2str(n) '_' nout(2,@fileparts,[megfilename(1:end-4) '_dcm']) '_' datafit{dc} '.mat']);
             
@@ -309,12 +310,35 @@ for dc = 1:length(datafit)
                 DCM   = spm_dcm_erp_AS(DCM);
                 
             end
-            %LogEvd(n) = DCM.F;
-            
-        end % end of models
-        
+        else
+            for n=1:numel(model)
+                %n
+                DCM      = DCMsub;
+                DCM.name = sprintf([p.CMC_DCM_outdir 'mod_' num2str(n) '_' nout(2,@fileparts,[megfilename(1:end-4) '_dcm']) '_' datafit{dc} '.mat']);
+                
+                DCM.A = model(n).A;
+                DCM.B = model(n).B;
+                DCM.C = model(n).C;
+                
+                DCM = CustomPriors(DCM,Ns);
+                
+                DCM = spm_dcm_erp_dataTA(DCM,DCM.options.h);
+                %DCM = spm_dcm_erp_dipfit(DCM, 0);
+                
+                if exist(DCM.name, 'file')
+                    disp(['file exists for model ' num2str(n) ', ' megfilename(1:end-4) ', ' datafit{dc} ', moving on.']);
+                else
+                    disp(['Processing model ' num2str(n) ', ' megfilename(1:end-4) ', ' datafit{dc} '.']);
+                    
+                    DCM   = spm_dcm_erp_AS(DCM);
+                    
+                end
+                %LogEvd(n) = DCM.F;
+                
+            end % end of models
+        end
     end % End of time windows
-        
+    
 end %End of contrasts
 
 

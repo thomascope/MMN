@@ -1128,17 +1128,42 @@ for i = 1:length(Participant)
     all_names{i} = Participant{i}.namepostmerge;
 end
 
-% Parallelise subject and condition to avoid failure stoppages
-all_nonSTD_condition_numbers = 2:length(conditions_to_invert);
+% % Parallelise subject and condition 
+% all_nonSTD_condition_numbers = 2:length(conditions_to_invert);
+% all_subjects = 1:nsubj;
+% allrunsarray = [];
+% allrunsarray=combvec(all_subjects,all_nonSTD_condition_numbers)';
+% CMC_DCMcomplete = zeros(1,size(allrunsarray,1));
+% p.subjcntforcondition = 1;
+% p.subjcntformodel = 0;
+% p.conditions = conditions_to_invert;
+% p.multilevel = 0; %for first run
+% p.CMC_DCM_outdir = '/imaging/tc02/Holly_MMN/CMC_DCMs/';
+
+% Parallelise subject and model 
+CMC_DCM_Models = 1:32; % Modify based on how many connectivity models you're inverting
 all_subjects = 1:nsubj;
 allrunsarray = [];
-allrunsarray=combvec(all_subjects,all_nonSTD_condition_numbers)';
+allrunsarray=combvec(all_subjects,CMC_DCM_Models)';
 CMC_DCMcomplete = zeros(1,size(allrunsarray,1));
-p.subjcntforcondition = 1;
+p.subjcntforcondition = 0;
+p.subjcntformodel = 1;
 p.conditions = conditions_to_invert;
 p.multilevel = 0; %for first run
 p.CMC_DCM_outdir = '/imaging/tc02/Holly_MMN/CMC_DCMs/';
-
+pare_down_runs = 1;
+if pare_down_runs
+    parfor todonumber = 1:size(allrunsarray,1)
+        try,
+            ls([p.CMC_DCM_outdir 'mod_' num2str(allrunsarray(todonumber,2)) '_' 'b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix all_names{allrunsarray(todonumber,1)} '*_STD_DVT.mat']);
+            already_exists(todonumber) = 1;
+        catch
+            already_exists(todonumber) = 0;
+        end
+    end
+    allrunsarray = allrunsarray(~already_exists,:);
+    allrunsarray = flipud(allrunsarray);
+end
 
 parfor todonumber = 1:size(allrunsarray,1)
     this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix all_names{allrunsarray(todonumber,1)} '*.mat']};
