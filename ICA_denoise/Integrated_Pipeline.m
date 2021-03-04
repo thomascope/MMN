@@ -1181,7 +1181,27 @@ parfor todonumber = 1:size(allrunsarray,1)
     end
 end
 
+%% Now run Bayesian model selection
+p.CMC_DCM_BMSdir = '/imaging/tc02/Holly_MMN/CMC_DCM_BMS/';
+addpath('/group/language/data/thomascope/MMN/ICA_denoise/CMC_DCM');
+redo = 1;
 
+for this_group = [{'all'},unique(all_diagnoses,'stable')]
+    jobfile = create_CMC_DCM_BMS_Job([p.CMC_DCM_BMSdir char(this_group)], p.CMC_DCM_outdir,Participant,char(this_group));
+    jobfile = cellstr(jobfile);
+    
+    if redo
+        if exist([p.CMC_DCM_BMSdir char(this_group) '/BMS.mat']);
+            delete([p.CMC_DCM_BMSdir char(this_group) '/BMS.mat']);
+        end
+        if exist([p.CMC_DCM_BMSdir char(this_group) '/model_space.mat']);
+            delete([p.CMC_DCM_BMSdir char(this_group) '/model_space.mat']);
+        end
+    end
+    
+    spm('defaults', 'EEG');
+    spm_jobman('run', jobfile);
+end
 
 %% Now run Tallie's extended DCM
 p.start_times = 0;
