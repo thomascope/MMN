@@ -1203,6 +1203,85 @@ for this_group = [{'all'},unique(all_diagnoses,'stable')]
     spm_jobman('run', jobfile);
 end
 
+
+
+%% Now do second level PEB to analyse connection strength differences in winning model (32)
+
+conditions = {'STD_DVT'}; %Tolerance failure if all conditions included
+regions = {'A1';'STG';'IFG';'IPC'}; %Symmetrical in extDCM
+model_number = 32; %Winning model from BMS
+
+PEB_focuses = {}; % Create a cell array of the PEBs - best to do one for each population of interest to ensure optimisation is constrained
+PEB_focuses{end+1} = 'A'; %Forward and Backwards connections
+PEB_focuses{end+1} = 'B'; 
+PEB_focuses{end+1} = 'C'; 
+
+numworkersreq = length(PEB_focuses)*length(unique(p.group)');
+if numworkersreq > 92
+    numworkersreq = 92;
+end
+
+Poolinfo = cbupool(numworkersreq,'--mem-per-cpu=8G --time=167:00:00 --exclude=node-i[01-15]');
+%parpool(Poolinfo,Poolinfo.NumWorkers,'SpmdEnabled',false);
+
+secondlevelCMCPEBcomplete = zeros(1,length(PEB_focuses)*length(unique(p.group)'));
+old_diagnosislist = p.diagnosis_list;
+p.diagnosis_list = [p.diagnosis_list, {'All_FTD'}, {'All_AD'}];
+
+all_groups = unique(p.group)';
+
+all_group_pairs = {};
+for i = 1:length(all_groups)
+    for j = i+1:length(all_groups)
+        all_group_pairs{end+1} = [all_groups(i) all_groups(j)];
+    end
+end
+
+for k = 1:(length(PEB_focuses)*length(all_group_pairs)) % Don't parallelise as PEB tmp matrix overwrites with simultaneous inversions
+    this_focus = mod(k,length(PEB_focuses));
+    if this_focus == 0
+        this_focus = length(PEB_focuses);
+    end
+    this_group = all_group_pairs{ceil(k/length(PEB_focuses))};
+    try
+        CMC_DCM_secondlevel_PEB_separated(p.CMC_DCM_outdir,conditions,this_group,p,PEB_focuses(this_focus),regions,model_number,Participant)
+        disp(['Second level CMC PEB complete for group ' cat(2,p.diagnosis_list{this_group}) ' focus ' PEB_focuses{this_focus}])
+        secondlevelPEBcomplete(k) = 1;
+    catch
+        disp(['Second level CMC PEB failed for group ' cat(2,p.diagnosis_list{this_group}) ' focus ' PEB_focuses{this_focus}])
+    end
+end
+
+p.diagnosis_list = old_diagnosislist;
+
+delete(gcp)
+
+%% Now combine the inter-region PEB with Granger Causality and Imaginary Coherence - work in progress - also will later possibly add Cross-frequency coupling
+%Combine_PEB_Connectivity(dirname_DCM,p.diagnosis_list,p.Sname,0.7,Participant)
+addpath('./CMC_DCM')
+p.Sname = {'left A1';
+    'left STG';
+    'left IFG';
+    'left IPC';
+    'right A1';
+    'right STG';
+    'right IFG';
+    'right IPC'};
+% First overall, just A-matrix
+Combine_CMC_PEB_Connectivity_focused(p.CMC_DCM_outdir,p.diagnosis_list(all_groups),p.Sname,0.7,Participant,'A')
+% Combine_CMC_PEB_Connectivity_focused(p.CMC_DCM_outdir,p.diagnosis_list(all_groups),p.Sname,0.7,Participant,'B')
+
+% Then everything else
+for k = 1:(length(PEB_focuses)*length(all_group_pairs)) % Don't parallelise as PEB tmp matrix overwrites with simultaneous inversions
+    this_focus = mod(k,length(PEB_focuses));
+    if this_focus == 0
+        this_focus = length(PEB_focuses);
+    end
+    this_group = all_group_pairs{ceil(k/length(PEB_focuses))};
+    Combine_CMC_PEB_Connectivity_focused(p.CMC_DCM_outdir,p.diagnosis_list(this_group),p.Sname,0.7,Participant,PEB_focuses{this_focus})
+end
+
+
 %% Now run Tallie's extended DCM
 p.start_times = 0;
 p.end_times = 400;
