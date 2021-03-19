@@ -666,6 +666,26 @@ plot_MMN_bytype_LFP(Participant,pathstem,p,prefix,baselined)
 % p.inv_cnt = 2; %for LORETA
 % plot_all_LFPs(Participant,pathstem,p,prefix)
 
+%% Now do a second level SPM on the source data
+prefix = 'fmcffbeM';
+
+p.all_conditions = p.conditions;
+% p.conditions = {'STD','DVT'};
+% try
+%     tc_batch_SPM(prefix,this_output_folder_tail,pathstem,p);
+%     secondlevelcomplete(1) = 1;
+% catch
+%     secondlevelcomplete(1) = 0;
+% end
+p.these_conditions = [1,3:7]; % 'STD'    'location'    'intensity'    'duration'    'gap'    'frequency'
+try
+    tc_batch_source_SPM(prefix,Participant,pathstem,p,'LOR');
+    secondlevelcomplete(1) = 1;
+catch
+    secondlevelcomplete(1) = 0;
+end
+p.conditions = p.all_conditions;
+
 %% Now run Granger Causality and Imaginary Coherence
 p.start_times = 0;
 p.end_times = 500;
@@ -1270,17 +1290,7 @@ p.Sname = {'left A1';
 % First overall, just A-matrix
 Combine_CMC_PEB_Connectivity_focused(p.CMC_DCM_outdir,p.diagnosis_list(all_groups),p.Sname,0.7,Participant,'A')
 % Combine_CMC_PEB_Connectivity_focused(p.CMC_DCM_outdir,p.diagnosis_list(all_groups),p.Sname,0.7,Participant,'B')
-
-% Then everything else
-for k = 1:(length(PEB_focuses)*length(all_group_pairs)) % Don't parallelise as PEB tmp matrix overwrites with simultaneous inversions
-    this_focus = mod(k,length(PEB_focuses));
-    if this_focus == 0
-        this_focus = length(PEB_focuses);
-    end
-    this_group = all_group_pairs{ceil(k/length(PEB_focuses))};
-    Combine_CMC_PEB_Connectivity_focused(p.CMC_DCM_outdir,p.diagnosis_list(this_group),p.Sname,0.7,Participant,PEB_focuses{this_focus})
-end
-
+% Combine_CMC_PEB_Connectivity_focused(p.CMC_DCM_outdir,p.diagnosis_list(all_groups),p.Sname,0.7,Participant,'C')
 
 %% Now run Tallie's extended DCM
 p.start_times = 0;
@@ -1521,10 +1531,14 @@ p.diagnosis_list = old_diagnosislist;
 delete(gcp)
 
 %% Now visualise the PEB results
+
 addpath('./extDCM_visualisation')
-dirname_DCM = p.extDCM_outdir;
-circuit_diagram(dirname_DCM,p.diagnosis_list,regions,conductances,0.7)
-circuit_diagram_combined(dirname_DCM,[{'Control'}, {'All_FTD'}, {'All_AD'}],regions,conductances,0.7)
+try
+    dirname_DCM = p.extDCM_outdir;
+catch
+    p.extDCM_outdir = '/imaging/tc02/Holly_MMN/extDCMs_unflipped/'; p.meancentring = 0;
+    dirname_DCM = p.extDCM_outdir;
+end
 p.Sname = {'left A1';
     'left STG';
     'left IFG';
@@ -1533,6 +1547,9 @@ p.Sname = {'left A1';
     'right STG';
     'right IFG';
     'right IPC'};
+circuit_diagram(dirname_DCM,p.diagnosis_list,regions,conductances,0.7)
+circuit_diagram_combined(dirname_DCM,[{'Control'}, {'All_FTD'}, {'All_AD'}],regions,conductances,0.7)
+
 Inter_region(dirname_DCM,p.diagnosis_list,p.Sname,0.7)
 Inter_region_combined(dirname_DCM,[{'Control'}, {'All_FTD'}, {'All_AD'}],p.Sname,0.7)
 visualise_bygroup(dirname_DCM,p.diagnosis_list,regions,conductances)
@@ -1540,6 +1557,7 @@ visualise_bygroup_combined(dirname_DCM,[{'Control'}, {'All_FTD'}, {'All_AD'}],re
 
 %% Now combine the inter-region PEB with Granger Causality and Imaginary Coherence - work in progress - also will later possibly add Cross-frequency coupling
 %Combine_PEB_Connectivity(dirname_DCM,p.diagnosis_list,p.Sname,0.7,Participant)
+
 Combine_PEB_Connectivity_focused(dirname_DCM,p.diagnosis_list,p.Sname,0.7,Participant)
 
 

@@ -30,7 +30,9 @@ addpath(['/group/language/data/thomascope/vespa/SPM12version/Standalone preproce
 addpath(['/group/language/data/thomascope/MMN/ICA_denoise/stdshade']);
 addpath('/imaging/tc02/toolboxes/rsatoolbox/Engines/');
 
-set(0,'DefaultLegendAutoUpdate','off')
+try
+set(0,'DefaultLegendAutoUpdate','off') %More modern MATLAB being too clever
+end
 
 %groupstodo = {'Control' 'pca' 'bvFTD' 'nfvppa' 'MCI'};
 for i = 1:length(Participant)

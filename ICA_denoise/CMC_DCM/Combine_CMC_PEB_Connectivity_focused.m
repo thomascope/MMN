@@ -189,12 +189,23 @@ for this_contrast = 2:size(template_PEB.M.X,2)
                 disp([Participant{min(find(template_PEB.M.X(:,this_contrast)==-1))}.diag ' stronger than ' Participant{min(find(template_PEB.M.X(:,this_contrast)==1))}.diag ' for modulation of ' source_names{from} ' to ' source_names{to} ' with posterior probability ' num2str(BMA.Pp(these_differences(this_difference),this_contrast))])
             end
             
+        elseif strcmp(PEB_focus,'C')
+            Connection_Split = strsplit(this_connection,[PEB_focus '{']);
+            to = str2num(Connection_Split{1}(3));
+            from = str2num(Connection_Split{1}(3));
+            
+            if BMA.Ep(these_differences(this_difference),this_contrast)>0
+                disp([Participant{min(find(template_PEB.M.X(:,this_contrast)==1))}.diag ' stronger than ' Participant{min(find(template_PEB.M.X(:,this_contrast)==-1))}.diag ' for input to ' source_names{from} ' with posterior probability ' num2str(BMA.Pp(these_differences(this_difference),this_contrast))])
+            else
+                disp([Participant{min(find(template_PEB.M.X(:,this_contrast)==-1))}.diag ' stronger than ' Participant{min(find(template_PEB.M.X(:,this_contrast)==1))}.diag ' for input to ' source_names{from} ' with posterior probability ' num2str(BMA.Pp(these_differences(this_difference),this_contrast))])
+            end
+                        
         else
             error('So far only implemented for spm_fx_CMC A and B matrices')
         end
         
         if from == to
-            disp('Intrinsic connection, moving on')
+            disp('Intrinsic connection or input, moving on')
             continue
         end
         
