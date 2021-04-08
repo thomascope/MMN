@@ -3,7 +3,7 @@
 thisdir = pwd;
 
 
-datapathstem = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_Integrated_LOR/crosshem/'; %With sLORETA source reconstruction
+datapathstem = '/imaging/mlr/users/tc02/Holly_MMN/Coherence_Connectivity_Integrated_LOR/crosshem/'; %With sLORETA source reconstruction
 addpath(['/group/language/data/thomascope/vespa/SPM12version/Standalone preprocessing pipeline/tc_source_stats/ojwoodford-export_fig-216b30e']);
 addpath(['/group/language/data/thomascope/MMN/ICA_denoise/stdshade']);
 
@@ -51,7 +51,7 @@ switch(analysis_type)
         datapathstem = [datapathstem analysis_type '/'];
 end
 
-addpath('/imaging/tc02/toolboxes/rsatoolbox/Engines/')
+addpath('/imaging/mlr/users/tc02/toolboxes/rsatoolbox/Engines/')
 
 cd(datapathstem)
 filenames = {};

@@ -1,4 +1,4 @@
-datapathstem = '/imaging/hp02/pnfa_mmn/forward_modelling/LFPs_TA';
+datapathstem = '/imaging/rowe/archive/users/hp02/pnfa_mmn/forward_modelling/LFPs_TA';
 thispath = pwd;
 cd(datapathstem)
 %load([datapathstem 'groups.mat']);

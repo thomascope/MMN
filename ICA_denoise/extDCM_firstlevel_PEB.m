@@ -1,7 +1,7 @@
 function extDCM_firstlevel_PEB(dirname_DCM,filestem,conditions,groups,p,all_names)
 % A function to be called in parallel to do firstlevel DCMs, for example,
 % with the existing structures p and all_names from ICA_denoise_Hollydata mainscript
-% dirname_DCM = '/imaging/tc02/Holly_MMN/extDCMs/';
+% dirname_DCM = '/imaging/mlr/users/tc02/Holly_MMN/extDCMs/';
 % filestem = 'b8LFP_s_-100_500_LOR_fmbraedfffM';
 % conditions = {'STD', 'DVT'};
 % all_combinations = combvec(groups,1:length(conditions));

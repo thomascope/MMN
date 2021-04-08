@@ -30,10 +30,10 @@ template_PEB = PEB;
 
 assert(all(template_PEB.M.X(:,1)==1),'The first column of the PEB of PEBs contrast should be all ones, check please.')
 
-base_datapathstem = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_Integrated_LOR/crosshem/'; %With sLORETA source reconstruction
+base_datapathstem = '/imaging/mlr/users/tc02/Holly_MMN/Coherence_Connectivity_Integrated_LOR/crosshem/'; %With sLORETA source reconstruction
 addpath(['/group/language/data/thomascope/vespa/SPM12version/Standalone preprocessing pipeline/tc_source_stats/ojwoodford-export_fig-216b30e']);
 addpath(['/group/language/data/thomascope/MMN/ICA_denoise/stdshade']);
-addpath('/imaging/tc02/toolboxes/rsatoolbox/Engines/');
+addpath('/imaging/mlr/users/tc02/toolboxes/rsatoolbox/Engines/');
 
 try
     set(0,'DefaultLegendAutoUpdate','off') %For more modern Matlab, which is too clever for its own good.

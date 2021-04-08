@@ -22,112 +22,112 @@ cfg_f.threshold = [11 80]; %p=0.001
 for i = 1:length(windows)
   
     if i == 4
-%     jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmF_0014.nii'],'jet',cfg_f)
+%     jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmF_0014.nii'],'jet',cfg_f)
 %     savepath = ['./Source_Reconstructions_2018/Controls_D-S_2018_' num2str(i)];
 %     eval(['export_fig ' savepath '.png -transparent -m2.5'])
 %     close all
 %     
-%     jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmF_0015.nii'],'jet',cfg_f)
+%     jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmF_0015.nii'],'jet',cfg_f)
 %     savepath = ['./Source_Reconstructions_2018/Patients_D-S_2018_' num2str(i)];
 %     eval(['export_fig ' savepath '.png -transparent -m2.5'])
 %     close all
     %cfg.threshold = [2.336 6]; %p=0.01
     cfg.threshold = [2.336 8.8]; %p=0.01
     
-    jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0105.nii'],'jet',cfg)
+    jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0105.nii'],'jet',cfg)
     savepath = ['./Source_Reconstructions_2018/Controls_D-S_2018_' num2str(i)];
     eval(['export_fig ' savepath '.png -transparent -m2.5'])
     close all
     
-    jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0106.nii'],'jet',cfg)
+    jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0106.nii'],'jet',cfg)
     savepath = ['./Source_Reconstructions_2018/Patients_D-S_2018_' num2str(i)];
     eval(['export_fig ' savepath '.png -transparent -m2.5'])
     close all
 
-    jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0016.nii'],'jet',cfg)
+    jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0016.nii'],'jet',cfg)
     savepath = ['./Source_Reconstructions_2018/GroupxD-S_2018_' num2str(i)];
     eval(['export_fig ' savepath '.png -transparent -m2.5'])
     close all
     end
-%         jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmF_0019.nii'],'jet',cfg_f)
+%         jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmF_0019.nii'],'jet',cfg_f)
 %     savepath = ['./Source_Reconstructions_2018/Controls_Dd-Dt_2018_' num2str(i)];
 %     eval(['export_fig ' savepath '.png -transparent -m2.5'])
 %     
-%     jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmF_0020.nii'],'jet',cfg_f)
+%     jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmF_0020.nii'],'jet',cfg_f)
 %     savepath = ['./Source_Reconstructions_2018/Patients_Dd-Dt_2018_' num2str(i)];
 %     eval(['export_fig ' savepath '.png -transparent -m2.5'])
 %     
-%     jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0021.nii'],'jet',cfg)
+%     jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0021.nii'],'jet',cfg)
 %     savepath = ['./Source_Reconstructions_2018/GroupxDd-Dt_2018_' num2str(i)];
 %     eval(['export_fig ' savepath '.png -transparent -m2.5'])
     
     if i == 2
         
-%         jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmF_0024.nii'],'jet',cfg_f)
+%         jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmF_0024.nii'],'jet',cfg_f)
 %         savepath = ['./Source_Reconstructions_2018/Control_Play_Tray_2018_' num2str(i)];
 %         eval(['export_fig ' savepath '.png -transparent -m2.5'])
 %         
-%         jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmF_0025.nii'],'jet',cfg_f)
+%         jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmF_0025.nii'],'jet',cfg_f)
 %         savepath = ['./Source_Reconstructions_2018/Patient_Play_Tray_2018_' num2str(i)];
 %         eval(['export_fig ' savepath '.png -transparent -m2.5'])
 %         
-%         jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0026.nii'],'jet',cfg)
+%         jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0026.nii'],'jet',cfg)
 %         savepath = ['./Source_Reconstructions_2018/GroupxPlay_Tray_2018_' num2str(i)];
 %         eval(['export_fig ' savepath '.png -transparent -m2.5'])
 %         
-%         jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmF_0029.nii'],'jet',cfg_f)
+%         jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmF_0029.nii'],'jet',cfg_f)
 %         savepath = ['./Source_Reconstructions_2018/Control_Play_Qway_2018_' num2str(i)];
 %         eval(['export_fig ' savepath '.png -transparent -m2.5'])
 %         
-%         jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmF_0030.nii'],'jet',cfg_f)
+%         jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmF_0030.nii'],'jet',cfg_f)
 %         savepath = ['./Source_Reconstructions_2018/Patient_Play_Qway_2018_' num2str(i)];
 %         eval(['export_fig ' savepath '.png -transparent -m2.5'])
 %         
-%         jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0031.nii'],'jet',cfg)
+%         jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0031.nii'],'jet',cfg)
 %         savepath = ['./Source_Reconstructions_2018/GroupxPlay_Qway_2018_' num2str(i)];
 %         eval(['export_fig ' savepath '.png -transparent -m2.5'])
 %         
-%         jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmF_0034.nii'],'jet',cfg_f)
+%         jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmF_0034.nii'],'jet',cfg_f)
 %         savepath = ['./Source_Reconstructions_2018/Control_Tray_Qway_2018_' num2str(i)];
 %         eval(['export_fig ' savepath '.png -transparent -m2.5'])
 %         
-%         jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmF_0035.nii'],'jet',cfg_f)
+%         jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmF_0035.nii'],'jet',cfg_f)
 %         savepath = ['./Source_Reconstructions_2018/Patient_Tray_Qway_2018_' num2str(i)];
 %         eval(['export_fig ' savepath '.png -transparent -m2.5'])
 %         
-%         jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0036.nii'],'jet',cfg)
+%         jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0036.nii'],'jet',cfg)
 %         savepath = ['./Source_Reconstructions_2018/GroupxTray_Qway_2018_' num2str(i)];
 %         eval(['export_fig ' savepath '.png -transparent -m2.5'])
 %         
 %cfg.threshold = [3.11 6]; %p=0.001        
 cfg.threshold = [3.11 9.3]; %p=0.001        
 
-jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source_2/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0047.nii'],'jet',cfg)
+jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source_2/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0047.nii'],'jet',cfg)
         savepath = ['./Source_Reconstructions_2018/Control_Play_Tray_2018_' num2str(i)];
         eval(['export_fig ' savepath '.png -transparent -m2.5'])
         close all
         
-        jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source_2/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0048.nii'],'jet',cfg)
+        jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source_2/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0048.nii'],'jet',cfg)
         savepath = ['./Source_Reconstructions_2018/Patient_Play_Tray_2018_' num2str(i)];
         eval(['export_fig ' savepath '.png -transparent -m2.5'])
         close all
         
-        jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source_2/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0026.nii'],'jet',cfg)
+        jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source_2/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0026.nii'],'jet',cfg)
         savepath = ['./Source_Reconstructions_2018/GroupxPlay_Tray_2018_' num2str(i)];
         eval(['export_fig ' savepath '.png -transparent -m2.5'])
         close all
         
-        jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source_2/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0056.nii'],'jet',cfg)
+        jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source_2/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0056.nii'],'jet',cfg)
         savepath = ['./Source_Reconstructions_2018/Control_Word_NonWd_2018_' num2str(i)];
         eval(['export_fig ' savepath '.png -transparent -m2.5'])
         close all
         
-        jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source_2/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0057.nii'],'jet',cfg)
+        jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source_2/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0057.nii'],'jet',cfg)
         savepath = ['./Source_Reconstructions_2018/Patient_Word_NonWd_2018_' num2str(i)];
         eval(['export_fig ' savepath '.png -transparent -m2.5'])
         close all
         
-        jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/stats_source_2/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0041.nii'],'jet',cfg)
+        jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2018/stats_source_2/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0041.nii'],'jet',cfg)
         savepath = ['./Source_Reconstructions_2018/GroupxWord_NonWd_2018_' num2str(i)];
         eval(['export_fig ' savepath '.png -transparent -m2.5'])
         close all
@@ -136,7 +136,7 @@ jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2018/
 end
 
 % 
-% filename = ['/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/SPM.mat'];
+% filename = ['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/SPM.mat'];
 % groupdifference_here(filename,[-50 12 20], 11, 9); %Pre-defined OPIFG region
 % savepath = ['./Source_Reconstructions/Bars_OPIFG_2016_SPM_overall.png'];
 % eval(['export_fig ' savepath '.png -transparent'])
@@ -145,7 +145,7 @@ end
 % savepath = ['./Source_Reconstructions/Bars_STG_2016_SPM_overall.png'];
 % eval(['export_fig ' savepath '.png -transparent'])
 % eval(['export_fig ' savepath '.pdf -transparent'])
-% filename = ['/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/SPM.mat'];
+% filename = ['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/SPM.mat'];
 % groupdifference_here(filename,[-46 2 28], 11, 9); %Max frontal group difference 
 % savepath = ['./Source_Reconstructions/Bars_frontal_2016_SPM_overall.png'];
 % eval(['export_fig ' savepath '.png -transparent'])
@@ -429,7 +429,7 @@ end
 % 
 % for i = 1:length(windows)
 %   
-%     filename = ['/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/SPM.mat'];
+%     filename = ['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/SPM.mat'];
 %     groupdifference_here_scaled(filename,[-50 12 20], 11, 9, [0.05 0.1]); %Pre-defined OPIFG region
 %     savepath = ['./Source_Reconstructions/Bars_OPIFG_2016_SPM_' num2str(i) '_scaled'];
 %     eval(['export_fig ' savepath '.png -transparent'])
@@ -445,7 +445,7 @@ end
 %         
 % end
 % 
-% filename = ['/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/SPM.mat'];
+% filename = ['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/SPM.mat'];
 % groupdifference_here_scaled(filename,[-50 12 20], 11, 9, [0.05 0.1]); %Pre-defined OPIFG region
 % savepath = ['./Source_Reconstructions/Bars_OPIFG_2016_SPM_overall_scaled'];
 % eval(['export_fig ' savepath '.png -transparent'])
@@ -454,7 +454,7 @@ end
 % savepath = ['./Source_Reconstructions/Bars_STG_2016_SPM_overall_scaled'];
 % eval(['export_fig ' savepath '.png -transparent'])
 % eval(['export_fig ' savepath '.pdf -transparent'])
-% filename = ['/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/SPM.mat'];
+% filename = ['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/SPM.mat'];
 % groupdifference_here_scaled(filename,[-46 2 28], 11, 9, [0.05 0.1]); %Max frontal group difference 
 % savepath = ['./Source_Reconstructions/Bars_frontal_2016_SPM_overall_scaled'];
 % eval(['export_fig ' savepath '.png -transparent'])
@@ -737,26 +737,26 @@ end
 % 
 % 
 % 
-% % jp_spm8_surfacerender2_version_tc('/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/90_130/spmT_0003.nii','jet',cfg)
+% % jp_spm8_surfacerender2_version_tc('/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/90_130/spmT_0003.nii','jet',cfg)
 % % export_fig ./Source_Reconstructions/Controls_2016_SPM_1.png -transparent -m2.5
-% % jp_spm8_surfacerender2_version_tc('/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/180_240/spmT_0003.nii','jet',cfg)
+% % jp_spm8_surfacerender2_version_tc('/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/180_240/spmT_0003.nii','jet',cfg)
 % % export_fig ./Source_Reconstructions/Controls_2016_SPM_2.png -transparent -m2.5
-% % jp_spm8_surfacerender2_version_tc('/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/270_420/spmT_0003.nii','jet',cfg)
+% % jp_spm8_surfacerender2_version_tc('/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/270_420/spmT_0003.nii','jet',cfg)
 % % export_fig ./Source_Reconstructions/Controls_2016_SPM_3.png -transparent -m2.5
-% % jp_spm8_surfacerender2_version_tc('/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/450_700/spmT_0003.nii','jet',cfg)
+% % jp_spm8_surfacerender2_version_tc('/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/450_700/spmT_0003.nii','jet',cfg)
 % % export_fig ./Source_Reconstructions/Controls_2016_SPM_4.png -transparent -m2.5
-% % jp_spm8_surfacerender2_version_tc('/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/750_900/spmT_0003.nii','jet',cfg)
+% % jp_spm8_surfacerender2_version_tc('/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/750_900/spmT_0003.nii','jet',cfg)
 % % export_fig ./Source_Reconstructions/Controls_2016_SPM_5.png -transparent -m2.5
 % % 
-% % jp_spm8_surfacerender2_version_tc('/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/90_130/spmT_0004.nii','jet',cfg)
+% % jp_spm8_surfacerender2_version_tc('/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/90_130/spmT_0004.nii','jet',cfg)
 % % export_fig ./Source_Reconstructions/Patients_2016_SPM_1.png -transparent -m2.5
-% % jp_spm8_surfacerender2_version_tc('/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/180_240/spmT_0004.nii','jet',cfg)
+% % jp_spm8_surfacerender2_version_tc('/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/180_240/spmT_0004.nii','jet',cfg)
 % % export_fig ./Source_Reconstructions/Patients_2016_SPM_2.png -transparent -m2.5
-% % jp_spm8_surfacerender2_version_tc('/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/270_420/spmT_0004.nii','jet',cfg)
+% % jp_spm8_surfacerender2_version_tc('/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/270_420/spmT_0004.nii','jet',cfg)
 % % export_fig ./Source_Reconstructions/Patients_2016_SPM_3.png -transparent -m2.5
-% % jp_spm8_surfacerender2_version_tc('/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/450_700/spmT_0004.nii','jet',cfg)
+% % jp_spm8_surfacerender2_version_tc('/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/450_700/spmT_0004.nii','jet',cfg)
 % % export_fig ./Source_Reconstructions/Patients_2016_SPM_4.png -transparent -m2.5
-% % jp_spm8_surfacerender2_version_tc('/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/750_900/spmT_0004.nii','jet',cfg)
+% % jp_spm8_surfacerender2_version_tc('/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/750_900/spmT_0004.nii','jet',cfg)
 % % export_fig ./Source_Reconstructions/Patients_2016_SPM_5.png -transparent -m2.5
 % % 
 % cfg.normalise = 0;
@@ -764,15 +764,15 @@ end
 % 
 % for i = 1:length(windows)
 %   
-%     jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0007.nii'],'jet',cfg)
+%     jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0007.nii'],'jet',cfg)
 %     savepath = ['./Source_Reconstructions/Combined_2016_SPM_16-4_' num2str(i)];
 %     eval(['export_fig ' savepath '.png -transparent -m2.5'])
 % %     
-% %     jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0008.nii'],'jet',cfg)
+% %     jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0008.nii'],'jet',cfg)
 % %     savepath = ['./Source_Reconstructions/Controls_2016_SPM_16-4_' num2str(i)];
 % %     eval(['export_fig ' savepath '.png -transparent -m2.5'])
 % %     
-% %     jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0009.nii'],'jet',cfg)
+% %     jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0009.nii'],'jet',cfg)
 % %     savepath = ['./Source_Reconstructions/Patients_2016_SPM_16-4_' num2str(i)];
 % %     eval(['export_fig ' savepath '.png -transparent -m2.5'])
 % 
@@ -781,15 +781,15 @@ end
 % 
 % cfg.normalise = 0;
 % cfg.threshold = [1.65 3.15]; %p=0.05
-% jp_spm8_surfacerender2_version_tc('/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/spmT_0007.nii','jet',cfg)
+% jp_spm8_surfacerender2_version_tc('/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/spmT_0007.nii','jet',cfg)
 % export_fig ./Source_Reconstructions/Combined_2016_SPM_16-4_Overall_1.png -transparent -m2.5
 % 
 % 
-% jp_spm8_surfacerender2_version_tc('/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/spmT_0008.nii','jet',cfg)
+% jp_spm8_surfacerender2_version_tc('/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/spmT_0008.nii','jet',cfg)
 % export_fig ./Source_Reconstructions/Controls_2016_SPM_16-4_Overall_1.png -transparent -m2.5 
 % 
 % 
-% jp_spm8_surfacerender2_version_tc('/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/spmT_0009.nii','jet',cfg)
+% jp_spm8_surfacerender2_version_tc('/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/spmT_0009.nii','jet',cfg)
 % export_fig ./Source_Reconstructions/Patients_2016_SPM_16-4_Overall_1.png -transparent -m2.5
 % 
 % % 
@@ -889,11 +889,11 @@ end
 % 
 % for i = 1:length(windows)
 %   
-%     jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0008.nii'],'jet',cfg)
+%     jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0008.nii'],'jet',cfg)
 %     savepath = ['./Source_Reconstructions/Controls_2016_SPM_16-4_' num2str(i)];
 %     eval(['export_fig ' savepath '.png -transparent -m2.5'])
 %     
-%     jp_spm8_surfacerender2_version_tc(['/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0009.nii'],'jet',cfg)
+%     jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/' num2str(windows(i,1)) '_' num2str(windows(i,2)) '/spmT_0009.nii'],'jet',cfg)
 %     savepath = ['./Source_Reconstructions/Patients_2016_SPM_16-4_' num2str(i)];
 %     eval(['export_fig ' savepath '.png -transparent -m2.5'])
 % 
@@ -984,15 +984,15 @@ end
 % 
 % cfg.normalise = 0;
 % cfg.threshold = [1.65 3.15]; %p=0.05
-% jp_spm8_surfacerender2_version_tc('/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/spmT_0007.nii','jet',cfg)
+% jp_spm8_surfacerender2_version_tc('/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/spmT_0007.nii','jet',cfg)
 % export_fig ./Source_Reconstructions/Combined_2016_SPM_16-4_Overall_1.png -transparent -m2.5
 % 
 % 
-% jp_spm8_surfacerender2_version_tc('/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/spmT_0008.nii','jet',cfg)
+% jp_spm8_surfacerender2_version_tc('/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/spmT_0008.nii','jet',cfg)
 % export_fig ./Source_Reconstructions/Controls_2016_SPM_16-4_Overall_1.png -transparent -m2.5 
 % 
 % 
-% jp_spm8_surfacerender2_version_tc('/imaging/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/spmT_0009.nii','jet',cfg)
+% jp_spm8_surfacerender2_version_tc('/imaging/mlr/users/tc02/SD_Wordending/preprocess/2016/stats_source/reconstruction_5/stats/spmT_0009.nii','jet',cfg)
 % export_fig ./Source_Reconstructions/Patients_2016_SPM_16-4_Overall_1.png -transparent -m2.5
 % 
 % % 
@@ -1010,7 +1010,7 @@ end
 % bf_windows = {'early','mid','late'};
 % for i = bf_windows
 %   
-%     jp_spm8_surfacerender2_version_tc(['/imaging/tc02/vespa/preprocess/SPM12_fullpipeline_fixedICA/testbeamforming/final_LCMV_trunkated_restricted/stats/' char(i) '/spmT_0005.nii'],'jet',cfg)
+%     jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/vespa/preprocess/SPM12_fullpipeline_fixedICA/testbeamforming/final_LCMV_trunkated_restricted/stats/' char(i) '/spmT_0005.nii'],'jet',cfg)
 %     savepath = ['./Source_Reconstructions/BF_contrast_2016_' char(i)];
 %     eval(['export_fig ' savepath '.png -transparent -m2.5'])
 %     
@@ -1028,7 +1028,7 @@ end
 % bf_windows = {'early','mid','late'};
 % for i = bf_windows
 %   
-%     jp_spm8_surfacerender2_version_tc(['/imaging/tc02/vespa/preprocess/SPM12_fullpipeline_fixedICA/testbeamforming/final_eLORETA_trunkated_restricted/stats/' char(i) '/spmT_0005.nii'],'jet',cfg)
+%     jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/vespa/preprocess/SPM12_fullpipeline_fixedICA/testbeamforming/final_eLORETA_trunkated_restricted/stats/' char(i) '/spmT_0005.nii'],'jet',cfg)
 %     savepath = ['./Source_Reconstructions/BF_eLORETA_contrast_2016_' char(i)];
 %     eval(['export_fig ' savepath '.png -transparent -m2.5'])
 %     

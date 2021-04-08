@@ -332,8 +332,8 @@ fprintf('.      Vp: [%s] \n.      Vg: [%s] \n',num2str(size(Vp)),num2str(size(Vg
 strR = nout(2,@fileparts,DCM.name);
 strRa = datestr(datetime);
 strRa = strRa(1:end-3);
-mkdir(['/imaging/tc02/Holly_MMN/DCM_REPORTS/REPORTS_' strRa])
-disp(['    -- reporting incrementally saved in /imaging/tc02/Holly_MMN/DCM_REPORTS/REPORTS_' strRa])
+mkdir(['/imaging/mlr/users/tc02/Holly_MMN/DCM_REPORTS/REPORTS_' strRa])
+disp(['    -- reporting incrementally saved in /imaging/mlr/users/tc02/Holly_MMN/DCM_REPORTS/REPORTS_' strRa])
 %disp(['    -- EM optimize p ' strR])
 EP     = [];
 for ip = 1:M.Nmax
@@ -593,7 +593,7 @@ for ip = 1:M.Nmax
         R.p{10} = permute(R.p{10},[2 1 3]);
         R.p{11} = permute(R.p{11},[2 1 3]);
         
-        save(['/imaging/tc02/Holly_MMN/DCM_REPORTS/REPORTS_' strRa '/' strR],'R')
+        save(['/imaging/mlr/users/tc02/Holly_MMN/DCM_REPORTS/REPORTS_' strRa '/' strR],'R')
         
         %NODES = {'LIFG' 'LSTG' 'LAud' 'RIFG' 'RSTG' 'RAud'};
         NODES = DCM.Sname';

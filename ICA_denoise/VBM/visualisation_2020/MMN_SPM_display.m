@@ -11,7 +11,9 @@ addpath([pwd '/ojwoodford-export_fig-216b30e'])
 
 cfg.normalise = 0;
 
-cfg.threshold = [4.7465 11]; %p=0.05 FWE
+cfg.threshold = [10.936 31.83]; %p=0.05 FWE
+
+/imaging/mlr/users/tc02/Holly_MMN/ICA_denoise_longwindow/source_stats/-100_500
 
 jp_spm8_surfacerender2_version_tc(['/imaging/mlr/users/tc02/Holly_MMN/ICA_Denoise/VBM/VBM_stats/factorial_full_group_vbm_TIVnormalised_agecovaried_unsmoothedmask/spmT_0001.nii'],'jet',cfg)
 savepath = ['./VBM/Con-PCA_05FWE'];

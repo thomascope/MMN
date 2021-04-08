@@ -5,11 +5,11 @@
 %-----------------------------------------------------------------------
 matlabbatch{1}.spm.dcm.bms.inference.dir = '<UNDEFINED>';
 matlabbatch{1}.spm.dcm.bms.inference.sess_dcm{1}.dcmmat = {
-                                                           '/imaging/tc02/Holly_MMN/CMC_DCMs/mod_10_b8LFP_s_-100_500_LOR_fmcffbeMbvftd10_meg14_0114_vc4_dcm_STD_DVT.mat'
-                                                           '/imaging/tc02/Holly_MMN/CMC_DCMs/mod_10_b8LFP_s_-100_500_LOR_fmcffbeMbvftd11_meg13_0506_cc410179_dcm_STD_DVT.mat'
-                                                           '/imaging/tc02/Holly_MMN/CMC_DCMs/mod_10_b8LFP_s_-100_500_LOR_fmcffbeMbvftd12_meg13_0403_cc510639_dcm_STD_DVT.mat'
-                                                           '/imaging/tc02/Holly_MMN/CMC_DCMs/mod_10_b8LFP_s_-100_500_LOR_fmcffbeMbvftd13_meg13_0393_cc520065_dcm_STD_DVT.mat'
-                                                           '/imaging/tc02/Holly_MMN/CMC_DCMs/mod_10_b8LFP_s_-100_500_LOR_fmcffbeMbvftd14_meg13_0480_cc420261_dcm_STD_DVT.mat'
+                                                           '/imaging/mlr/users/tc02/Holly_MMN/CMC_DCMs/mod_10_b8LFP_s_-100_500_LOR_fmcffbeMbvftd10_meg14_0114_vc4_dcm_STD_DVT.mat'
+                                                           '/imaging/mlr/users/tc02/Holly_MMN/CMC_DCMs/mod_10_b8LFP_s_-100_500_LOR_fmcffbeMbvftd11_meg13_0506_cc410179_dcm_STD_DVT.mat'
+                                                           '/imaging/mlr/users/tc02/Holly_MMN/CMC_DCMs/mod_10_b8LFP_s_-100_500_LOR_fmcffbeMbvftd12_meg13_0403_cc510639_dcm_STD_DVT.mat'
+                                                           '/imaging/mlr/users/tc02/Holly_MMN/CMC_DCMs/mod_10_b8LFP_s_-100_500_LOR_fmcffbeMbvftd13_meg13_0393_cc520065_dcm_STD_DVT.mat'
+                                                           '/imaging/mlr/users/tc02/Holly_MMN/CMC_DCMs/mod_10_b8LFP_s_-100_500_LOR_fmcffbeMbvftd14_meg13_0480_cc420261_dcm_STD_DVT.mat'
                                                            };
 matlabbatch{1}.spm.dcm.bms.inference.sess_dcm{2}.dcmmat = '<UNDEFINED>';
 matlabbatch{1}.spm.dcm.bms.inference.model_sp = {''};

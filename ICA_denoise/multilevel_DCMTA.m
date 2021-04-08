@@ -685,9 +685,9 @@ DCM.M.Nmax     = DCM.options.Nmax;
 disp('Attempting to load the inversion from the unfailed run as a template for DCM.x')
 try
     if strcmp(condition,'STD')
-        DCM_template = load(['/imaging/tc02/Holly_MMN/extDCMs/' nout(2,@fileparts,megfilename) '_dcm_DVT.mat'],'DCM');
+        DCM_template = load(['/imaging/mlr/users/tc02/Holly_MMN/extDCMs/' nout(2,@fileparts,megfilename) '_dcm_DVT.mat'],'DCM');
     else
-        DCM_template = load(['/imaging/tc02/Holly_MMN/extDCMs/' nout(2,@fileparts,megfilename) '_dcm_STD.mat'],'DCM');
+        DCM_template = load(['/imaging/mlr/users/tc02/Holly_MMN/extDCMs/' nout(2,@fileparts,megfilename) '_dcm_STD.mat'],'DCM');
     end
     
     DCM.pE      = DCM_template.DCM.Ep;

@@ -165,7 +165,7 @@ for i=1:nbchunks
     cmask(cmask) = any(diff(Y(:,cmask),1));        %-Mask constant data
     mask(chunk)  = cmask; % TA test
 % %  % TA test
-% %  load('/imaging/na01/mask1.mat','m1')
+% %  load('/imaging/rowe/users/na01/mask1.mat','m1')
 % %  mask = repmat(m1&mask(:,:,1),1,1,size(mask,3));
     Cm(chunk)    = cmask;
     if ~any(cmask), continue, end

@@ -1,7 +1,7 @@
 function DoDCMTA1_ecd2(n)
 
 
-F = {'/imaging/hp02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/forwardmodels/ftd/meg11_0179/fmraedfffmeg11_0179.mat'};
+F = {'/imaging/rowe/archive/users/hp02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/forwardmodels/ftd/meg11_0179/fmraedfffmeg11_0179.mat'};
 
 % open pool:
 % P = parpool(cbupool(length(F))); % P = matlabpool(cbupool(length(F))); %P = parpool(2);

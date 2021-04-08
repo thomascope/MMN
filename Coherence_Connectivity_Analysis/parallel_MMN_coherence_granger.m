@@ -25,7 +25,7 @@ conditions = {'STD', 'DVT'}; %So that deviants aren't over-weighted by separate 
 S=S.D;
 
 %method = 'granger';                     %you can try using other methods from the connectivity
-spectrum = [method 'spctrm'];            %function in fieldtrip. It requires heavy editing to work.
+%spectrum = [method 'spctrm'];            %function in fieldtrip. It requires heavy editing to work.
 
 srate = S.Fsample; %NB: Default data are downsampled to 250Hz compared to Will's data at 1000Hz
 
@@ -168,11 +168,29 @@ for n = 1:21
                     cfg = [];
                     cfg.channelcmb=channelcmb;
                     
-                    cfg.method = method;
+                    if strncmp(method,'partial',7)
+                        %Find the channels to partial out - connected to
+                        %either of the nodes in the main analysis
+                        cfg.partchannel = {};
+                        for this_partial_pair = 1:size(corr_sig_pairs)
+                            if this_partial_pair == these_pairs
+                                continue
+                            else
+                                if any(ismember(chans,corr_sig_pairs{this_partial_pair}(1)))
+                                    cfg.partchannel{end+1} = S.channels(corr_sig_pairs{this_partial_pair}(2)).label;
+                                elseif any(ismember(chans,corr_sig_pairs{this_partial_pair}(2)))
+                                    cfg.partchannel{end+1} = S.channels(corr_sig_pairs{this_partial_pair}(1)).label;
+                                end
+                            end
+                        end
+                        cfg.partchannel = cfg.partchannel';
+                        cfg.method = method(9:end);
+                    else
+                        cfg.method = method;
+                    end
+                    
                     switch method
-                        case 'coh'
-                            cfg.complex = 'imag';
-                        case 'plv'
+                        case {'coh', 'partial_coh', 'plv', 'partial_plv'}
                             cfg.complex = 'imag';
                     end
                     %cfg.granger.init = 'rand';
@@ -204,7 +222,7 @@ for n = 1:21
                     % Add key results from res.grangerspctrm to master matrix: channels
                     % compared, frequency and granger values.
                     
-                    switch method
+                    switch cfg.method
                         case 'granger'
                             if ~exist('temp_granger_data','var')
                                 temp_granger_data = nan(nchans,nchans,ntimes,length(foi)-1,numel(conditions),nptmp);

@@ -37,7 +37,7 @@ elseif exist('rejecteeg','var')&&any(ismember(modality,'EEG'))
 end
 rejecteeg = num2cell(rejecteeg);
 
-outputstem = '/imaging/tc02/Holly_MMN/ICA_denoise/ERP_stats';
+outputstem = '/imaging/mlr/users/tc02/Holly_MMN/ICA_denoise/ERP_stats';
 
 % Contrasts (don't specify if not needed)
 contrasts = {};

@@ -1,5 +1,5 @@
 function Plot_DCM_Report(start_date,end_date)
-reports_directory = '/imaging/tc02/Holly_MMN/DCM_REPORTS'
+reports_directory = '/imaging/mlr/users/tc02/Holly_MMN/DCM_REPORTS'
 start_date = datetime(start_date);
 end_date = datetime(end_date);
 all_folders = dir(reports_directory);

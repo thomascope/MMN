@@ -1,7 +1,7 @@
 addpath('/group/language/data/thomascope/MMN/ICA_denoise/Tallie_extDCM/mfiles_also_needed')
 addpath(['/group/language/data/thomascope/MMN/ICA_denoise/stdshade']);
 filelist = dir([p.extDCM_outdir '/*DVT*']);
-%filelist = dir('/imaging/tc02/Holly_MMN/extDCMs_first_attempt/*DVT*');
+%filelist = dir('/imaging/mlr/users/tc02/Holly_MMN/extDCMs_first_attempt/*DVT*');
 %Inverted_Conditions = {'STD','DVT','location','intensity','duration','gap','frequency'};
 Inverted_Conditions = {'STD','DVT'};
 

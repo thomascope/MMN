@@ -10,14 +10,14 @@ for i = 1:length(Participant)
         end
     elseif exist(Participant{i}.MF,'file')
         this_MF_source{i}{1} = Participant{i}.MF
-    elseif exist(['/imaging/hp02/pnfa_mmn/maxfilter/' Participant{i}.groupfolder '/' Participant{i}.name '/' Participant{i}.MF],'file')
-        this_MF_source{i}{1} = ['/imaging/hp02/pnfa_mmn/maxfilter/' Participant{i}.groupfolder '/' Participant{i}.name '/' Participant{i}.MF];
-    elseif exist(['/imaging/hp02/pnfa_mmn/maxfilter/' Participant{i}.groupfolder '/' Participant{i}.name(1:end-2) '/' Participant{i}.MF],'file')
-        this_MF_source{i}{1} = ['/imaging/hp02/pnfa_mmn/maxfilter/' Participant{i}.groupfolder '/' Participant{i}.name(1:end-2) '/' Participant{i}.MF];
+    elseif exist(['/imaging/rowe/archive/users/hp02/pnfa_mmn/maxfilter/' Participant{i}.groupfolder '/' Participant{i}.name '/' Participant{i}.MF],'file')
+        this_MF_source{i}{1} = ['/imaging/rowe/archive/users/hp02/pnfa_mmn/maxfilter/' Participant{i}.groupfolder '/' Participant{i}.name '/' Participant{i}.MF];
+    elseif exist(['/imaging/rowe/archive/users/hp02/pnfa_mmn/maxfilter/' Participant{i}.groupfolder '/' Participant{i}.name(1:end-2) '/' Participant{i}.MF],'file')
+        this_MF_source{i}{1} = ['/imaging/rowe/archive/users/hp02/pnfa_mmn/maxfilter/' Participant{i}.groupfolder '/' Participant{i}.name(1:end-2) '/' Participant{i}.MF];
     else
-        this_subfolder = ls(['/imaging/hp02/pnfa_mmn/maxfilter/' Participant{i}.groupfolder '/' Participant{i}.name '/']);
-        if exist(['/imaging/hp02/pnfa_mmn/maxfilter/' Participant{i}.groupfolder '/' Participant{i}.name '/' this_subfolder '/' Participant{i}.MF],'file')
-            this_MF_source{i}{1} = ['/imaging/hp02/pnfa_mmn/maxfilter/' Participant{i}.groupfolder '/' Participant{i}.name '/' this_subfolder '/' Participant{i}.MF];
+        this_subfolder = ls(['/imaging/rowe/archive/users/hp02/pnfa_mmn/maxfilter/' Participant{i}.groupfolder '/' Participant{i}.name '/']);
+        if exist(['/imaging/rowe/archive/users/hp02/pnfa_mmn/maxfilter/' Participant{i}.groupfolder '/' Participant{i}.name '/' this_subfolder '/' Participant{i}.MF],'file')
+            this_MF_source{i}{1} = ['/imaging/rowe/archive/users/hp02/pnfa_mmn/maxfilter/' Participant{i}.groupfolder '/' Participant{i}.name '/' this_subfolder '/' Participant{i}.MF];
         else
             warning(['No Maxfilter source found for Participant ' num2str(i)])
         end
@@ -123,7 +123,7 @@ vespa_fif_path = [{'/megdata/cbu/vespa/meg14_0085_vp1/140228/vespa_mmn_raw.fif';
     '/megdata/cbu/vespa/meg14_0184_vp9/140424/vespa_mmn_raw.fif';
     '/megdata/cbu/vespa/meg14_0205_vp10/140502/vespa_mmn_raw.fif';
     '/megdata/cbu/vespa/meg14_0222_vp11/140513/vespa_mmn_raw.fif';
-    '/imaging/tc02/vespa/preprocess/meg14_0506_vp12/MMN+Rest/mmn_raw_sss.fif'}];
+    '/imaging/mlr/users/tc02/vespa/preprocess/meg14_0506_vp12/MMN+Rest/mmn_raw_sss.fif'}];
 
 match_HCs = {
     % bvFTD matched controls:
@@ -356,7 +356,7 @@ mmn_fif_names_mHCs_transdef = {
 };
 
 %% Preprocessed files
-preproc_path = '/imaging/hp02/pnfa_mmn/preprocessed/dvts_sep/';
+preproc_path = '/imaging/rowe/archive/users/hp02/pnfa_mmn/preprocessed/dvts_sep/';
 
 preproc_matched_hcs = {
   
@@ -412,7 +412,7 @@ preproc_matched_hcs = {
 'matched_HCs/pnfa10_meg08_0378/fmraedfffpnfa10_meg08_0378.nii'
 };
 %% MRIs
-mri_path = '/imaging/hp02/pnfa_mmn/mri_scans/';
+mri_path = '/imaging/rowe/archive/users/hp02/pnfa_mmn/mri_scans/';
 
 mri_matched_hcs = {
   
@@ -477,7 +477,7 @@ mri_matched_hcs = {
 % % '/imaging/camcan/cc280/mri/pipeline/release003/Structural/aamod_copystructural_00001/CBU140091/structurals/sMR13010_CC510648-0003-00001-000192-01.nii';
 % % '/imaging/camcan/cc280/mri/pipeline/release003/Structural/aamod_copystructural_00001/CBU140144/structurals/sMR13010_CC420100-0003-00001-000192-01.nii';
 % % '/imaging/camcan/cc280/mri/pipeline/release003/Structural/aamod_copystructural_00001/CBU140242/structurals/sMR13010_CC420157-0003-00001-000192-01.nii';
-% % '/imaging/hp02/pnfa_mmn/mri_scans/vespa/meg14_0114_vc4/vc4_Structural.nii';
+% % '/imaging/rowe/archive/users/hp02/pnfa_mmn/mri_scans/vespa/meg14_0114_vc4/vc4_Structural.nii';
 % % '/imaging/camcan/cc700/mri/pipeline/release003/data/aamod_copystructural_00001/CBU111038/structurals/sMR10033_CC410179-0003-00001-000192-01.nii';
 % % '/imaging/camcan/cc280/mri/pipeline/release003/Structural/aamod_copystructural_00001/CBU130803/structurals/sMR13010_CC510639-0003-00001-000192-01.nii';
 % % '/imaging/camcan/cc280/mri/pipeline/release003/Structural/aamod_copystructural_00001/CBU140053/structurals/sMR13010_CC520065-0003-00001-000192-01.nii';
@@ -488,7 +488,7 @@ mri_matched_hcs = {
 % % '/imaging/camcan/cc280/mri/pipeline/release003/Structural/aamod_copystructural_00001/CBU130889/structurals/sMR13010_CC520745-0003-00001-000192-01.nii';
 % % '/imaging/camcan/cc280/mri/pipeline/release003/Structural/aamod_copystructural_00001/CBU140223/structurals/sMR13010_CC520253-0003-00001-000192-01.nii';
 % % '/imaging/camcan/cc280/mri/pipeline/release003/Structural/aamod_copystructural_00001/CBU131013/structurals/sMR13010_CC420198-0003-00001-000192-01.nii';
-% % '/imaging/hp02/pnfa_mmn/mri_scans/vespa/meg14_0096_vc3/vc3_Structural.nii';
+% % '/imaging/rowe/archive/users/hp02/pnfa_mmn/mri_scans/vespa/meg14_0096_vc3/vc3_Structural.nii';
 % % '/imaging/camcan/cc280/mri/pipeline/release003/Structural/aamod_copystructural_00001/CBU140663/structurals/sMR13010_CC520097-0003-00001-000192-01.nii';
 % % '/imaging/camcan/cc280/mri/pipeline/release003/Structural/aamod_copystructural_00001/CBU140259/structurals/sMR13010_CC610496-0003-00001-000192-01.nii';
 % % 

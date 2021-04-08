@@ -37,7 +37,7 @@ order = {'LA1' 'LSTG' 'LIFG' 'LIPC' 'RA1' 'RSTG' 'RIFG' 'RIPC'};
 %% load the DATA MATRIX:
 
 % first cd to the relevant DCM_params folder, e.g.:
-path_dcm = '/imaging/hp02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/2019_TC_LFPs_customPriors_32models/';
+path_dcm = '/imaging/rowe/archive/users/hp02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/2019_TC_LFPs_customPriors_32models/';
 
 datafit = {'std_dvt', 'std_loc','std_int','std_dur','std_gap','std_frq'};
 

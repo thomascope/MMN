@@ -2,10 +2,10 @@
 
 thisdir = pwd;
 
-%datapathstem = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_secondfilter/'; %For spoken baseline
-%datapathstem = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_secondfilter/crosshem/'; %With cross hemispheric connections
-datapathstem = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_LOR/crosshem/'; %With minimum norm source reconstruction
-%datapathstem = '/imaging/tc02/vespa/preprocess/SPM12_fullpipeline_fixedICA/extractedsources_tf_newinversions_newbaseline/'; %For written baseline
+%datapathstem = '/imaging/mlr/users/tc02/Holly_MMN/Coherence_Connectivity_secondfilter/'; %For spoken baseline
+%datapathstem = '/imaging/mlr/users/tc02/Holly_MMN/Coherence_Connectivity_secondfilter/crosshem/'; %With cross hemispheric connections
+datapathstem = '/imaging/mlr/users/tc02/Holly_MMN/Coherence_Connectivity_LOR/crosshem/'; %With minimum norm source reconstruction
+%datapathstem = '/imaging/mlr/users/tc02/vespa/preprocess/SPM12_fullpipeline_fixedICA/extractedsources_tf_newinversions_newbaseline/'; %For written baseline
 addpath(['/group/language/data/thomascope/vespa/SPM12version/Standalone preprocessing pipeline/tc_source_stats/ojwoodford-export_fig-216b30e']);
 addpath(['/group/language/data/thomascope/MMN/LFPs/stdshade']);
 
@@ -38,7 +38,7 @@ switch(analysis_type)
         datapathstem = [datapathstem 'coh/'];
 end
 
-addpath('/imaging/tc02/toolboxes/rsatoolbox/Engines/')
+addpath('/imaging/mlr/users/tc02/toolboxes/rsatoolbox/Engines/')
 
 cd(datapathstem)
 filenames = {};

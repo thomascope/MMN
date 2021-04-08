@@ -1,4 +1,4 @@
-VBM_path = '/imaging/tc02/Holly_MMN/ICA_Denoise/VBM/VBM_stats/Bayesian';
+VBM_path = '/imaging/mlr/users/tc02/Holly_MMN/ICA_Denoise/VBM/VBM_stats/Bayesian';
 
 %Contrasts:
 this_fname = 'Con-PCA_null';

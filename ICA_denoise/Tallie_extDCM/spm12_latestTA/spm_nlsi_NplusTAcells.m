@@ -332,8 +332,8 @@ fprintf('.      Vp: [%s] \n.      Vg: [%s] \n',num2str(size(Vp)),num2str(size(Vg
 strR = nout(2,@fileparts,DCM.name);
 strRa = datestr(datetime);
 strRa = strRa(1:end-3);
-mkdir(['/imaging/tc02/Holly_MMN/REPORTS_' strRa])
-disp(['    -- reporting incrementally saved in /imaging/tc02/Holly_MMN/REPORTS_' strRa])
+mkdir(['/imaging/mlr/users/tc02/Holly_MMN/REPORTS_' strRa])
+disp(['    -- reporting incrementally saved in /imaging/mlr/users/tc02/Holly_MMN/REPORTS_' strRa])
 %disp(['    -- EM optimize p ' strR])
 EP     = [];
 for ip = 1:M.Nmax
@@ -593,7 +593,7 @@ for ip = 1:M.Nmax
         R.p{10} = permute(R.p{10},[2 1 3]);
         R.p{11} = permute(R.p{11},[2 1 3]);
         
-        save(['/imaging/tc02/Holly_MMN/REPORTS_' strRa '/' strR],'R')
+        save(['/imaging/mlr/users/tc02/Holly_MMN/REPORTS_' strRa '/' strR],'R')
         
         NODES = {'LIFG' 'LSTG' 'LAud' 'RIFG' 'RSTG' 'RAud'};
         POPS = {'ss' 'sp' 'si' 'dp' 'di' 'tp'};
@@ -719,9 +719,9 @@ for i = 1:length(DCM.xY.y)
     DCM.K{i} = DCM.K{i}(:,j);                          % Depolarization in sources
 end
 DCM.M = rmfield(DCM.M,'dipfit');
-if ~exist('/imaging/tc02/Holly_MMN/extDCMs/','dir')
-    mkdir('/imaging/tc02/Holly_MMN/extDCMs/')
+if ~exist('/imaging/mlr/users/tc02/Holly_MMN/extDCMs/','dir')
+    mkdir('/imaging/mlr/users/tc02/Holly_MMN/extDCMs/')
 end
-save(['/imaging/tc02/Holly_MMN/extDCMs/' nout(2,@fileparts,DCM.name) '_dcm.mat'],'DCM')
+save(['/imaging/mlr/users/tc02/Holly_MMN/extDCMs/' nout(2,@fileparts,DCM.name) '_dcm.mat'],'DCM')
 
 return

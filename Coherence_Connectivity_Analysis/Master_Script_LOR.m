@@ -21,11 +21,11 @@ thisdir = pwd;
 
 addpath('/group/language/data/thomascope/vespa/SPM12version/Standalone preprocessing pipeline/')
 
-%pathstem = '/imaging/hp02/pnfa_mmn/forward_modelling/LFPs_TA';
-pathstem_evoked = '/imaging/tc02/scratch/LFPs_TA/';
-pathstem_inv = '/imaging/tc02/scratch/LFPs_TA/';
-pathstem_raw = '/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/';
-outdir = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_LOR/';
+%pathstem = '/imaging/rowe/archive/users/hp02/pnfa_mmn/forward_modelling/LFPs_TA';
+pathstem_evoked = '/imaging/mlr/users/tc02/scratch/LFPs_TA/';
+pathstem_inv = '/imaging/mlr/users/tc02/scratch/LFPs_TA/';
+pathstem_raw = '/imaging/rowe/archive/users/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/';
+outdir = '/imaging/mlr/users/tc02/Holly_MMN/Coherence_Connectivity_LOR/';
 
 fft_method = 'mtmfft'; % 'wavelet' for morlet; can leave blank for multitaper.
 

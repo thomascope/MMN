@@ -697,7 +697,7 @@ for ip = 1:M.Nmax
 %     R.p{12}(:,:,ip) = Ep.T;
 %     R.p{13}(:,:,ip) = full(Eg.J);
 %     R.p{14}(:,:,ip) = Eg.L;
-%     save(['/imaging/na01/REPORTS_' strRa '/' strR],'R')
+%     save(['/imaging/rowe/users/na01/REPORTS_' strRa '/' strR],'R')
     if all(criterion), fprintf(' convergence\n'), break, end
     
 end

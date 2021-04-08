@@ -15,7 +15,7 @@ load('node_test_params.mat','p','all_names')
 p = p; %Stupid re-naming required for parfor loop
 all_names = all_names;
 
-dirname_DCM = '/imaging/tc02/Holly_MMN/extDCMs_hE6/';
+dirname_DCM = '/imaging/mlr/users/tc02/Holly_MMN/extDCMs_hE6/';
 filestem = 'b8LFP_s_-100_500_LOR_fmbraedfffM';
 conditions = {'STD','DVT','location','intensity','duration','gap','frequency'};
 all_combinations = combvec(unique(p.group)',1:length(conditions));

@@ -1,9 +1,9 @@
 % paths to different data
-mf_path = '/imaging/hp02/pnfa_mmn/maxfilter/';
-mri_path = '/imaging/hp02/pnfa_mmn/mri_scans/';
-preproc_path = '/imaging/hp02/pnfa_mmn/preprocessed/dvts_sep/';
+mf_path = '/imaging/rowe/archive/users/hp02/pnfa_mmn/maxfilter/';
+mri_path = '/imaging/rowe/archive/users/hp02/pnfa_mmn/mri_scans/';
+preproc_path = '/imaging/rowe/archive/users/hp02/pnfa_mmn/preprocessed/dvts_sep/';
 LFP_path = 'imaging/tc02/scratch/LFPs_TA/';
-dcm_path = '/imaging/hp02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/2019_TC_LFPs_customPriors_32models';
+dcm_path = '/imaging/rowe/archive/users/hp02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/2019_TC_LFPs_customPriors_32models';
 
 i=1;
 % Participant details for patient MMN data analysis
@@ -688,7 +688,7 @@ Participant{i}.MF = '140506/vespa_mmn_raw_trans1stdef.fif';
 i=i+1;
 
 % %MCIs
-% addpath('/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans');
+% addpath('/imaging/rowe/archive/users/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans');
 % copy_mci_mris;% This script was used to copy mris, but it also contains mri info useful to quickly make MCI struct
 % for pp = 1:length(mci_pats)
 %     Participant{i}.name = mci_pats{pp,1};

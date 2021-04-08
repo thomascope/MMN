@@ -2,10 +2,10 @@ cd '/group/language/data/thomascope/MMN/ICA_denoise/'
 
 %% Add paths
 
-addpath(genpath('/imaging/hp02/spm12b'));
+addpath(genpath('/imaging/rowe/archive/users/hp02/spm12b'));
 addpath(genpath('/imaging/local/software/mne'));
-addpath('/imaging/hp02/finger_tapping08/analysis_spm/new_functions');
-addpath('/imaging/hp02/pnfa_mmn/');
+addpath('/imaging/rowe/archive/users/hp02/finger_tapping08/analysis_spm/new_functions');
+addpath('/imaging/rowe/archive/users/hp02/pnfa_mmn/');
 
 %% Enter Subjects - Change Accordingly:
 % script that holds all the participant's maxfilter locations and folder
@@ -14,7 +14,7 @@ participant_folder_structure;
 
 for ss =1: length(mf_files) 
     
-    cd /imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/
+    cd /imaging/rowe/archive/users/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/
 
     
     subjfolder = Participant{ss}.name;
@@ -24,7 +24,7 @@ for ss =1: length(mf_files)
     
     fprintf(1, 'Subject: %s\n', subjfolder);
     
-    dat_wd = '/imaging/hp02/pnfa_mmn/maxfilter/';
+    dat_wd = '/imaging/rowe/archive/users/hp02/pnfa_mmn/maxfilter/';
     
     rawfile  = fullfile(mf_files{ss});
     

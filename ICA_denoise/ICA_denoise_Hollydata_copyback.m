@@ -6,8 +6,8 @@ spm eeg
 %This script ICA denoises the data for MMN analysis
 
 script_dir = '/group/language/data/thomascope/MMN/ICA_denoise/';
-pathstem = '/imaging/tc02/Holly_MMN/ICA_denoise/';
-data_definition_dir = '/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/';
+pathstem = '/imaging/mlr/users/tc02/Holly_MMN/ICA_denoise/';
+data_definition_dir = '/imaging/rowe/archive/users/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/';
 folder_structure_file_maindata = 'participant_folder_structure.m';
 
 addpath(script_dir)

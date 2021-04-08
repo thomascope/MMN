@@ -3,28 +3,28 @@
 clear all
 clc
 
-cwd = '/imaging/tc02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/2019_TC_LFPs_customPriors_32models/';
+cwd = '/imaging/mlr/users/tc02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/2019_TC_LFPs_customPriors_32models/';
 cd(cwd)
 %%
 
 addpath(genpath('/imaging/local/software/mne'));
-addpath(genpath('/imaging/hp02/spm12b'));
+addpath(genpath('/imaging/rowe/archive/users/hp02/spm12b'));
 %addpath(genpath('/imaging/local/software/spm_cbu_svn/releases/spm12_fil_r6906'));
 
 % Adding AS08 scripts for specialised adaptations for CMC modelling
 % addpath(genpath('/imaging/local/software/spm_cbu_svn/releases/spm12_latest'));
 % addpath('/imaging/as08/Roving/NEW_DCM_ERP_SPM12/');
 % addpath('/imaging/as08/Roving/NEW_DCM_ERP_SPM12/cons1/');
-addpath('/imaging/hp02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/TallieScripts');
+addpath('/imaging/rowe/archive/users/hp02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/TallieScripts');
 
 %% Define your subject data and MRIs
 prefix1 = 'fmraedfff';
-path_file = '/imaging/hp02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/2019_TC_LFPs_customPriors_32models';
+path_file = '/imaging/rowe/archive/users/hp02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/2019_TC_LFPs_customPriors_32models';
 %group_folders = {'ftd', 'pca', 'vespa_patients', 'vespa_hcs'};
 
 addpath(path_file)
 %forward_subject_names;
-load('/imaging/tc02/Holly_MMN/ICA_denoise_longwindow/LFPs/Participant.mat');
+load('/imaging/mlr/users/tc02/Holly_MMN/ICA_denoise_longwindow/LFPs/Participant.mat');
 %cd(cwd)
 % Note: you may have to copy your MRI first (e.g. from /imaging/local/structurals/cbu)
 
@@ -307,7 +307,7 @@ for dc = 5:length(datafit)
             ss
             DCMsub = DCMbase;
             
-            data_subj = sprintf('/imaging/tc02/Holly_MMN/ICA_denoise_longwindow/LFPs/%s/8LFP_s_-100_500_LOR_fmbraedfffM%s.mat', Participant{ss}.diag,  Participant{ss}.name);
+            data_subj = sprintf('/imaging/mlr/users/tc02/Holly_MMN/ICA_denoise_longwindow/LFPs/%s/8LFP_s_-100_500_LOR_fmbraedfffM%s.mat', Participant{ss}.diag,  Participant{ss}.name);
             
             
             S=[]; S.D = data_subj;

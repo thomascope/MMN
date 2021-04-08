@@ -11,7 +11,7 @@ end
 
 addpath('/group/language/data/thomascope/MMN/ICA_denoise/Tallie_extDCM/mfiles_also_needed');
 
-PEB_HD = load('/imaging/tc02/Holly_MMN/extDCMs_hE6/PEB_secondlevel/PEB_HD.mat','PEB_HD');
+PEB_HD = load('/imaging/mlr/users/tc02/Holly_MMN/extDCMs_hE6/PEB_secondlevel/PEB_HD.mat','PEB_HD');
 PEB_HD = PEB_HD.PEB_HD;
 
 groups = 1:5;

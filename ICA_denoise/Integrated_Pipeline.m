@@ -11,11 +11,11 @@ end
 %This script ICA denoises the data for MMN analysis
 
 script_dir = '/group/language/data/thomascope/MMN/ICA_denoise/';
-%pathstem = '/imaging/tc02/Holly_MMN/ICA_denoise/';
-pathstem = '/imaging/tc02/Holly_MMN/ICA_denoise_longwindow/';
-data_definition_dir = '/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/';
+%pathstem = '/imaging/mlr/users/tc02/Holly_MMN/ICA_denoise/';
+pathstem = '/imaging/mlr/users/tc02/Holly_MMN/ICA_denoise_longwindow/';
+data_definition_dir = '/imaging/rowe/archive/users/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/';
 folder_structure_file_maindata = 'participant_folder_structure.m';
-mridirectory = '/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/';
+mridirectory = '/imaging/rowe/archive/users/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/';
 
 addpath(script_dir)
 
@@ -140,14 +140,14 @@ for todonumber = 1:size(fullpath,2)
     end
     
     try
-        mri_path = dir(['/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/MCI/' MCI_fnames{todonumber} '/*.nii']);
+        mri_path = dir(['/imaging/rowe/archive/users/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/MCI/' MCI_fnames{todonumber} '/*.nii']);
         
         if size(mri_path,1) ~= 1
-            mri_path = dir(['/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/MCI/' MCI_fnames{todonumber} '/c6*.nii']);
+            mri_path = dir(['/imaging/rowe/archive/users/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/MCI/' MCI_fnames{todonumber} '/c6*.nii']);
             if size(mri_path,1) == 1
                 [~,mri_name,~] = fileparts(mri_path.name);
                 mri_name = mri_name(3:end);
-                if exist(['/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/MCI/' MCI_fnames{todonumber} '/' mri_name '.nii']) && ~strcmp(mri_name,'single_subj_T1')
+                if exist(['/imaging/rowe/archive/users/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/MCI/' MCI_fnames{todonumber} '/' mri_name '.nii']) && ~strcmp(mri_name,'single_subj_T1')
                 else
                     error(['more than one MRI found for subject ' num2str(todonumber)])
                 end
@@ -157,7 +157,7 @@ for todonumber = 1:size(fullpath,2)
         end
     catch
         try
-            mri_path = dir(['/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/MCI/' MCI_fnames{todonumber} '/*.dcm']);
+            mri_path = dir(['/imaging/rowe/archive/users/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/MCI/' MCI_fnames{todonumber} '/*.dcm']);
             if size(mri_path,1) ~= 1
                 error(['more than one MRI found for subject ' num2str(todonumber)])
             else
@@ -383,7 +383,7 @@ for todonumber = 1:nsubj
 end
 %
 % %% Copy maxfiltered data to new directory structure
-% preproc_path_tc = '/imaging/tc02/Holly_MMN/ICA_denoise/';
+% preproc_path_tc = '/imaging/mlr/users/tc02/Holly_MMN/ICA_denoise/';
 % copycomplete = zeros(1,old_nsubj);
 % parfor todonumber = 1:nsubj
 %     if iscell(Participant{todonumber}.name)
@@ -415,8 +415,8 @@ end
 % end
 %
 % %% Now run ICA_denoise
-% copyfile('/imaging/tc02/Holly_MMN/ICA_denoise/MEGArtifactTemplateTopographies.mat',[pathstem 'MEGArtifactTemplateTopographies.mat'])
-% copyfile('/imaging/tc02/Holly_MMN/ICA_denoise/tec_montage_all.mat',[pathstem 'tec_montage_all.mat'])
+% copyfile('/imaging/mlr/users/tc02/Holly_MMN/ICA_denoise/MEGArtifactTemplateTopographies.mat',[pathstem 'MEGArtifactTemplateTopographies.mat'])
+% copyfile('/imaging/mlr/users/tc02/Holly_MMN/ICA_denoise/tec_montage_all.mat',[pathstem 'tec_montage_all.mat'])
 % ICAcomplete = zeros(1,nsubj);
 % parfor todonumber = 1:nsubj
 %     if iscell(Participant{todonumber}.name)
@@ -1158,7 +1158,7 @@ end
 % p.subjcntformodel = 0;
 % p.conditions = conditions_to_invert;
 % p.multilevel = 0; %for first run
-% p.CMC_DCM_outdir = '/imaging/tc02/Holly_MMN/CMC_DCMs/';
+% p.CMC_DCM_outdir = '/imaging/mlr/users/tc02/Holly_MMN/CMC_DCMs/';
 
 % Parallelise subject and model 
 CMC_DCM_Models = 1:32; % Modify based on how many connectivity models you're inverting
@@ -1170,7 +1170,7 @@ p.subjcntforcondition = 0;
 p.subjcntformodel = 1;
 p.conditions = conditions_to_invert;
 p.multilevel = 0; %for first run
-p.CMC_DCM_outdir = '/imaging/tc02/Holly_MMN/CMC_DCMs/';
+p.CMC_DCM_outdir = '/imaging/mlr/users/tc02/Holly_MMN/CMC_DCMs/';
 pare_down_runs = 1;
 if pare_down_runs
     parfor todonumber = 1:size(allrunsarray,1)
@@ -1202,7 +1202,7 @@ parfor todonumber = 1:size(allrunsarray,1)
 end
 
 %% Now run Bayesian model selection
-p.CMC_DCM_BMSdir = '/imaging/tc02/Holly_MMN/CMC_DCM_BMS/';
+p.CMC_DCM_BMSdir = '/imaging/mlr/users/tc02/Holly_MMN/CMC_DCM_BMS/';
 addpath('/group/language/data/thomascope/MMN/ICA_denoise/CMC_DCM');
 redo = 1;
 
@@ -1329,8 +1329,8 @@ extDCMcomplete = zeros(1,size(allrunsarray,1));
 p.subjcntforcondition = 1;
 p.conditions = conditions_to_invert;
 p.multilevel = 0; %for first run
-%p.extDCM_outdir = '/imaging/tc02/Holly_MMN/extDCMs/'; p.meancentring = 1;
-p.extDCM_outdir = '/imaging/tc02/Holly_MMN/extDCMs_notmeancentred/'; p.meancentring = 0;
+%p.extDCM_outdir = '/imaging/mlr/users/tc02/Holly_MMN/extDCMs/'; p.meancentring = 1;
+p.extDCM_outdir = '/imaging/mlr/users/tc02/Holly_MMN/extDCMs_notmeancentred/'; p.meancentring = 0;
 
 parfor todonumber = 1:size(allrunsarray,1)
     this_input_fname = {['b8LFP_s_' time_wind_path{wind_cnt} '_' inv_meth{p.inv_cnt} '_' prefix all_names{allrunsarray(todonumber,1)} '*.mat']};
@@ -1536,7 +1536,7 @@ addpath('./extDCM_visualisation')
 try
     dirname_DCM = p.extDCM_outdir;
 catch
-    p.extDCM_outdir = '/imaging/tc02/Holly_MMN/extDCMs_unflipped/'; p.meancentring = 0;
+    p.extDCM_outdir = '/imaging/mlr/users/tc02/Holly_MMN/extDCMs_unflipped/'; p.meancentring = 0;
     dirname_DCM = p.extDCM_outdir;
 end
 p.Sname = {'left A1';

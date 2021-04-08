@@ -1,5 +1,5 @@
-%datapathstem = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_secondfilter';
-datapathstem = '/imaging/tc02/Holly_MMN/Coherence_Connectivity_minimumnorm/';
+%datapathstem = '/imaging/mlr/users/tc02/Holly_MMN/Coherence_Connectivity_secondfilter';
+datapathstem = '/imaging/mlr/users/tc02/Holly_MMN/Coherence_Connectivity_minimumnorm/';
 thispath = pwd;
 cd(datapathstem)
 %load([datapathstem 'groups.mat']);

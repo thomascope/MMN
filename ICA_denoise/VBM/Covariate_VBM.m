@@ -13,8 +13,8 @@ groupstodo = {'matched_HCs' 'pca' 'bvFTD' 'pnfa' 'MCI'};
 dirnames_inv = {'matched_HCs' 'pca' 'bvftd' 'vespa' 'MCI'};
 all_subjs = [];
 
-pathstem_structurals = '/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/';
-outdir = ['/imaging/tc02/Holly_MMN/ICA_Denoise/VBM_' metric '_' from '_' to '/'];
+pathstem_structurals = '/imaging/rowe/archive/users/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/';
+outdir = ['/imaging/mlr/users/tc02/Holly_MMN/ICA_Denoise/VBM_' metric '_' from '_' to '/'];
 
 mkdir(outdir)
 
@@ -548,7 +548,7 @@ cd([workingdir '/VBM'])
 %%  Now calculate the TIV
 
 nrun = 1;
-jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_TIV.m'};
+jobfile = {'/imaging/mlr/users/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_TIV.m'};
 jobs = repmat(jobfile, 1, nrun);
 inputs = cell(2, nrun);
 
@@ -594,7 +594,7 @@ fclose(fileID);
 tiv= dataArray{2}+dataArray{3}+dataArray{4};
 
 nrun = 1;
-jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_covariate_MCI_TIV_age.m'};
+jobfile = {'/imaging/mlr/users/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_covariate_MCI_TIV_age.m'};
 jobs = repmat(jobfile, 1, nrun);
 inputs = cell(8, nrun);
 
@@ -645,17 +645,17 @@ spm_jobman('run', jobs, inputs{:});
 inputs = cell(1, nrun);
 inputs{1, 1} =  {[char(stats_folder) '/SPM.mat']};
 
-jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_estimate.m'};
+jobfile = {'/imaging/mlr/users/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_estimate.m'};
 jobs = repmat(jobfile, 1, nrun);
 
 spm_jobman('run', jobs, inputs{:});
 
-jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_covariate_MMN_MCI.m'};
+jobfile = {'/imaging/mlr/users/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_covariate_MMN_MCI.m'};
 jobs = repmat(jobfile, 1, nrun);
 
 spm_jobman('run', jobs, inputs{:});
 
-jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_results.m'};
+jobfile = {'/imaging/mlr/users/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_results.m'};
 jobs = repmat(jobfile, 1, nrun);
 
 spm_jobman('run', jobs, inputs{:});

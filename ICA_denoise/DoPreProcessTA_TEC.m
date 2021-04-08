@@ -63,9 +63,9 @@ FBb = cell(length(F),1); [FBb{:}] = deal([13 29]);
 FBg1 = cell(length(F),1); [FBg1{:}] = deal([30 48]);
 
 % inputs for dodcmTA1:
-od = cd('/imaging/na01/LFPs');
+od = cd('/imaging/rowe/users/na01/LFPs');
 
-nam1 = strcat('/imaging/na01/LFPs/',gfTA('inv1'));
+nam1 = strcat('/imaging/rowe/users/na01/LFPs/',gfTA('inv1'));
 nam1(cellfun(@(x) isempty(regexp(x,'.mat','once')),nam1)) = [];
 dcm1 = cellfun(@(y) nout(2,@fileparts,y),nam1(cellfun(@(x) ~isempty(regexp(x,'dcm','once')),nam1)),'Uni',0);
 %dcm1 = cellfun(@(x) x(1:end-11),dcm1,'Uni',0); % use to ignore ones you've already done
@@ -73,7 +73,7 @@ for k = 1:length(dcm1)
     nam1(cellfun(@(x) ~isempty(regexp(x,dcm1{k},'once')),nam1)) = [];
 end
 
-nam2 = strcat('/imaging/na01/LFPs/',gfTA('inv2'));
+nam2 = strcat('/imaging/rowe/users/na01/LFPs/',gfTA('inv2'));
 nam2(cellfun(@(x) isempty(regexp(x,'.mat','once')),nam2)) = [];
 dcm2 = cellfun(@(y) nout(2,@fileparts,y),nam2(cellfun(@(x) ~isempty(regexp(x,'dcm','once')),nam2)),'Uni',0);
 %dcm2 = cellfun(@(x) x(1:end-11),dcm2,'Uni',0); % use to ignore ones you've already done
@@ -143,7 +143,7 @@ end
 try sr = strrep(strrep(datestr(datetime),':',''),' ','_'); %alphanumTA(5);
 catch err, sr = date;
 end
-mkdir(['/imaging/na01/N_' sr])
+mkdir(['/imaging/rowe/users/na01/N_' sr])
 for k = 1:length(job)
     j = job{k};
     i = inputs{k};
@@ -157,7 +157,7 @@ for k = 1:length(job)
             feval(j,i2{:});
             disp(['job ' num2str(k) ' ; meg ' num2str(k2)])
             n = 1;
-            save_parTA(['/imaging/na01/N_' sr '/N' num2str(k) '_' num2str(k2) '.mat'],'n')
+            save_parTA(['/imaging/rowe/users/na01/N_' sr '/N' num2str(k) '_' num2str(k2) '.mat'],'n')
         catch err
         end
     end

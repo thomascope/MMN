@@ -15,7 +15,7 @@
 
 % First, go to the directory where you saved one of your DCMs and create
 % your file list to work with:
-dirname_DCM = '/imaging/na01/DCMTA/';
+dirname_DCM = '/imaging/rowe/users/na01/DCMTA/';
 subdirname_DCM = 'group1_cond1/';
 nam = 'DCMbash.mat';
 for k = 1:length(subdirname_DCM)

@@ -25,7 +25,7 @@ end
 % If you've used my preproccessed data it might be:
 meg = FilesTA;
 meg_file = cellfun(@(x) [nout(2,@fileparts,x) nout(3,@fileparts,x)],meg,'Uni',0);
-F = cellfun(@(x,y) ['/imaging/na01/LFPs/aeF/LFP6inv2_aeF' x],meg_file,meg,'Uni',0);
+F = cellfun(@(x,y) ['/imaging/rowe/users/na01/LFPs/aeF/LFP6inv2_aeF' x],meg_file,meg,'Uni',0);
 
 
 %% run DCM for specified file:

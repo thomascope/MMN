@@ -2747,8 +2747,8 @@ switch step
         % Now add paths with impunity (more are changed in the function
         % itself)
         addpath('/group/language/data/thomascope/MMN/ICA_denoise/Tallie_extDCM/')
-        addpath('/imaging/na01/misc/TALLIE_SCRIPTS/extDCM/extDCM scripts')
-        addpath('/imaging/na01/misc/TALLIE_SCRIPTS/extDCM/mfiles_also_needed')
+        addpath('/imaging/rowe/users/na01/misc/TALLIE_SCRIPTS/extDCM/extDCM scripts')
+        addpath('/imaging/rowe/users/na01/misc/TALLIE_SCRIPTS/extDCM/mfiles_also_needed')
         
         for s=1:size(subjects,1)
             
@@ -2771,7 +2771,7 @@ switch step
                         %error('Purposeful error to abort parallel loop');
                         DCM = multilevel_DCMTA(files(f).name,[p.start_times p.end_times],cell2mat(condition),p.flipdipoles);
                     else
-                        if exist(['/imaging/tc02/Holly_MMN/extDCMs/' nout(2,@fileparts,[files(f).name(1:end-4) '_dcm']) '_' cell2mat(condition) '.mat'],'file')
+                        if exist(['/imaging/mlr/users/tc02/Holly_MMN/extDCMs/' nout(2,@fileparts,[files(f).name(1:end-4) '_dcm']) '_' cell2mat(condition) '.mat'],'file')
                             fprintf('\n\nData previously processed and multilevel not requested, moving on.\n\n');
                         else
                             DCM = integrated_DCMTA(files(f).name,[p.start_times p.end_times],cell2mat(condition),p.flipdipoles);
@@ -2801,8 +2801,8 @@ switch step
         % Now add paths with impunity (more are changed in the function
         % itself)
         addpath('/group/language/data/thomascope/MMN/ICA_denoise/Tallie_extDCM/')
-        addpath('/imaging/na01/misc/TALLIE_SCRIPTS/extDCM/extDCM scripts')
-        addpath('/imaging/na01/misc/TALLIE_SCRIPTS/extDCM/mfiles_also_needed')
+        addpath('/imaging/rowe/users/na01/misc/TALLIE_SCRIPTS/extDCM/extDCM scripts')
+        addpath('/imaging/rowe/users/na01/misc/TALLIE_SCRIPTS/extDCM/mfiles_also_needed')
         
         for s=1:size(subjects,1)
             
@@ -2858,7 +2858,7 @@ switch step
         % Now add paths with impunity (more are changed in the function
         % itself)
         addpath(genpath('/group/language/data/thomascope/MMN/ICA_denoise/CMC_DCM/'))
-        addpath('/imaging/na01/misc/TALLIE_SCRIPTS/extDCM/mfiles_also_needed')
+        addpath('/imaging/rowe/users/na01/misc/TALLIE_SCRIPTS/extDCM/mfiles_also_needed')
         
         for s=1:size(subjects,1)
             

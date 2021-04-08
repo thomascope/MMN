@@ -10,8 +10,8 @@ groupstodo = {'matched_HCs' 'pca' 'bvFTD' 'pnfa'};
 dirnames_inv = {'matched_HCs' 'pca' 'bvftd' 'vespa'};
 all_subjs = [];
 
-pathstem_structurals = '/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/';
-outdir = '/imaging/tc02/Holly_MMN/VBM/';
+pathstem_structurals = '/imaging/rowe/archive/users/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/';
+outdir = '/imaging/mlr/users/tc02/Holly_MMN/VBM/';
 workingdir = pwd;
 
 %% Which stages to run
@@ -407,7 +407,7 @@ cd(workingdir)
 
 if segment_this == 1
     nrun = length(all_mrilist);
-    jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_segment.m'};
+    jobfile = {'/imaging/mlr/users/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_segment.m'};
     jobs = repmat(jobfile, 1, nrun);
     inputs = cell(1, nrun);
     
@@ -439,7 +439,7 @@ end
 %%  Now calculate the TIV and then rename all of the mc files as will be overwritten by DARTEL (if not smoothed)
 if tiv_this == 1
     nrun = 1;
-    jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_TIV.m'};
+    jobfile = {'/imaging/mlr/users/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_TIV.m'};
     jobs = repmat(jobfile, 1, nrun);
     inputs = cell(2, nrun);
     
@@ -483,7 +483,7 @@ end
 if make_dartel_this == 1
     
     nrun = 1; % enter the number of runs here
-    jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_dartel.m'};
+    jobfile = {'/imaging/mlr/users/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_dartel.m'};
     jobs = repmat(jobfile, 1, nrun);
     inputs = cell(2,1);
     inputs{1,1} = cell(length(all_mrilist),1);
@@ -514,7 +514,7 @@ end
 
 if normalise_this == 1
     nrun = length(all_mrilist);
-    jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_normalise.m'};
+    jobfile = {'/imaging/mlr/users/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_normalise.m'};
     jobs = repmat(jobfile, 1, nrun);
     inputs = cell(3, nrun);
     
@@ -563,7 +563,7 @@ if stats_this ==1 ;
     tiv= dataArray{2}+dataArray{3}+dataArray{4};
     
     nrun = 1;
-    jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_multigroup_TIV_age.m'};
+    jobfile = {'/imaging/mlr/users/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_multigroup_TIV_age.m'};
     jobs = repmat(jobfile, 1, nrun);
     inputs = cell(8, nrun);
     
@@ -613,17 +613,17 @@ if stats_this ==1 ;
     inputs = cell(1, nrun);
     inputs{1, 1} =  {[char(stats_folder) '/SPM.mat']};
     
-    jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_estimate.m'};
+    jobfile = {'/imaging/mlr/users/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_estimate.m'};
     jobs = repmat(jobfile, 1, nrun);
     
     spm_jobman('run', jobs, inputs{:});
     
-    jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_contrast_MMN.m'};
+    jobfile = {'/imaging/mlr/users/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_contrast_MMN.m'};
     jobs = repmat(jobfile, 1, nrun);
     
     spm_jobman('run', jobs, inputs{:});
     
-    %     jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_results.m'};
+    %     jobfile = {'/imaging/mlr/users/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_results.m'};
     %     jobs = repmat(jobfile, 1, nrun);
     %
     %     spm_jobman('run', jobs, inputs{:});
@@ -634,7 +634,7 @@ end
 if make_average_brain_this == 1
     
     nrun = length(all_mrilist);
-    jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_normalise_unmodulated_unsmoothed.m'};
+    jobfile = {'/imaging/mlr/users/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_normalise_unmodulated_unsmoothed.m'};
     jobs = repmat(jobfile, 1, nrun);
     inputs = cell(3, nrun);
     
@@ -666,7 +666,7 @@ if make_average_brain_this == 1
     end
     
     nrun = 1;
-    jobfile = {'/imaging/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_imcalc_average.m'};
+    jobfile = {'/imaging/mlr/users/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_imcalc_average.m'};
     inputs = cell(2, nrun);
     
     split_stem = regexp(all_mrilist, '/', 'split');

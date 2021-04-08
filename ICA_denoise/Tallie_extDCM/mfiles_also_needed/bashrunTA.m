@@ -2,7 +2,7 @@ function bashrunTA(n)
 
 
 % load files:
-RouteDir = '/imaging/na01/';
+RouteDir = '/imaging/rowe/users/na01/';
 if ~exist([RouteDir 'DCMTA'],'dir')
     mkdir([RouteDir 'DCMTA'])
 end

@@ -3,8 +3,8 @@ function [subjcondpair] = find_failed_extDCM_integrations(extDCM_directory,Inver
 addpath('/group/language/data/thomascope/MMN/ICA_denoise/Tallie_extDCM/mfiles_also_needed')
 
 filelist = dir(extDCM_directory);
-%filelist = dir('/imaging/tc02/Holly_MMN/extDCMs/*DVT*');
-%filelist = dir('/imaging/tc02/Holly_MMN/extDCMs_first_attempt/*DVT*');
+%filelist = dir('/imaging/mlr/users/tc02/Holly_MMN/extDCMs/*DVT*');
+%filelist = dir('/imaging/mlr/users/tc02/Holly_MMN/extDCMs_first_attempt/*DVT*');
 %Inverted_Conditions = {'STD','DVT','location','intensity','duration','gap','frequency'};
 
 for j = 1:length(filelist)

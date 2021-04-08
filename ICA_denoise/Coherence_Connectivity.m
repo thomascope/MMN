@@ -12,9 +12,9 @@ thisdir = pwd;
 
 addpath('/group/language/data/thomascope/vespa/SPM12version/Standalone preprocessing pipeline/')
 
-pathstem_LFPs = '/imaging/tc02/Holly_MMN/ICA_denoise/LFPs';
+pathstem_LFPs = '/imaging/mlr/users/tc02/Holly_MMN/ICA_denoise/LFPs';
 
-outdir = ['/imaging/tc02/Holly_MMN/Coherence_Connectivity_Integrated_' p.inv_meth{p.inv_cnt} '/'];
+outdir = ['/imaging/mlr/users/tc02/Holly_MMN/Coherence_Connectivity_Integrated_' p.inv_meth{p.inv_cnt} '/'];
 
 %A script to calculate Imaginary Coherence and Granger Causailty from LFP
 %data for the MMN project

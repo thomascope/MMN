@@ -7,7 +7,7 @@ spm('defaults','EEG');
 
 % define paths
 rawpathstem = '/megdata/cbu/ftdrug/';
-pathstem = '/imaging/na01/MEGmf_mem/';
+pathstem = '/imaging/rowe/users/na01/MEGmf_mem/';
 
 % define conditions
 conditions = {'Dev' 'rep1' 'rep2' 'rep3' 'rep4' 'rep5' 'rep6' 'rep7' 'rep8' 'rep9'};
@@ -20,7 +20,7 @@ dates      = {'' ''}; % date folder inside the subject folder
 blocksin   = {{''} {''}}; % orig file name (without the raw suffix)
 blocksout  = {{''} {''}}; % what you want it to be called
 
-load('/imaging/na01/misc/extDCMstuff/bad_electrodes_mem.mat')
+load('/imaging/rowe/users/na01/misc/extDCMstuff/bad_electrodes_mem.mat')
 badchannels = {};
 badeeg = {};
 for k = 1:length(subjects)

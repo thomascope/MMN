@@ -1,7 +1,7 @@
 function forward_model_this_subj(megpath, mripath, p)
 %forward models a cellstring of megpaths against a cellstring of mripaths
 addpath(genpath('/imaging/local/software/mne'));
-addpath(genpath('/imaging/hp02/mmn_08/analysis_spm/new_spm_functions'));
+addpath(genpath('/imaging/rowe/archive/users/hp02/mmn_08/analysis_spm/new_spm_functions'));
 
 %% Define loops
 

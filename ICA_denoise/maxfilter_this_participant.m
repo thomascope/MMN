@@ -4,14 +4,14 @@ function all_outfiles = maxfilter_this_participant(rawdatapath,subjfolder,outfil
 
 %% Add paths
 
-%addpath(genpath('/imaging/hp02/spm12b'));
+%addpath(genpath('/imaging/rowe/archive/users/hp02/spm12b'));
 addpath(genpath('/imaging/local/software/mne'));
-addpath('/imaging/hp02/finger_tapping08/analysis_spm/new_functions');
-addpath('/imaging/hp02/pnfa_mmn/');
+addpath('/imaging/rowe/archive/users/hp02/finger_tapping08/analysis_spm/new_functions');
+addpath('/imaging/rowe/archive/users/hp02/pnfa_mmn/');
 
 addpath(genpath('/imaging/local/meg_misc'))
 addpath(genpath('/neuro/meg_pd_1.2/'))
-addpath(genpath('/imaging/hp02/mmn_08/analysis_spm/new_spm_functions'))
+addpath(genpath('/imaging/rowe/archive/users/hp02/mmn_08/analysis_spm/new_spm_functions'))
 
 % Define destination
 datapath = [subjfolder outfilename];

@@ -4,15 +4,15 @@
 clear all
 clc
 addpath(genpath('/imaging/local/software/spm_cbu_svn/releases/spm12_latest'));
-addpath(genpath('/imaging/hp02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/customPriors/LFP/PEB/plottingTA'));
+addpath(genpath('/imaging/rowe/archive/users/hp02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/customPriors/LFP/PEB/plottingTA'));
 
-cd('/imaging/hp02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/2019_TC_LFPs_customPriors_32models/PEB')
+cd('/imaging/rowe/archive/users/hp02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/2019_TC_LFPs_customPriors_32models/PEB')
 
 % Load Participants
-load('/imaging/hp02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/2019_TC_LFPs_customPriors_32models/Participant.mat');
+load('/imaging/rowe/archive/users/hp02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/2019_TC_LFPs_customPriors_32models/Participant.mat');
 
 % path to DCMs:
-dcm_path = '/imaging/hp02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/2019_TC_LFPs_customPriors_32models/';
+dcm_path = '/imaging/rowe/archive/users/hp02/pnfa_mmn/dcm/CMC_DCM_all_subjs_together_camcanHCs/2019_TC_LFPs_customPriors_32models/';
 dvts = {'std_dvt', 'std_loc','std_int','std_dur','std_gap','std_frq'};
 
 

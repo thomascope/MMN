@@ -3,10 +3,10 @@ function preproc_this_participant(subjfolder,rawfilenames,startagain,p)
 
 %% Add paths
 
-% addpath(genpath('/imaging/hp02/spm12b'));
+% addpath(genpath('/imaging/rowe/archive/users/hp02/spm12b'));
 addpath(genpath('/imaging/local/software/mne'));
-addpath('/imaging/hp02/finger_tapping08/analysis_spm/new_functions');
-addpath('/imaging/hp02/pnfa_mmn/');
+addpath('/imaging/rowe/archive/users/hp02/finger_tapping08/analysis_spm/new_functions');
+addpath('/imaging/rowe/archive/users/hp02/pnfa_mmn/');
 
 %% Enter Subjects - Change Accordingly:
 % script that holds all the participant's maxfilter locations and folder

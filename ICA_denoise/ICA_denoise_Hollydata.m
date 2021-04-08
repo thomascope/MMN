@@ -10,11 +10,11 @@ end
 %This script ICA denoises the data for MMN analysis
 
 script_dir = '/group/language/data/thomascope/MMN/ICA_denoise/';
-%pathstem = '/imaging/tc02/Holly_MMN/ICA_denoise/';
-pathstem = '/imaging/tc02/Holly_MMN/ICA_denoise_longwindow/';
-data_definition_dir = '/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/';
+%pathstem = '/imaging/mlr/users/tc02/Holly_MMN/ICA_denoise/';
+pathstem = '/imaging/mlr/users/tc02/Holly_MMN/ICA_denoise_longwindow/';
+data_definition_dir = '/imaging/rowe/archive/users/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/';
 folder_structure_file_maindata = 'participant_folder_structure.m';
-mridirectory = '/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/';
+mridirectory = '/imaging/rowe/archive/users/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/';
 
 addpath(script_dir)
 
@@ -139,7 +139,7 @@ for todonumber = 1:size(fullpath,2)
     end
     
     try
-        mri_path = dir(['/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/MCI/' MCI_fnames{todonumber} '/*.nii']);
+        mri_path = dir(['/imaging/rowe/archive/users/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/MCI/' MCI_fnames{todonumber} '/*.nii']);
         
         if size(mri_path,1) ~= 1
             error(['more than one MRI found for subject ' num2str(todonumber)])
@@ -148,7 +148,7 @@ for todonumber = 1:size(fullpath,2)
         end
     catch
         try
-            mri_path = dir(['/imaging/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/MCI/' MCI_fnames{todonumber} '/*.dcm']);
+            mri_path = dir(['/imaging/rowe/archive/users/hp02/pnfa_mmn/preprocessed/For_Thomas_dvts_sep/mri_scans/MCI/' MCI_fnames{todonumber} '/*.dcm']);
             if size(mri_path,1) ~= 1
                 error(['more than one MRI found for subject ' num2str(todonumber)])
             else
@@ -316,7 +316,7 @@ for todonumber = 1:nsubj
 end
 
 %% Copy maxfiltered data to new directory structure
-preproc_path_tc = '/imaging/tc02/Holly_MMN/ICA_denoise/';
+preproc_path_tc = '/imaging/mlr/users/tc02/Holly_MMN/ICA_denoise/';
 copycomplete = zeros(1,old_nsubj);
 parfor todonumber = 1:nsubj
     if iscell(Participant{todonumber}.name)
@@ -348,8 +348,8 @@ parfor todonumber = 1:nsubj
 end
 
 %% Now run ICA_denoise
-copyfile('/imaging/tc02/Holly_MMN/ICA_denoise/MEGArtifactTemplateTopographies.mat',[pathstem 'MEGArtifactTemplateTopographies.mat'])
-copyfile('/imaging/tc02/Holly_MMN/ICA_denoise/tec_montage_all.mat',[pathstem 'tec_montage_all.mat'])
+copyfile('/imaging/mlr/users/tc02/Holly_MMN/ICA_denoise/MEGArtifactTemplateTopographies.mat',[pathstem 'MEGArtifactTemplateTopographies.mat'])
+copyfile('/imaging/mlr/users/tc02/Holly_MMN/ICA_denoise/tec_montage_all.mat',[pathstem 'tec_montage_all.mat'])
 ICAcomplete = zeros(1,nsubj);
 parfor todonumber = 1:nsubj
     if iscell(Participant{todonumber}.name)
@@ -956,7 +956,7 @@ parfor todonumber = 1:size(allrunsarray,1)
 end
 
 % Now repeat for those few subjects who failed integration, using the posterior as a prior
-extDCM_directory = '/imaging/tc02/Holly_MMN/extDCMs/';
+extDCM_directory = '/imaging/mlr/users/tc02/Holly_MMN/extDCMs/';
 %conditions_to_invert = {'STD','DVT','location','intensity','duration','gap','frequency'};
 p.conditions = conditions_to_invert;
 [subjcondpair] = find_failed_extDCM_integrations(extDCM_directory,conditions_to_invert,Participant);
@@ -1032,7 +1032,7 @@ end
 delete(gcp)
 
 %% Now do a first level PEB on the extDCM data -  Separately per group and condition to optimise the DCM parameters. The PEB output is discarded. This step takes the place of spm_dcm_peb_fit
-dirname_DCM = '/imaging/tc02/Holly_MMN/extDCMs_hE6/';
+dirname_DCM = '/imaging/mlr/users/tc02/Holly_MMN/extDCMs_hE6/';
 filestem = 'b8LFP_s_-100_500_LOR_fmbraedfffM';
 conditions = {'STD','DVT','location','intensity','duration','gap','frequency'};
 all_combinations = combvec(unique(p.group)',1:length(conditions));
@@ -1134,7 +1134,7 @@ delete(gcp)
 
 %% Now visualise the PEB results
 addpath('./extDCM_visualisation')
-dirname_DCM = '/imaging/tc02/Holly_MMN/extDCMs_hE6/';
+dirname_DCM = '/imaging/mlr/users/tc02/Holly_MMN/extDCMs_hE6/';
 circuit_diagram(dirname_DCM,p.diagnosis_list,regions,conductances,1)
 p.Sname = {'left A1';
          'left STG';
