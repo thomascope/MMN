@@ -1279,6 +1279,8 @@ delete(gcp)
 %% Now combine the inter-region PEB with Granger Causality and Imaginary Coherence - work in progress - also will later possibly add Cross-frequency coupling
 %Combine_PEB_Connectivity(dirname_DCM,p.diagnosis_list,p.Sname,0.7,Participant)
 addpath('./CMC_DCM')
+p.CMC_DCM_outdir = '/imaging/mlr/users/tc02/Holly_MMN/CMC_DCMs/';
+all_groups = unique(p.group)';
 p.Sname = {'left A1';
     'left STG';
     'left IFG';
@@ -1287,9 +1289,9 @@ p.Sname = {'left A1';
     'right STG';
     'right IFG';
     'right IPC'};
-% First overall, just A-matrix
+% First A-matrix, then B-matrix
 Combine_CMC_PEB_Connectivity_focused(p.CMC_DCM_outdir,p.diagnosis_list(all_groups),p.Sname,0.7,Participant,'A')
-% Combine_CMC_PEB_Connectivity_focused(p.CMC_DCM_outdir,p.diagnosis_list(all_groups),p.Sname,0.7,Participant,'B')
+Combine_CMC_PEB_Connectivity_focused(p.CMC_DCM_outdir,p.diagnosis_list(all_groups),p.Sname,0.7,Participant,'B')
 % Combine_CMC_PEB_Connectivity_focused(p.CMC_DCM_outdir,p.diagnosis_list(all_groups),p.Sname,0.7,Participant,'C')
 
 %% Now run Tallie's extended DCM

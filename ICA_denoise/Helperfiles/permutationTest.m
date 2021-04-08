@@ -1,5 +1,7 @@
 % [p, observeddifference, effectsize] = permutationTest(sample1, sample2, permutations [, varargin])
-% Modified by TEC Jan 20 to use parfor is parallel pool available.
+% Modified by TEC Jan 20 to use parfor if parallel pool available.
+% Removed again by TEC April 2021 - no discernible speed-up - parallelised higher
+% up in my workflow
 %
 %       Permutation test (aka randomisation test), testing for a difference
 %       in means between two samples. 
@@ -100,6 +102,9 @@ if iscolumn(sample1), sample1 = sample1'; end
 if iscolumn(sample2), sample2 = sample2'; end
 allobservations = [sample1, sample2];
 observeddifference = nanmean(sample1) - nanmean(sample2);
+if isnan(observeddifference)
+    error('At least one input group is all NaNs')
+end
 effectsize = observeddifference / nanmean([std(sample1), std(sample2)]);
 w = warning('off', 'MATLAB:nchoosek:LargeCoefficient');
 if ~exact && permutations > nchoosek(numel(allobservations), numel(sample1))
@@ -133,8 +138,8 @@ if isempty(gcp('nocreate')) || exact
         randomdifferences(n) = nanmean(randomSample1) - nanmean(randomSample2);
     end
 else
-    try
-        parfor n = 1:permutations
+    try 
+        for n = 1:permutations  %Removed parfor here - there appears to be no speed-up from parallelisation
             
             permutation = randperm(length(allobservations));
             

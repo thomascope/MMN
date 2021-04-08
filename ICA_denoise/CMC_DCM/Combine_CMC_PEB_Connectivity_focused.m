@@ -2,7 +2,7 @@ function Combine_CMC_PEB_Connectivity_focused(dirname_DCM,diagnosis_list,source_
 %A script for plotting the results of extDCM across all diagnoses by
 %inter-regional connection
 save_figures = 0;
-do_nonsigs = 0;
+do_nonsigs = 1;
 defaultStream=RandStream('mt19937ar','Seed',15); % For later permutation tests - ensure that the same seed is used for reproducability
 
 all_folders = strsplit(dirname_DCM,'/');
@@ -380,19 +380,22 @@ for this_contrast = 2:size(template_PEB.M.X,2)
     end
 end
 
-if do_nonsigs %Not yet implemented for CMC - run the Combine_PEB_Connectivity_focused script instead
-    overall_main_effect_significances = [];
-    overall_interaction_significances = [];
-    overall_permutation_main_effect_significances = [];
-    overall_permutation_interaction_significances = [];
+if do_nonsigs
+    for this_measure = 1:length(all_granger_data)
+    overall_main_effect_significances{this_measure} = [];
+    overall_interaction_significances{this_measure} = [];
+    overall_null_main_effect_significances{this_measure} = [];
+    overall_null_interaction_significances{this_measure} = [];
+    overall_permutation_main_effect_significances{this_measure} = [];
+    overall_permutation_interaction_significances{this_measure} = [];
+    overall_null_permutation_main_effect_significances{this_measure} = [];
+    overall_null_permutation_interaction_significances{this_measure} = [];
+    end
     % Now find out what proportion of non-DCM PEB connections are significant in coherence/Granger/plv
     for this_contrast = 2:size(template_PEB.M.X,2)
         
         for this_difference = 1:length(BMA.Pnames)
             this_connection = BMA.Pnames{this_difference};
-            Condition_Split = strsplit(this_connection,'Covariate ');
-            condition = str2num(Condition_Split{2}(1));
-            
             Connection_Split = strsplit(this_connection,[PEB_focus '{']);
             direction = Connection_Split{2}(1);
             if strcmp(direction,'1')
@@ -403,78 +406,89 @@ if do_nonsigs %Not yet implemented for CMC - run the Combine_PEB_Connectivity_fo
             to = str2num(Connection_Split{2}(4));
             from = str2num(Connection_Split{2}(6));
             
+            if to == from
+                continue %No intrinsic connections in Granger/connectivity analysis.
+            end
+            
             if strcmp(PEB_focus,'A')
-                overall_main_effect_significances(end+1) = 0;
-                overall_permutation_main_effect_significances(end+1) = 0;
                 for this_measure = 1:length(all_granger_data)
-                    data_for_test = [];
-                    data_for_test_2 = [];
+                    overall_main_effect_significances{this_measure}(end+1) = 0;
+                    overall_permutation_main_effect_significances{this_measure}(end+1) = 0;
+                    overall_null_main_effect_significances{this_measure}(end+1) = 0;
+                    overall_null_permutation_main_effect_significances{this_measure}(end+1) = 0;
                     for this_band = 1:size(Frequency_bands,1)
                         these_fois = foi>Frequency_bands(this_band,1)&foi<Frequency_bands(this_band,2);
                         [~, pval] = ttest2(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,find(template_PEB.M.X(:,this_contrast)==1)),5)),1)),squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,find(template_PEB.M.X(:,this_contrast)==-1)),5)),1)),'vartype','unequal');
                         permutation_p = permutationTest(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,find(template_PEB.M.X(:,this_contrast)==1)),5)),1)),squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,find(template_PEB.M.X(:,this_contrast)==-1)),5)),1)),num_perms);
                         if pval < post_thresh || permutation_p < post_thresh
                             if pval < post_thresh
-                                overall_main_effect_significances(end) = 1;
+                                overall_main_effect_significances{this_measure}(end) = 1;
                             end
                             if permutation_p < post_thresh
-                                overall_permutation_main_effect_significances(end) = 1;
-                            end
-                            if mean(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,find(template_PEB.M.X(:,this_contrast)==1)),5)),1)))>mean(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,find(template_PEB.M.X(:,this_contrast)==-1)),5)),1)))
-                                %disp([Participant{min(find(template_PEB.M.X(:,this_contrast)==1))}.diag ' stronger than ' Participant{min(find(template_PEB.M.X(:,this_contrast)==-1))}.diag ' in the ' Frequence_band_names{this_band} ' band using metric ' analysis_type{this_measure} ' p= ' num2str(pval)])
-                            else
-                                %disp([Participant{min(find(template_PEB.M.X(:,this_contrast)==-1))}.diag ' stronger than ' Participant{min(find(template_PEB.M.X(:,this_contrast)==1))}.diag ' in the ' Frequence_band_names{this_band} ' band using metric ' analysis_type{this_measure} ' p= ' num2str(pval)])
+                                overall_permutation_main_effect_significances{this_measure}(end) = 1;
                             end
                         end
-                        data_for_test = [data_for_test;squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,find(template_PEB.M.X(:,this_contrast)==1)),5)),1))];
-                        data_for_test_2 = [data_for_test_2;squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,find(template_PEB.M.X(:,this_contrast)==-1)),5)),1))];
+                        %Now repeat for the first trial-shuffled null
+                        %(doing the average does not work, as real effects
+                        %are reflected in the mean)
+                        this_interaction_perm = zeros(1,100);
+                        this_permutation_interaction_perm = zeros(1,100);
+                        parfor this_perm = 1:100
+                            [~, pval] = ttest2(squeeze(mean(squeeze(mean(mean(all_random_granger_data{this_measure}(from,to,:,these_fois,:,this_perm,find(template_PEB.M.X(:,this_contrast)==1)),6),5)),1)),squeeze(mean(squeeze(mean(mean(all_random_granger_data{this_measure}(from,to,:,these_fois,:,this_perm,find(template_PEB.M.X(:,this_contrast)==-1)),6),5)),1)),'vartype','unequal');
+                            permutation_p = permutationTest(squeeze(mean(squeeze(mean(mean(all_random_granger_data{this_measure}(from,to,:,these_fois,:,this_perm,find(template_PEB.M.X(:,this_contrast)==1)),6),5)),1)),squeeze(mean(squeeze(mean(mean(all_random_granger_data{this_measure}(from,to,:,these_fois,:,this_perm,find(template_PEB.M.X(:,this_contrast)==-1)),6),5)),1)),num_perms);
+                            if pval < post_thresh || permutation_p < post_thresh
+                                if pval < post_thresh
+                                    this_interaction_perm(this_perm) = 1;
+                                end
+                                if permutation_p < post_thresh
+                                    this_permutation_interaction_perm(this_perm) = 1;
+                                end
+                            end
+                        end
+                        overall_null_main_effect_significances{this_measure}(end) = mean(this_interaction_perm);
+                        overall_null_permutation_main_effect_significances{this_measure}(end) = mean(this_permutation_interaction_perm);
                     end
-                    
-                    %                 pval=mult_comp_perm_t2(data_for_test',data_for_test_2',num_perms_t2,0,0.05,0,'w',0,defaultStream.State);
-                    %                 for this_band = 1:size(Frequency_bands,1)
-                    %                     if pval(this_band) < post_thresh
-                    %                         overall_permutation_main_effect_significances(end) = 1;
-                    %                         if mean(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,find(template_PEB.M.X(:,this_contrast)==1)),5)),1)))>mean(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,find(template_PEB.M.X(:,this_contrast)==-1)),5)),1)))
-                    %                             disp([Participant{min(find(template_PEB.M.X(:,this_contrast)==1))}.diag ' stronger than ' Participant{min(find(template_PEB.M.X(:,this_contrast)==-1))}.diag ' in the ' Frequence_band_names{this_band} ' band using metric ' analysis_type{this_measure} ' permutation p= ' num2str(pval(this_band))])
-                    %                         else
-                    %                             disp([Participant{min(find(template_PEB.M.X(:,this_contrast)==-1))}.diag ' stronger than ' Participant{min(find(template_PEB.M.X(:,this_contrast)==1))}.diag ' in the ' Frequence_band_names{this_band} ' band using metric ' analysis_type{this_measure} ' permutation p= ' num2str(pval(this_band))])
-                    %                         end
-                    %                     end
-                    %
-                    %                 end
                 end
             elseif strcmp(PEB_focus,'B')
-                overall_interaction_significances(end+1) = 0;
-                overall_permutation_interaction_significances(end+1) = 0;
                 for this_measure = 1:length(all_granger_data)
-                    data_for_test = [];
-                    data_for_test_2 = [];
+                    overall_interaction_significances{this_measure}(end+1) = 0;
+                    overall_permutation_interaction_significances{this_measure}(end+1) = 0;
+                    overall_null_interaction_significances{this_measure}(end+1) = 0;
+                    overall_null_permutation_interaction_significances{this_measure}(end+1) = 0;
                     for this_band = 1:size(Frequency_bands,1)
                         these_fois = foi>Frequency_bands(this_band,1)&foi<Frequency_bands(this_band,2);
                         [~, pval] = ttest2(squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,find(template_PEB.M.X(:,this_contrast)==1))),1)),squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,find(template_PEB.M.X(:,this_contrast)==-1))),1)),'vartype','unequal');
                         permutation_p = permutationTest(squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,find(template_PEB.M.X(:,this_contrast)==1))),1)),squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,find(template_PEB.M.X(:,this_contrast)==-1))),1)),num_perms);
                         if pval < post_thresh || permutation_p < post_thresh
                             if pval < post_thresh
-                                overall_interaction_significances(end) = 1;
+                                overall_interaction_significances{this_measure}(end) = 1;
                             end
                             if permutation_p < post_thresh
-                                overall_permutation_interaction_significances(end) = 1;
+                                overall_permutation_interaction_significances{this_measure}(end) = 1;
                             end
-                            %disp([Participant{min(find(template_PEB.M.X(:,this_contrast)==1))}.diag ' interacts with ' Participant{min(find(template_PEB.M.X(:,this_contrast)==-1))}.diag ' in the ' Frequence_band_names{this_band} ' band using metric ' analysis_type{this_measure} ' p= ' num2str(pval)])
                         end
-                        data_for_test = [data_for_test;squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,find(template_PEB.M.X(:,this_contrast)==1))),1))];
-                        data_for_test_2 = [data_for_test_2;squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,find(template_PEB.M.X(:,this_contrast)==-1))),1))];
+                        %Now repeat for the first trial-shuffled null
+                        %(doing the average does not work, as real effects
+                        %are reflected in the mean)
+                        this_interaction_perm = zeros(1,100);
+                        this_permutation_interaction_perm = zeros(1,100);
+                        parfor this_perm = 1:100
+                            [~, pval] = ttest2(squeeze(mean(squeeze(all_random_mismatch_contrasts{this_measure}(from,to,:,these_fois,this_perm,find(template_PEB.M.X(:,this_contrast)==1))),1)),squeeze(mean(squeeze(all_random_mismatch_contrasts{this_measure}(from,to,:,these_fois,this_perm,find(template_PEB.M.X(:,this_contrast)==-1))),1)),'vartype','unequal');
+                            permutation_p = permutationTest(squeeze(mean(squeeze(all_random_mismatch_contrasts{this_measure}(from,to,:,these_fois,this_perm,find(template_PEB.M.X(:,this_contrast)==1))),1)),squeeze(mean(squeeze(all_random_mismatch_contrasts{this_measure}(from,to,:,these_fois,this_perm,find(template_PEB.M.X(:,this_contrast)==-1))),1)),num_perms);
+                            if pval < post_thresh || permutation_p < post_thresh
+                                if pval < post_thresh
+                                    this_interaction_perm(this_perm) = 1;
+                                end
+                                if permutation_p < post_thresh
+                                    this_permutation_interaction_perm(this_perm) = 1;
+                                end
+                            end
+                        end
+                        overall_null_interaction_significances{this_measure}(end) = mean(this_interaction_perm);
+                        overall_null_permutation_interaction_significances{this_measure}(end) = mean(this_permutation_interaction_perm);
                     end
-                    
-                    %                 pval=mult_comp_perm_t2(data_for_test',data_for_test_2',num_perms_t2,0,0.05,0,'w',0,defaultStream.State);
-                    %                 for this_band = 1:size(Frequency_bands,1)
-                    %                     if pval(this_band) < post_thresh
-                    %                         overall_permutation_interaction_significances(end) = 1;
-                    %                         disp([Participant{min(find(template_PEB.M.X(:,this_contrast)==1))}.diag ' interacts with ' Participant{min(find(template_PEB.M.X(:,this_contrast)==-1))}.diag ' in the ' Frequence_band_names{this_band} ' band using metric ' analysis_type{this_measure} ' permutation p= ' num2str(pval(this_band))])
-                    %                     end
-                    %                 end
-                    %
                 end
+                
             end
         end
     end
