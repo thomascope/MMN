@@ -1,4 +1,4 @@
-function Combine_CMC_PEB_Connectivity_focused(dirname_DCM,diagnosis_list,source_names,thresh,Participant)
+function Combine_CMC_PEB_Connectivity_focused_both(dirname_DCM,diagnosis_list,source_names,thresh,Participant)
 %A script for plotting the results of extDCM across all diagnoses by
 %inter-regional connection
 save_figures = 0;
@@ -7,6 +7,8 @@ if ~save_figures
 end
 do_nonsigs = 1;
 defaultStream=RandStream('mt19937ar','Seed',15); % For later permutation tests - ensure that the same seed is used for reproducability
+
+PEB_focuses = {'A','B'};
 
 all_folders = strsplit(dirname_DCM,'/');
 all_folders = all_folders(~cellfun(@isempty,all_folders)); %For save location
@@ -26,9 +28,6 @@ cell_pops{4} = 'Deep Pyramidal to Inhibitory Interneuron';
 addpath('/group/language/data/thomascope/MMN/ICA_denoise/Helperfiles')
 thisdir = pwd;
 mkdir('./CMC_figures/')
-cd([dirname_DCM 'PEB_secondlevel'])
-
-PEB_focuses = {'A','B'};
 
 base_datapathstem = '/imaging/mlr/users/tc02/Holly_MMN/Coherence_Connectivity_Integrated_LOR/crosshem/'; %With sLORETA source reconstruction
 addpath(['/group/language/data/thomascope/vespa/SPM12version/Standalone preprocessing pipeline/tc_source_stats/ojwoodford-export_fig-216b30e']);
@@ -147,12 +146,15 @@ permutation_main_effect_significances = [];
 permutation_interaction_significances = [];
 involves_controls = [];
 all_these_contrasts = [];
-all_significant_bands = {};
+all_significant_bands = [];
+all_significant_interaction_bands = [];
 
 for this_focus = 1:length(PEB_focuses)
     PEB_focus = PEB_focuses{this_focus};
     BMA = []; %Specify here to stop parfor failing later
+    cd([dirname_DCM 'PEB_secondlevel'])
     load(['PEB_' PEB_focus '_' cat(2,diagnosis_list{:}) '.mat'])
+    cd(thisdir)
     template_PEB = PEB;
     
     assert(all(template_PEB.M.X(:,1)==1),'The first column of the PEB of PEBs contrast should be all ones, check please.')
@@ -293,9 +295,9 @@ for this_focus = 1:length(PEB_focuses)
                                 if permutation_p < post_thresh
                                     permutation_main_effect_significances(end,this_measure) = 1;
                                     try
-                                        all_significant_bands{this_contrast} = [all_significant_bands{this_contrast}, this_band];
+                                        all_significant_bands(size(permutation_main_effect_significances,1)) = all_significant_bands(size(permutation_main_effect_significances,1))+10^(this_band-1);
                                     catch
-                                        all_significant_bands{this_contrast} = this_band;
+                                        all_significant_bands(size(permutation_main_effect_significances,1)) = 10^(this_band-1);
                                     end
                                 end
                                 if mean(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,find(template_PEB.M.X(:,this_contrast)==1)),5)),1)))>mean(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,find(template_PEB.M.X(:,this_contrast)==-1)),5)),1)))
@@ -350,9 +352,9 @@ for this_focus = 1:length(PEB_focuses)
                                 if permutation_p < post_thresh
                                     permutation_interaction_significances(end,this_measure) = 1;
                                     try
-                                        all_significant_interaction_bands{this_contrast} = [all_significant_interaction_bands{this_contrast}, this_band];
+                                        all_significant_interaction_bands(size(permutation_main_effect_significances,1)) = all_significant_bands(size(permutation_main_effect_significances,1))+10^(this_band-1);
                                     catch
-                                        all_significant_interaction_bands{this_contrast} = this_band;
+                                        all_significant_interaction_bands(size(permutation_main_effect_significances,1)) = 10^(this_band-1);
                                     end
                                 end
                                 disp([Participant{min(find(template_PEB.M.X(:,this_contrast)==1))}.diag ' interacts with ' Participant{min(find(template_PEB.M.X(:,this_contrast)==-1))}.diag ' in the ' Frequence_band_names{this_band} ' band using metric ' analysis_type{this_measure} ' parametric p= ' num2str(pval) ' permutation p= ' num2str(permutation_p)])
@@ -409,27 +411,47 @@ end
 
 if do_nonsigs
     
-    for this_contrast = 2:size(template_PEB.M.X,2)
-        overall_main_effect_significances = zeros(size(template_PEB.M.X,2)-1,length(all_granger_data),length(BMA.Pnames));
-        overall_interaction_significances = zeros(size(template_PEB.M.X,2)-1,length(all_granger_data),length(BMA.Pnames));
-        overall_null_main_effect_significances = zeros(size(template_PEB.M.X,2)-1,length(all_granger_data),length(BMA.Pnames));
-        overall_null_interaction_significances = zeros(size(template_PEB.M.X,2)-1,length(all_granger_data),length(BMA.Pnames));
-        overall_permutation_main_effect_significances = zeros(size(template_PEB.M.X,2)-1,length(all_granger_data),length(BMA.Pnames));
-        overall_permutation_interaction_significances = zeros(size(template_PEB.M.X,2)-1,length(all_granger_data),length(BMA.Pnames));
-        overall_null_permutation_main_effect_significances = zeros(size(template_PEB.M.X,2)-1,length(all_granger_data),length(BMA.Pnames));
-        overall_null_permutation_interaction_significances = zeros(size(template_PEB.M.X,2)-1,length(all_granger_data),length(BMA.Pnames));
-        key = zeros((length(BMA.Pnames)*length(all_granger_data)*(size(template_PEB.M.X,2)-1)),3);
-    end
     for this_focus = 1:length(PEB_focuses)
         PEB_focus = PEB_focuses{this_focus};
+        cd([dirname_DCM 'PEB_secondlevel'])
+        load(['PEB_' PEB_focus '_' cat(2,diagnosis_list{:}) '.mat'])
+        cd(thisdir)
+        template_PEB = PEB;
+
+        if strcmp(PEB_focus,'A')
+            for this_contrast = 2:size(template_PEB.M.X,2)
+                overall_main_effect_significances = zeros(size(template_PEB.M.X,2)-1,length(all_granger_data),length(BMA.Pnames));
+                overall_null_main_effect_significances = zeros(size(template_PEB.M.X,2)-1,length(all_granger_data),length(BMA.Pnames));
+                overall_permutation_main_effect_significances = zeros(size(template_PEB.M.X,2)-1,length(all_granger_data),length(BMA.Pnames));
+                overall_null_permutation_main_effect_significances = zeros(size(template_PEB.M.X,2)-1,length(all_granger_data),length(BMA.Pnames));
+                overall_significant_bands = zeros(size(template_PEB.M.X,2)-1,length(all_granger_data),length(BMA.Pnames));
+                overall_null_significant_bands = zeros(size(template_PEB.M.X,2)-1,length(all_granger_data),length(BMA.Pnames));
+                key_main_effect = zeros((length(BMA.Pnames)*length(all_granger_data)*(size(template_PEB.M.X,2)-1)),3);
+            end
+        elseif strcmp(PEB_focus,'B')
+            for this_contrast = 2:size(template_PEB.M.X,2)
+                overall_interaction_significances = zeros(size(template_PEB.M.X,2)-1,length(all_granger_data),length(BMA.Pnames));
+                overall_null_interaction_significances = zeros(size(template_PEB.M.X,2)-1,length(all_granger_data),length(BMA.Pnames));
+                overall_permutation_interaction_significances = zeros(size(template_PEB.M.X,2)-1,length(all_granger_data),length(BMA.Pnames));
+                overall_null_permutation_interaction_significances = zeros(size(template_PEB.M.X,2)-1,length(all_granger_data),length(BMA.Pnames));
+                overall_significant_interaction_bands = zeros(size(template_PEB.M.X,2)-1,length(all_granger_data),length(BMA.Pnames));
+                overall_null_significant_interaction_bands = zeros(size(template_PEB.M.X,2)-1,length(all_granger_data),length(BMA.Pnames));
+                key_interaction = zeros((length(BMA.Pnames)*length(all_granger_data)*(size(template_PEB.M.X,2)-1)),3);
+            end
+        end
+        
         % Now find out what proportion of non-DCM PEB connections are significant in coherence/Granger/plv
-        parfor this_loop = 1:(length(BMA.Pnames)*length(all_granger_data)*(size(template_PEB.M.X,2)-1))
+        for this_loop = 1:(length(BMA.Pnames)*length(all_granger_data)*(size(template_PEB.M.X,2)-1))
             this_difference = ceil(this_loop/((size(template_PEB.M.X,2)-1)*length(all_granger_data)));
             this_measure = mod(ceil(this_loop/(size(template_PEB.M.X,2)-1))-1,length(all_granger_data))+1;
             this_contrast = 2+mod(this_loop-1,size(template_PEB.M.X,2)-1);
-            disp(['Working on contrast ' num2str(this_contrast-1) ' measure ' num2str(this_measure) ' difference ' num2str(this_difference)])
+            disp(['Working on contrast ' num2str(this_contrast) ' measure ' num2str(this_measure) ' difference ' num2str(this_difference)])
             
-            key(this_loop,:) = [this_contrast,this_measure,this_difference];
+            if strcmp(PEB_focus,'A')
+                key_main_effect(this_loop,:) = [this_contrast,this_measure,this_difference];
+            elseif strcmp(PEB_focus,'B')
+                key_interaction(this_loop,:) = [this_contrast,this_measure,this_difference];
+            end
             this_connection = BMA.Pnames{this_difference};
             Connection_Split = strsplit(this_connection,[PEB_focus '{']);
             direction = Connection_Split{2}(1);
@@ -450,6 +472,8 @@ if do_nonsigs
                 overall_permutation_main_effect_significances(this_loop) = 0;
                 overall_null_main_effect_significances(this_loop) = 0;
                 overall_null_permutation_main_effect_significances(this_loop) = 0;
+                this_interaction_perm = zeros(1,100);
+                this_permutation_interaction_perm = zeros(1,100);
                 for this_band = 1:size(Frequency_bands,1)
                     these_fois = foi>Frequency_bands(this_band,1)&foi<Frequency_bands(this_band,2);
                     [~, pval] = ttest2(squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,find(template_PEB.M.X(:,this_contrast)==1)),5)),1)),squeeze(mean(squeeze(mean(all_granger_data{this_measure}(from,to,:,these_fois,:,find(template_PEB.M.X(:,this_contrast)==-1)),5)),1)),'vartype','unequal');
@@ -460,13 +484,12 @@ if do_nonsigs
                         end
                         if permutation_p < post_thresh
                             overall_permutation_main_effect_significances(this_loop) = 1;
+                            overall_significant_bands(this_loop) = overall_significant_bands(this_loop) + 10^(this_band-1);
                         end
                     end
                     %Now repeat for the first trial-shuffled null
                     %(doing the average does not work, as real effects
                     %are reflected in the mean)
-                    this_interaction_perm = zeros(1,100);
-                    this_permutation_interaction_perm = zeros(1,100);
                     for this_perm = 1:100 % Don't parallelise here, it takes much longer
                         [~, pval] = ttest2(squeeze(mean(squeeze(mean(mean(all_random_granger_data{this_measure}(from,to,:,these_fois,:,this_perm,find(template_PEB.M.X(:,this_contrast)==1)),6),5)),1)),squeeze(mean(squeeze(mean(mean(all_random_granger_data{this_measure}(from,to,:,these_fois,:,this_perm,find(template_PEB.M.X(:,this_contrast)==-1)),6),5)),1)),'vartype','unequal');
                         permutation_p = permutationTest(squeeze(mean(squeeze(mean(mean(all_random_granger_data{this_measure}(from,to,:,these_fois,:,this_perm,find(template_PEB.M.X(:,this_contrast)==1)),6),5)),1)),squeeze(mean(squeeze(mean(mean(all_random_granger_data{this_measure}(from,to,:,these_fois,:,this_perm,find(template_PEB.M.X(:,this_contrast)==-1)),6),5)),1)),num_perms);
@@ -479,14 +502,16 @@ if do_nonsigs
                             end
                         end
                     end
-                    overall_null_main_effect_significances(this_loop) = mean(this_interaction_perm);
-                    overall_null_permutation_main_effect_significances(this_loop) = mean(this_permutation_interaction_perm);
                 end
+                overall_null_main_effect_significances(this_loop) = mean(this_interaction_perm);
+                overall_null_permutation_main_effect_significances(this_loop) = mean(this_permutation_interaction_perm);
             elseif strcmp(PEB_focus,'B')
                 overall_interaction_significances(this_loop) = 0;
                 overall_permutation_interaction_significances(this_loop) = 0;
                 overall_null_interaction_significances(this_loop) = 0;
                 overall_null_permutation_interaction_significances(this_loop) = 0;
+                this_interaction_perm = zeros(1,100);
+                this_permutation_interaction_perm = zeros(1,100);
                 for this_band = 1:size(Frequency_bands,1)
                     these_fois = foi>Frequency_bands(this_band,1)&foi<Frequency_bands(this_band,2);
                     [~, pval] = ttest2(squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,find(template_PEB.M.X(:,this_contrast)==1))),1)),squeeze(mean(squeeze(all_mismatch_contrasts{this_measure}(from,to,:,these_fois,find(template_PEB.M.X(:,this_contrast)==-1))),1)),'vartype','unequal');
@@ -497,13 +522,12 @@ if do_nonsigs
                         end
                         if permutation_p < post_thresh
                             overall_permutation_interaction_significances(this_loop) = 1;
+                            overall_significant_interaction_bands(this_loop) = overall_significant_bands(this_loop) + 10^(this_band-1);
                         end
                     end
                     %Now repeat for the first trial-shuffled null
                     %(doing the average does not work, as real effects
                     %are reflected in the mean)
-                    this_interaction_perm = zeros(1,100);
-                    this_permutation_interaction_perm = zeros(1,100);
                     for this_perm = 1:100 % Don't parallelise here, it takes much longer
                         [~, pval] = ttest2(squeeze(mean(squeeze(all_random_mismatch_contrasts{this_measure}(from,to,:,these_fois,this_perm,find(template_PEB.M.X(:,this_contrast)==1))),1)),squeeze(mean(squeeze(all_random_mismatch_contrasts{this_measure}(from,to,:,these_fois,this_perm,find(template_PEB.M.X(:,this_contrast)==-1))),1)),'vartype','unequal');
                         permutation_p = permutationTest(squeeze(mean(squeeze(all_random_mismatch_contrasts{this_measure}(from,to,:,these_fois,this_perm,find(template_PEB.M.X(:,this_contrast)==1))),1)),squeeze(mean(squeeze(all_random_mismatch_contrasts{this_measure}(from,to,:,these_fois,this_perm,find(template_PEB.M.X(:,this_contrast)==-1))),1)),num_perms);
@@ -516,10 +540,9 @@ if do_nonsigs
                             end
                         end
                     end
-                    overall_null_interaction_significances(this_loop) = mean(this_interaction_perm);
-                    overall_null_permutation_interaction_significances(this_loop) = mean(this_permutation_interaction_perm);
                 end
-                
+                overall_null_interaction_significances(this_loop) = mean(this_interaction_perm);
+                overall_null_permutation_interaction_significances(this_loop) = mean(this_permutation_interaction_perm);
             end
         end
     end

@@ -1290,8 +1290,9 @@ p.Sname = {'left A1';
     'right IFG';
     'right IPC'};
 % First A-matrix, then B-matrix
-Combine_CMC_PEB_Connectivity_focused(p.CMC_DCM_outdir,p.diagnosis_list(all_groups),p.Sname,0.7,Participant,'A')
-Combine_CMC_PEB_Connectivity_focused(p.CMC_DCM_outdir,p.diagnosis_list(all_groups),p.Sname,0.7,Participant,'B')
+Combine_CMC_PEB_Connectivity_focused_both(p.CMC_DCM_outdir,p.diagnosis_list(all_groups),p.Sname,0.7,Participant)
+%Combine_CMC_PEB_Connectivity_focused(p.CMC_DCM_outdir,p.diagnosis_list(all_groups),p.Sname,0.7,Participant,'A')
+%Combine_CMC_PEB_Connectivity_focused(p.CMC_DCM_outdir,p.diagnosis_list(all_groups),p.Sname,0.7,Participant,'B')
 % Combine_CMC_PEB_Connectivity_focused(p.CMC_DCM_outdir,p.diagnosis_list(all_groups),p.Sname,0.7,Participant,'C')
 
 %% Now run Tallie's extended DCM
