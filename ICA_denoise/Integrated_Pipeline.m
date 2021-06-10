@@ -1119,7 +1119,7 @@ catch
 end
 p.conditions = p.all_conditions;
 
-%% Now run a classical DCM for model comparison - work in progress
+%% Now run a classical DCM for model comparison
 p.start_times = 0;
 p.end_times = 400;
 prefix = 'fmcffbeM';
@@ -1223,6 +1223,17 @@ for this_group = [{'all'},unique(all_diagnoses,'stable')]
     spm_jobman('run', jobfile);
 end
 
+%% Compare model families according to involvement of each connection
+
+family.infer = 'RFX';
+family.partition = [1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8];
+family.names = {'LIFG','BilIFG','RIPC on RSTG','BilIPC and BilIFG on BilSTG','R IPC to IFG','Bil IPC to IFG','Right all connections','All connections'};
+
+this_group = [{'all'},unique(all_diagnoses,'stable')];
+for i = 1:length(this_group)
+    load(['/imaging/mlr/users/tc02/Holly_MMN/CMC_DCM_BMS/' this_group{i} '/BMS.mat']);
+    [out_family(i),out_model(i)] = spm_compare_families(BMS.DCM.rfx.F,family);
+end
 
 
 %% Now do second level PEB to analyse connection strength differences in winning model (32)

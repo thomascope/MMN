@@ -246,11 +246,11 @@ for contrast_of_interest = 2:5 % Controls against each patient group
         hold on
         these_null_data = [];
         for this_band = 1:size(Frequency_bands,1)
-        these_null_data(:,this_band) = reshape(null_data_to_plot_all(:,this_band,:),1,size(null_data_to_plot_all,1)*size(null_data_to_plot_all,3));
+            these_null_data(:,this_band) = reshape(null_data_to_plot_all(:,this_band,:),1,size(null_data_to_plot_all,1)*size(null_data_to_plot_all,3));
         end
         violin(these_null_data,'x',[1:5]-0.1)
         violin(all_data_to_plot,'x',[1:5]+0.1)
-
+        
         xlim([0 6])
         set(gca,'xtick',[1:5],'xticklabels',Frequence_band_names,'XTickLabelRotation',45)
         data_bounds = [min(min(min(DCM_data_to_plot)),min(min(non_DCM_data_to_plot))),max(max(max(DCM_data_to_plot)),max(max(non_DCM_data_to_plot)))];
@@ -284,31 +284,150 @@ for contrast_of_interest = 2:5 % Controls against each patient group
             otherwise
                 title(analysis_type{this_measure},'interpreter','none');
         end
+    end
+    %     suptitle([Participant{min(find(template_PEB.M.X(:,contrast_of_interest)==1))}.diag ' minus ' Participant{min(find(template_PEB.M.X(:,contrast_of_interest)==-1))}.diag ' Main effect'])
+end
+savestring = ['./CMC_figures/Connectivity_Violin.pdf'];
+if save_figures
+    eval(['export_fig ' savestring ' -transparent']);
+    eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
+end
+
+%Now break down by connection type
+Auditory = {'2,1';'1,2';'5,6';'6,5'};
+Cross_Hem = {'7,3';'3,7';'8,4';'4,8';'2,6';'6,2'};
+Aud_MD = {'3,2';'2,3';'2,4';'4,2';'7,6';'6,7';'6,8';'8,6'};
+MD = {'3,4';'4,3';'7,8';'8,7'};
+
+this_focus = 1;
+PEB_focus = PEB_focuses{this_focus};
+cd([dirname_DCM 'PEB_secondlevel'])
+load(['PEB_' PEB_focus '_' cat(2,diagnosis_list{:}) '.mat'])
+cd(thisdir)
+template_PEB = PEB;
+
+if strcmp(PEB_focus,'A')  %Account for duplication of connections for NMDA and AMPA in A matrix
+    BMA.Pp = BMA.Pp((strncmpi('A{1',BMA.Pnames,3)|strncmpi('A{3',BMA.Pnames,3)),:)+BMA.Pp((strncmpi('A{2',BMA.Pnames,3)|strncmpi('A{4',BMA.Pnames,3)),:);
+    BMA.Pnames = BMA.Pnames(strncmpi('A{1',BMA.Pnames,3)|strncmpi('A{3',BMA.Pnames,3));
+end
+
+figure
+set(gcf,'Position',[100 100 1600 800]);
+set(gcf, 'PaperPositionMode', 'auto');
+all_null_data = [];
+all_Auditory_data = [];
+all_Cross_Hem_data = [];
+all_Aud_MD_data = [];
+all_MD_data = [];
+
+for contrast_of_interest = 2:5 % Controls against each patient group
+    for this_measure = 1:length(all_granger_data)
+        Auditory_data_to_plot = [];
+        Cross_Hem_data_to_plot = [];
+        Aud_MD_data_to_plot = [];
+        MD_data_to_plot = [];
+        null_data_to_plot = [];
+        null_data_stdevs = [];
+        null_data_to_plot_all = [];
+        all_data_to_plot = [];
+        subplot(length(all_granger_data),4,(contrast_of_interest-1)+((this_measure-1)*4))
+        
+        for i = 1:size(key_main_effect,1)
+            if ~(key_main_effect(i,1)==contrast_of_interest)
+                continue
+            elseif ~(key_main_effect(i,2)==this_measure)
+                continue
+            end
+            if all(overall_main_effect_differences(key_main_effect(i,1),key_main_effect(i,2),key_main_effect(i,3),:)==0) %Intrinsic connection
+                continue
+            end
+            disp(['Adding contrast ' num2str(key_main_effect(i,1)) ' measure ' num2str(key_main_effect(i,2)) ' difference ' num2str(key_main_effect(i,3))])
+            
+            this_connection = BMA.Pnames{key_main_effect(i,3)};
+            Connection_Split = strsplit(this_connection,[PEB_focus '{']);
+            this_connection = Connection_Split{2}(4:6);
+            
+            if any(strcmp(this_connection,Auditory))
+                Auditory_data_to_plot(end+1,:) = overall_main_effect_differences(key_main_effect(i,1),key_main_effect(i,2),key_main_effect(i,3),:);
+            elseif any(strcmp(this_connection,Cross_Hem))
+                Cross_Hem_data_to_plot(end+1,:) = overall_main_effect_differences(key_main_effect(i,1),key_main_effect(i,2),key_main_effect(i,3),:);
+            elseif any(strcmp(this_connection,Aud_MD))
+                Aud_MD_data_to_plot(end+1,:) = overall_main_effect_differences(key_main_effect(i,1),key_main_effect(i,2),key_main_effect(i,3),:);
+            elseif any(strcmp(this_connection,MD))
+                MD_data_to_plot(end+1,:) = overall_main_effect_differences(key_main_effect(i,1),key_main_effect(i,2),key_main_effect(i,3),:);
+            else
+                error([this_connection ' not found'])
+            end
+            all_data_to_plot(end+1,:) = overall_main_effect_differences(key_main_effect(i,1),key_main_effect(i,2),key_main_effect(i,3),:);
+            null_data_to_plot(end+1,:) = overall_null_main_effect_difference_means(key_main_effect(i,1),key_main_effect(i,2),key_main_effect(i,3),:);
+            null_data_stdevs(end+1,:) = overall_null_main_effect_stdevs(key_main_effect(i,1),key_main_effect(i,2),key_main_effect(i,3),:);
+            null_data_to_plot_all(end+1,:,:) = overall_null_main_effect_differences(key_main_effect(i,1),key_main_effect(i,2),key_main_effect(i,3),:,:);
+        end
+        hold on
+        these_null_data = [];
+        for this_band = 1:size(Frequency_bands,1)
+            these_null_data(:,this_band) = reshape(null_data_to_plot_all(:,this_band,:),1,size(null_data_to_plot_all,1)*size(null_data_to_plot_all,3));
+        end
+        violin(these_null_data,'x',[1:5]-0.3)
+        violin(Auditory_data_to_plot,'x',[1:5]-0.15)
+        violin(Cross_Hem_data_to_plot,'x',[1:5])
+        violin(Aud_MD_data_to_plot,'x',[1:5]+0.15)
+        violin(MD_data_to_plot,'x',[1:5]+0.3)
+        
+        xlim([0 6])
+        set(gca,'xtick',[1:5],'xticklabels',Frequence_band_names,'XTickLabelRotation',45)
+        data_bounds = [min(min(all_data_to_plot)),max(max(all_data_to_plot))];
+        ylim([data_bounds(1) - (diff(data_bounds)/10) data_bounds(2) + (diff(data_bounds)/6)])
+        
+        %         for this_band = 1:size(Frequency_bands,1)
+        %             %[p(this_band), ~, ~] = permutationTest(these_null_data(:,this_band), all_data_to_plot(:,this_band), 2000);
+        %             [h p(this_band)] = ttest2(all_data_to_plot(:,this_band),these_null_data(:,this_band), 'vartype', 'unequal');
+        %             if p(this_band) < 0.001
+        %                 text(this_band,data_bounds(2) + (diff(data_bounds)/10),'***')
+        %             elseif p(this_band) < 0.01
+        %                 text(this_band,data_bounds(2) + (diff(data_bounds)/10),'**')
+        %             elseif p(this_band) < 0.05
+        %                 text(this_band,data_bounds(2) + (diff(data_bounds)/10),'*')
+        %             end
+        %             scatter((this_band)*ones(1,size(DCM_data_to_plot,1)),DCM_data_to_plot(:,this_band),12,'rx')
+        %         end
+        
+        plot([0 6],[0,0],'k--')
+        switch(analysis_type{this_measure})
+            case 'Granger'
+                title('Granger Causality')
+            case 'icoh'
+                title('Imaginary Coherence')
+            case 'partial_icoh'
+                title('Partial Imaginary Coherence')
+            case 'plv'
+                title('Phase Locking Value')
+            case 'partial_plv'
+                title('Partial Phase Locking Value')
+            otherwise
+                title(analysis_type{this_measure},'interpreter','none');
+        end
         all_null_data(contrast_of_interest,this_measure,:,:) = these_null_data;
         all_Auditory_data(contrast_of_interest,this_measure,:,:) = Auditory_data_to_plot;
         all_Cross_Hem_data(contrast_of_interest,this_measure,:,:) = Cross_Hem_data_to_plot;
         all_Aud_MD_data(contrast_of_interest,this_measure,:,:) = Aud_MD_data_to_plot;
         all_MD_data(contrast_of_interest,this_measure,:,:) = MD_data_to_plot;
     end
-    %     suptitle([Participant{min(find(template_PEB.M.X(:,contrast_of_interest)==1))}.diag ' minus ' Participant{min(find(template_PEB.M.X(:,contrast_of_interest)==-1))}.diag ' Main effect'])
+    %     suptitle([Participant{min(find(template_PEB.M.X(:,contrast_of_interest)==1))}.diag ' minus ' Participant{min(find(template_PEB.M.X(:,contrast_of_interest)==-1))}.diag ' Main effect']
 end
-savestring = ['./CMC_figures/Connectivity_Violin.pdf'];
-if save_figures
-    print(savestring,'-depsc','-painters'); %eval(['export_fig ' savestring ' -transparent']);
-    eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
-end
-
 
 for this_measure = 1:length(all_granger_data)
     figure
     set(gcf,'Position',[100 100 1600 800]);
     set(gcf, 'PaperPositionMode', 'auto');
+    scatter_colors = [0,0,0;1,0,0];
     for this_band = 1:size(Frequency_bands,1)
         subplot(4,size(Frequency_bands,1),this_band+((1-1)*size(Frequency_bands,1)))
         violin(reshape((squeeze(all_null_data(2:end,this_measure,:,this_band))'),numel((squeeze(all_null_data(2:end,this_measure,:,this_band))')),1))
         hold on
         for this_group = 2:5
-            scatter(repmat(this_group,size(unique(squeeze(all_Auditory_data(this_group,this_measure,:,this_band))),1),1),unique(squeeze(all_Auditory_data(this_group,this_measure,:,this_band))),16,'k','filled')
+            these_colors = scatter_colors((abs(unique(squeeze(all_Auditory_data(this_group,this_measure,:,this_band))))>max(abs(reshape((squeeze(all_null_data(2:end,this_measure,:,this_band))'),numel((squeeze(all_null_data(2:end,this_measure,:,this_band))')),1))))+1,:);
+            scatter(repmat(this_group,size(unique(squeeze(all_Auditory_data(this_group,this_measure,:,this_band))),1),1),unique(squeeze(all_Auditory_data(this_group,this_measure,:,this_band))),16,these_colors,'filled')
         end
         data_bounds = [min(min(squeeze(all_Auditory_data(2:end,this_measure,:,this_band))')),max(max(squeeze(all_Auditory_data(2:end,this_measure,:,this_band))'))];
         ylim([data_bounds(1) - (diff(data_bounds)/10) data_bounds(2) + (diff(data_bounds)/6)])
@@ -322,7 +441,8 @@ for this_measure = 1:length(all_granger_data)
         violin(reshape((squeeze(all_null_data(2:end,this_measure,:,this_band))'),numel((squeeze(all_null_data(2:end,this_measure,:,this_band))')),1))
         hold on
         for this_group = 2:5
-            scatter(repmat(this_group,size(unique(squeeze(all_Cross_Hem_data(this_group,this_measure,:,this_band))),1),1),unique(squeeze(all_Cross_Hem_data(this_group,this_measure,:,this_band))),16,'k','filled')
+            these_colors = scatter_colors((abs(unique(squeeze(all_Cross_Hem_data(this_group,this_measure,:,this_band))))>max(abs(reshape((squeeze(all_null_data(2:end,this_measure,:,this_band))'),numel((squeeze(all_null_data(2:end,this_measure,:,this_band))')),1))))+1,:);
+            scatter(repmat(this_group,size(unique(squeeze(all_Cross_Hem_data(this_group,this_measure,:,this_band))),1),1),unique(squeeze(all_Cross_Hem_data(this_group,this_measure,:,this_band))),16,these_colors,'filled')
         end
         data_bounds = [min(min(squeeze(all_Cross_Hem_data(2:end,this_measure,:,this_band))')),max(max(squeeze(all_Cross_Hem_data(2:end,this_measure,:,this_band))'))];
         ylim([data_bounds(1) - (diff(data_bounds)/10) data_bounds(2) + (diff(data_bounds)/6)])
@@ -335,8 +455,9 @@ for this_measure = 1:length(all_granger_data)
         subplot(4,size(Frequency_bands,1),this_band+((3-1)*size(Frequency_bands,1)))
         violin(reshape((squeeze(all_null_data(2:end,this_measure,:,this_band))'),numel((squeeze(all_null_data(2:end,this_measure,:,this_band))')),1))
         hold on
-                for this_group = 2:5
-            scatter(repmat(this_group,size(unique(squeeze(all_Aud_MD_data(this_group,this_measure,:,this_band))),1),1),unique(squeeze(all_Aud_MD_data(this_group,this_measure,:,this_band))),16,'k','filled')
+        for this_group = 2:5
+            these_colors = scatter_colors((abs(unique(squeeze(all_Aud_MD_data(this_group,this_measure,:,this_band))))>max(abs(reshape((squeeze(all_null_data(2:end,this_measure,:,this_band))'),numel((squeeze(all_null_data(2:end,this_measure,:,this_band))')),1))))+1,:);
+            scatter(repmat(this_group,size(unique(squeeze(all_Aud_MD_data(this_group,this_measure,:,this_band))),1),1),unique(squeeze(all_Aud_MD_data(this_group,this_measure,:,this_band))),16,these_colors,'filled')
         end
         data_bounds = [min(min(squeeze(all_Aud_MD_data(2:end,this_measure,:,this_band))')),max(max(squeeze(all_Aud_MD_data(2:end,this_measure,:,this_band))'))];
         ylim([data_bounds(1) - (diff(data_bounds)/10) data_bounds(2) + (diff(data_bounds)/6)])
@@ -349,8 +470,9 @@ for this_measure = 1:length(all_granger_data)
         subplot(4,size(Frequency_bands,1),this_band+((4-1)*size(Frequency_bands,1)))
         violin(reshape((squeeze(all_null_data(2:end,this_measure,:,this_band))'),numel((squeeze(all_null_data(2:end,this_measure,:,this_band))')),1))
         hold on
-                for this_group = 2:5
-            scatter(repmat(this_group,size(unique(squeeze(all_MD_data(this_group,this_measure,:,this_band))),1),1),unique(squeeze(all_MD_data(this_group,this_measure,:,this_band))),16,'k','filled')
+        for this_group = 2:5
+            these_colors = scatter_colors((abs(unique(squeeze(all_MD_data(this_group,this_measure,:,this_band))))>max(abs(reshape((squeeze(all_null_data(2:end,this_measure,:,this_band))'),numel((squeeze(all_null_data(2:end,this_measure,:,this_band))')),1))))+1,:);
+            scatter(repmat(this_group,size(unique(squeeze(all_MD_data(this_group,this_measure,:,this_band))),1),1),unique(squeeze(all_MD_data(this_group,this_measure,:,this_band))),16,these_colors,'filled')
         end
         data_bounds = [min(min(squeeze(all_MD_data(2:end,this_measure,:,this_band))')),max(max(squeeze(all_MD_data(2:end,this_measure,:,this_band))'))];
         ylim([data_bounds(1) - (diff(data_bounds)/10) data_bounds(2) + (diff(data_bounds)/6)])
@@ -378,7 +500,7 @@ for this_measure = 1:length(all_granger_data)
     end
     savestring = ['./CMC_figures/Connectivity_Byconnection_' analysis_type{this_measure} '.pdf'];
     if save_figures
-        print(savestring,'-depsc','-painters'); %eval(['export_fig ' savestring ' -transparent']);
+        eval(['export_fig ' savestring ' -transparent']);
         eval(['export_fig ' savestring(1:end-3) 'png -transparent']);
     end
 end
