@@ -121,9 +121,11 @@ for ss = 1:length(Participant)
 end
 squeeze(MMN_amplitude(i,:,3:7))
 squeeze(MMN_amplitude(1,:,2))
+addpath('./VBM')
 Covariate_VBM_ungrouped(Participant,squeeze(STD_M100_amplitude(1,:)),'STD_amplitude',Sname{1},'M100');
 parfor j = 2:length(conditions)
     Covariate_VBM_ungrouped(Participant,squeeze(MMN_amplitude(1,:,j)),'MMN_amplitude',Sname{1},conditions{j});
+    Covariate_VBM(Participant,squeeze(MMN_amplitude(1,:,j)),'MMN_amplitude',Sname{1},conditions{j});
     Covariate_VBM_ungrouped(Participant,squeeze(MMN_latency(1,:,j)),'MMN_latency',Sname{1},conditions{j});
 end
 

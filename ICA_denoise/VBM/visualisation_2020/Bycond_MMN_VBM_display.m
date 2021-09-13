@@ -63,6 +63,28 @@ for i = 2:length(conditions)
 
 end
 
+%% Additional renders of various mixed models to address reviewers
+cfg.threshold = [1.66 3]; %p=0.05 uncorrected
+
+this_file = ['./grouped_patstogether_05.nii'];
+jp_spm8_surfacerender2_version_tc(this_file,'jet',cfg)
+savepath = ['./VBM_bycond/grouped_patstogether_05'];
+eval(['export_fig ' savepath '.png -transparent -m2.5'])
+close all
+
+this_file = ['./grouped_05.nii'];
+jp_spm8_surfacerender2_version_tc(this_file,'jet',cfg)
+savepath = ['./VBM_bycond/grouped_05'];
+eval(['export_fig ' savepath '.png -transparent -m2.5'])
+close all
+
+this_file = ['./nocontrols_05.nii'];
+jp_spm8_surfacerender2_version_tc(this_file,'jet',cfg)
+savepath = ['./VBM_bycond/nocontrols_05'];
+eval(['export_fig ' savepath '.png -transparent -m2.5'])
+close all
+
+
 %% Now extract the t-scores from each ROI
 Lpos = [-42, -22, 7;
 -61, -32, 8;

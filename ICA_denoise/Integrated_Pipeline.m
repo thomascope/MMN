@@ -1598,7 +1598,7 @@ prefix = 'PfmcffbeM';
 thesediagnoses = {'Control','ADMCI','nfvppa','pca','bvFTD'};
 plot_ERP_bytype(Participant,pathstem,p,prefix,thesediagnoses)
 quantify_MMN_ERP(Participant,pathstem,p,prefix,thesediagnoses)
-%% Work in progress - quantitative analysis on the LFP data after Hughes et al. 2013
+%% Quantitative analysis on the LFP data after Hughes et al. 2013
 
 for todonumber = 1:nsubj
     try
@@ -1616,7 +1616,21 @@ baselined = 1;
 plot_all_LFPs(Participant,pathstem,p,prefix)
 quantify_MMN_LFP(Participant,pathstem,p,prefix,baselined)
 
-
+%% Now do structure-function relationship analyses
+for todonumber = 1:nsubj
+    try
+        % Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+    end
+end
+prefix = 'fmcffbeM';
+val = 2; %for LORETA
+%val = 1 %for IID
+p.time_wind_path = time_wind_path;
+p.wind_cnt = wind_cnt;
+p.inv_meth = inv_meth;
+p.inv_cnt = val;
+baselined = 1;
+quantify_MMN_LFP_withVBM(Participant,pathstem,p,prefix,baselined)
 
 %
 % prefix = 'PfmcffbeM';

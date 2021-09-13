@@ -635,7 +635,7 @@ catch
     dataArray = textscan(fileID, formatSpec, endRow(1)-startRow(1)+1, 'Delimiter', delimiter, 'HeaderLines', startRow(1)-1, 'ReturnOnError', false);
     fclose(fileID);
     tiv= dataArray{2}+dataArray{3}+dataArray{4};
-    inputs{3, 1} = tiv;
+    inputs{3, 1} = tiv';
 end
 inputs{4, 1} = all_agelist;
 inputs{5, 1} = all_strengths_VBM;
@@ -666,6 +666,88 @@ spm_jobman('run', jobs, inputs{:});
 % jobs = repmat(jobfile, 1, nrun);
 % 
 % spm_jobman('run', jobs, inputs{:});
+
+%% Now, as suggested by reviewer, re-run without the controls
+if exist(tiv_filename)
+    filename =tiv_filename;
+else
+    error('no tiv_file found')
+end
+delimiter = ',';
+startRow = 2;
+endRow = inf;
+formatSpec = '%s%f%f%f%[^\n\r]';
+fileID = fopen(filename,'r');
+dataArray = textscan(fileID, formatSpec, endRow(1)-startRow(1)+1, 'Delimiter', delimiter, 'HeaderLines', startRow(1)-1, 'ReturnOnError', false);
+fclose(fileID);
+tiv= dataArray{2}+dataArray{3}+dataArray{4};
+
+nrun = 1;
+jobfile = {'/imaging/mlr/users/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_ungrouped_covariate_MCI_TIV_age.m'};
+jobs = repmat(jobfile, 1, nrun);
+inputs = cell(6, nrun);
+
+stats_folder = {[outdir 'VBM_stats/factorial_full_group_vbm_TIVnormalised_agecovaried_unsmoothedmask_nocontrols']};
+
+split_stem = cell(1,5);
+for i = 1:5
+    split_stem{i} = regexp(filenames{i}, '/', 'split');
+end
+
+inputs{1, 1} = stats_folder;
+
+for crun = 1:nrun
+    inputs{2, crun} = {};
+    for i = 2:5
+        for j = 1:length(filenames{i})
+            if i==2&&j==1
+                inputs{i,crun}(1) = cellstr(['/' fullfile(split_stem{i}{j}{1:end-1}) '/smwc1' split_stem{i}{j}{end}]);
+            else
+                inputs{2, crun}(end+1) = cellstr(['/' fullfile(split_stem{i}{j}{1:end-1}) '/smwc1' split_stem{i}{j}{end}]);
+            end
+        end
+    end
+    inputs{2,crun} = inputs{2,crun}';
+end
+
+try
+    inputs{3, 1} = tiv(length(filenames{1})+1:end)';
+catch
+    filename = tiv_filename;
+    delimiter = ',';
+    startRow = 2;
+    endRow = inf;
+    formatSpec = '%s%f%f%f%[^\n\r]';
+    fileID = fopen(filename,'r');
+    dataArray = textscan(fileID, formatSpec, endRow(1)-startRow(1)+1, 'Delimiter', delimiter, 'HeaderLines', startRow(1)-1, 'ReturnOnError', false);
+    fclose(fileID);
+    tiv= dataArray{2}+dataArray{3}+dataArray{4};
+    inputs{3, 1} = tiv(length(filenames{1})+1:end)';
+end
+inputs{4, 1} = all_agelist(length(filenames{1})+1:end);
+inputs{5, 1} = all_strengths_VBM(length(filenames{1})+1:end);
+inputs{6, 1} = {'control_majority_unsmoothed_mask_c1_thr0.05_cons0.8.img'};
+
+if ~exist(char(inputs{6, 1}),'file')
+    split_stem_template = regexp(all_mrilist, '/', 'split');
+    path_to_template_6 = cellstr(['/' fullfile(split_stem_template{1}{1:end-1}) '/Template_6.nii']);
+    make_VBM_explicit_mask(filenames{1}, path_to_template_6, 'control')
+end
+
+spm_jobman('run', jobs, inputs{:});
+
+inputs = cell(1, nrun);
+inputs{1, 1} =  {[char(stats_folder) '/SPM.mat']};
+
+jobfile = {'/imaging/mlr/users/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_estimate.m'};
+jobs = repmat(jobfile, 1, nrun);
+
+spm_jobman('run', jobs, inputs{:});
+
+jobfile = {'/imaging/mlr/users/tc02/vespa/scans/PNFA_VBM/tom/VBM_batch_covariate_ungrouped_MMN_MCI.m'};
+jobs = repmat(jobfile, 1, nrun);
+
+spm_jobman('run', jobs, inputs{:});
 
 cd([workingdir])
 %pause

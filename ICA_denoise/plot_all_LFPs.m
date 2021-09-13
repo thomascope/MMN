@@ -26,7 +26,12 @@ end
 [groups,~, group_inds] = unique(diagnosis,'stable');
 
 for ss = 1:length(Participant)
-    D{ss} = spm_eeg_load(fn{ss});
+    try
+        D{ss} = spm_eeg_load(fn{ss});
+    catch
+        D{ss} = spm_eeg_load([fn{ss}(1:end-4) '_1.mat']);
+        fn{ss} = [fn{ss}(1:end-4) '_1.mat'];
+    end
     for i = 1:8
        all_STD(i,ss,:)=D{ss}(i,:,1);
        all_DEV(i,ss,:)=D{ss}(i,:,2);

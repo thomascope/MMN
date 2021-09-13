@@ -181,6 +181,7 @@ for i = 1:8
     ylabel('STD Amplitude (AU)')
 end
 saveas(M100_plot,['./outputfigures/source_flipped/stats/M100 Amplitude (AU)_nolegend.png']);
+saveas(M100_plot,['./outputfigures/source_flipped/stats/M100 Amplitude (AU)_nolegend.pdf']);
 
 for j = 1:length(conditions)
     addpath('./stdshade')
@@ -220,6 +221,7 @@ for j = 1:length(conditions)
         end
     end
     saveas(DEV_plot,['./outputfigures/source_flipped/' conditions{j} ' Response (AU)_nolegend.png']);
+    saveas(DEV_plot,['./outputfigures/source_flipped/' conditions{j} ' Response (AU)_nolegend.pdf']);
     
     Abs_DEV_plot = figure(400*j);
     set(gcf,'Position',[100 100 1600 800]);
@@ -256,6 +258,7 @@ for j = 1:length(conditions)
         end
     end
     saveas(Abs_DEV_plot,['./outputfigures/source_flipped/' conditions{j} ' Abs Response (AU)_nolegend.png']);
+    saveas(Abs_DEV_plot,['./outputfigures/source_flipped/' conditions{j} ' Abs Response (AU)_nolegend.pdf']);
     
     if j > 1 %Don't do MMN for STDs only
         MMN_plot = figure(8000*j);
@@ -293,6 +296,7 @@ for j = 1:length(conditions)
             end
         end
         saveas(MMN_plot,['./outputfigures/source_flipped/' conditions{j} ' Mismatch Response (AU)_nolegend.png']);
+        saveas(MMN_plot,['./outputfigures/source_flipped/' conditions{j} ' Mismatch Response (AU)_nolegend.pdf']);
         
         ABS_MMN_plot = figure(160000*j);
         set(gcf,'Position',[100 100 1600 800]);
@@ -329,6 +333,7 @@ for j = 1:length(conditions)
             end
         end
         saveas(ABS_MMN_plot,['./outputfigures/source_flipped/' conditions{j} ' Abs Mismatch Response (AU)_nolegend.png']);
+        saveas(ABS_MMN_plot,['./outputfigures/source_flipped/' conditions{j} ' Abs Mismatch Response (AU)_nolegend.pdf']);
     end
     %pause
 %     close all %To prevent Java memory error
@@ -393,7 +398,8 @@ for i = 1:8
         ylabel('MMN Latency (s)')
     end
     saveas(MMN_latency_plot,['./outputfigures/source_flipped/stats/' Sname{i} ' MMN Latency (s)_nolegend.png']);
-    
+    saveas(MMN_latency_plot,['./outputfigures/source_flipped/stats/' Sname{i} ' MMN Latency (s)_nolegend.pdf']);
+
         
     relative_MMN_amplitude_plot = figure(2000000*i);
     set(gcf,'Position',[100 100 1600 800]);
@@ -451,6 +457,7 @@ for i = 1:8
         ylabel('Relative MMN amplitude')
     end
     saveas(relative_MMN_amplitude_plot,['./outputfigures/source_flipped/stats/' Sname{i} ' relative MMN amplitude_nolegend.png']);
+    saveas(relative_MMN_amplitude_plot,['./outputfigures/source_flipped/stats/' Sname{i} ' relative MMN amplitude_nolegend.pdf']);
     
     MMN_amplitude_plot = figure(2000001*i);
     set(gcf,'Position',[100 100 1600 800]);
@@ -508,6 +515,7 @@ for i = 1:8
         ylabel('MMN amplitude (AU)')
     end
     saveas(MMN_amplitude_plot,['./outputfigures/source_flipped/stats/' Sname{i} ' MMN amplitude (AU)_nolegend.png']);
+    saveas(MMN_amplitude_plot,['./outputfigures/source_flipped/stats/' Sname{i} ' MMN amplitude (AU)_nolegend.pdf']);
     
     all_pvals_maineffect(i,:) = [latency_ranovatbl.pValueGG(find(strcmp(latency_ranovatbl.Row,'Diagnosis'))), relative_amplitude_ranovatbl.pValueGG(find(strcmp(relative_amplitude_ranovatbl.Row,'Diagnosis'))), amplitude_ranovatbl.pValueGG(find(strcmp(relative_amplitude_ranovatbl.Row,'Diagnosis')))];
     all_pvals_interaction(i,:) = [latency_ranovatbl.pValueGG(find(strcmp(latency_ranovatbl.Row,'Diagnosis:Condition'))), relative_amplitude_ranovatbl.pValueGG(find(strcmp(relative_amplitude_ranovatbl.Row,'Diagnosis:Condition'))), amplitude_ranovatbl.pValueGG(find(strcmp(relative_amplitude_ranovatbl.Row,'Diagnosis:Condition')))];
