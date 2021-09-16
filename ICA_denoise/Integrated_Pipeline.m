@@ -1664,3 +1664,7 @@ quantify_MMN_LFP_withVBM(Participant,pathstem,p,prefix,baselined)
 %% Bespoke connectivity test scripts
 % TomHollyTA1
 % compare_coherence_connectivity
+
+%% Plot strcuture-function correlation graphs for reviewer
+Correlation_graphs
+
