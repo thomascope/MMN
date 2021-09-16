@@ -1665,6 +1665,85 @@ quantify_MMN_LFP_withVBM(Participant,pathstem,p,prefix,baselined)
 % TomHollyTA1
 % compare_coherence_connectivity
 
-%% Plot strcuture-function correlation graphs for reviewer
+%% Plot structure-function correlation graphs for reviewer
 Correlation_graphs
 
+%% Plot frequency 1/f curves for functional connectivity analyses as suggested by reviewer
+p.start_times = 0;
+p.end_times = 500;
+prefix = 'cffbeM';
+decompositionworkedcorrectly = {};
+val = 2; %for LORETA
+%val = 1 %for IID
+p.time_wind_path = time_wind_path;
+p.wind_cnt = wind_cnt;
+p.inv_meth = inv_meth;
+p.inv_cnt = val;
+method = {'partial_coh'};
+[frequency_spectra, frequencies, regions] = Coherence_Connectivity_spectra(Participant,pathstem,p,prefix);
+
+[p.diagnosis_list, ~, p.group] = unique(all_diagnoses,'stable');
+these_colors = jet(length(p.diagnosis_list));
+% figure
+% set(gcf,'Position',[100 100 1600 800]);
+% set(gcf,'color','w')
+% for this_region = 1:8
+%     subplot(2,4,this_region)
+%     hold on
+%     for this_group = 1:length(p.diagnosis_list)
+%         linehandle(this_group) = stdshade_TEC(squeeze(frequency_spectra(p.group==this_group,this_region,:,1)),0.2,these_colors(this_group,:),frequencies,1,1);
+%     end
+%     title(regions{this_region})
+% end
+% suptitle('STD')
+% legend(linehandle,p.diagnosis_list)
+% drawnow
+% 
+% 
+% figure
+% set(gcf,'Position',[100 100 1600 800]);
+% set(gcf,'color','w')
+% for this_region = 1:8
+%     subplot(2,4,this_region)
+%     hold on
+%     for this_group = 1:length(p.diagnosis_list)
+%         linehandle(this_group) = stdshade_TEC(squeeze(frequency_spectra(p.group==this_group,this_region,:,2)),0.2,these_colors(this_group,:),frequencies,1,1);
+%     end
+%     title(regions{this_region})
+% end
+% suptitle('DVT')
+% legend(linehandle,p.diagnosis_list)
+% drawnow
+
+% STD and DVT look the same in overall 1/f by eye, and coherence/plv analysis is on
+% combined types - only test combined.
+
+figure
+set(gcf,'Position',[100 100 1600 800]);
+set(gcf,'color','w')
+p_thresh = 0.05;
+for this_region = 1:8
+    subplot(2,4,this_region)
+    hold on
+    for this_group = 1:length(p.diagnosis_list)
+        linehandle(this_group) = stdshade_TEC(squeeze(mean(frequency_spectra(p.group==this_group,this_region,:,:),4)),0.2,these_colors(this_group,:),frequencies,1,1);
+        these_ylims = ylim;
+        this_ylim_range = these_ylims(2)-these_ylims(1);
+        if this_group~=1 %Test for difference from controls, FDR corrected over frequency
+            for f = 1:size(frequencies,2)
+                [h_byfreq(f),p_byfreq(f)]=ttest2(squeeze(mean(frequency_spectra(p.group==this_group,this_region,f,:),4)),squeeze(mean(frequency_spectra(p.group==1,this_region,f,:),4)));
+            end
+            all_fdr_p = mafdr(p_byfreq,'BHFDR',true);
+            if any(all_fdr_p<p_thresh)
+                plot(frequencies(all_fdr_p<p_thresh),these_ylims(2)+(this_group*this_ylim_range/40),'.','Color',these_colors(this_group,:))
+            end
+        end
+    end
+    title(regions{this_region})
+end
+suptitle('STD+DVT')
+legend(linehandle,p.diagnosis_list)
+drawnow
+saveas(gcf,'Power Spectra.png')
+set(gcf, 'PaperPositionMode', 'auto');
+saveas(gcf,'Power Spectra.pdf')
