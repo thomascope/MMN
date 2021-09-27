@@ -23,6 +23,9 @@ for i = 1:8
         yFit = polyval(coefficients , xFit);
         % Plot everything.
         plot(xFit, yFit, 'k-', 'LineWidth', 2); % Plot fitted line.
+        [r,p] = eval(['corrcoef(' Graph_Regions{i} ', MMN_amplitudes_forgraph'')']);
+        %text(xFit(end),yFit(end),['r(' num2str(length(MMN_amplitudes_forgraph)-2) ')=' num2str(r(2),'%0.3f')])
+        text(xFit(end),yFit(end),['r=' num2str(r(2),'%0.3f')])
     else
         for j = 1:length(unique(group_forgraph))
             coefficients = eval(['polyfit(' Graph_Regions{i} '(group_forgraph==j), MMN_amplitudes_forgraph(group_forgraph==j)'', 1)']);
@@ -32,6 +35,9 @@ for i = 1:8
             yFit = polyval(coefficients , xFit);
             % Plot everything.
             plot(xFit, yFit, 'Color',these_colors(j,:), 'LineWidth', 2); % Plot fitted line.
+            [r,p] = eval(['corrcoef(' Graph_Regions{i} '(group_forgraph==j), MMN_amplitudes_forgraph(group_forgraph==j)'')']);
+            %text(xFit(end),yFit(end),['r(' num2str(length(MMN_amplitudes_forgraph(group_forgraph==j))-2) ')=' num2str(r(2),'%0.3f')],'Color',these_colors(j,:))
+            text(xFit(end),yFit(end),['r=' num2str(r(2),'%0.3f')],'Color',these_colors(j,:))
         end
     end
     

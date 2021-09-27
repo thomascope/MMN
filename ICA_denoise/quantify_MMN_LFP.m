@@ -107,6 +107,9 @@ for ss = 1:length(Participant)
             plot(all_times{ss},-repmat(STD_M100_amplitude(i,ss),1,length(all_times{ss})),'r--');
             hold off
         end
+        for j = 1
+            DVT_amplitude(i,ss,j)=mean(all_DEV(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.2,j),3);
+        end
         for j = 2:length(conditions)
             [~,firstpeakloc]=findpeaks(squeeze(all_abs_MMN(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.25,j)),'MinPeakHeight',max(squeeze(all_abs_MMN(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.25,j)))*3/4);
             if isempty(firstpeakloc)
@@ -118,6 +121,7 @@ for ss = 1:length(Participant)
             firstpeaksample = min(find(all_times{ss}>=0.1))+firstpeakloc(1)-1;
             MMN_latency(i,ss,j)=all_times{ss}(firstpeaksample);
             MMN_amplitude(i,ss,j)=mean(all_abs_MMN(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.2,j),3);
+            DVT_amplitude(i,ss,j)=mean(all_DEV(i,ss,all_times{ss}>=0.1&all_times{ss}<=0.2,j),3);
             %relative_MMN_amplitude(i,ss,j)=MMN_amplitude(i,ss,j)/STD_M100_amplitude(i,ss);
             relative_MMN_amplitude(i,ss,j)=mean(all_abs_MMN(i,ss,all_times{ss}>=(MMN_latency(i,ss,j)-0.05)&all_times{ss}<=(MMN_latency(i,ss,j)+0.05),j),3);
             if plot_points == 1
@@ -521,6 +525,65 @@ for i = 1:8
     all_pvals_interaction(i,:) = [latency_ranovatbl.pValueGG(find(strcmp(latency_ranovatbl.Row,'Diagnosis:Condition'))), relative_amplitude_ranovatbl.pValueGG(find(strcmp(relative_amplitude_ranovatbl.Row,'Diagnosis:Condition'))), amplitude_ranovatbl.pValueGG(find(strcmp(relative_amplitude_ranovatbl.Row,'Diagnosis:Condition')))];
     all_pvals_key = {'latency','amplitude_around_peak','amplitude_100-200'};
     
+    DVT_amplitude_plot = figure(20000001*i);
+    set(gcf,'Position',[100 100 1600 800]);
+    set(gcf, 'PaperPositionMode', 'auto');
+    
+    amplitude_table = [table(diagnosis','VariableNames',{'Diagnosis'}),array2table(squeeze(DVT_amplitude(i,:,3:7)))];
+    amplitude_covariates = table(conditions(3:7)','VariableNames',{'Condition'});
+    amplitude_rm = fitrm(amplitude_table,'Var1-Var5~Diagnosis','WithinDesign',amplitude_covariates);
+    amplitude_ranovatbl = ranova(amplitude_rm,'WithinModel','Condition')
+    supertitle = [];
+    if amplitude_ranovatbl.pValueGG(find(strcmp(amplitude_ranovatbl.Row,'Diagnosis'))) < p_thresh
+        supertitle = [supertitle 'Amplitude main effect of Diagnosis p=' num2str(amplitude_ranovatbl.pValueGG(find(strcmp(amplitude_ranovatbl.Row,'Diagnosis'))),3) ' in ' Sname{i} '. '];
+        Diagnosis_table = multcompare(amplitude_rm,'Diagnosis');
+        significant_contrasts = Diagnosis_table.pValue<0.05;
+        Sname{i}
+        Diagnosis_table(significant_contrasts,:)
+    end
+    if amplitude_ranovatbl.pValueGG(find(strcmp(amplitude_ranovatbl.Row,'Diagnosis:Condition'))) < p_thresh
+        supertitle = [supertitle 'Amplitude diagnosis by condition interaction p=' num2str(amplitude_ranovatbl.pValueGG(find(strcmp(amplitude_ranovatbl.Row,'Diagnosis:Condition'))),3) ' in ' Sname{i} '. '];
+    end
+    if anova1(squeeze(DVT_amplitude(i,:,2)),diagnosis,'off') < p_thresh
+        supertitle = [supertitle 'One way ANOVA group difference for response amplitude in ' Sname{i} ' p=' num2str(anova1(squeeze(DVT_amplitude(i,:,2)),diagnosis,'off'),3) '. '];
+    end
+    if isempty(supertitle)
+        supertitle = [supertitle 'No main effect of Diagnosis or Diagnosis by region interaction in response amplitude in ' Sname{i}];
+    end
+    
+    for j = 1:7
+        subplot(2,4,j)
+        hold on
+        sgtitle(supertitle)
+        for grp = 1:length(groups)
+            scatter(repmat(grp+0.1,1,sum(group_inds==grp)),squeeze(DVT_amplitude(i,group_inds==grp,j)));
+            [~,p] = ttest2(squeeze(DVT_amplitude(i,group_inds==1,j)),squeeze(DVT_amplitude(i,group_inds==grp,j)));
+            %if p<(p_thresh/(length(groups)-1)) %Bonferroni correct 2 sample t-tests vs controls
+            if j == 2
+                if anova1(squeeze(DVT_amplitude(i,:,j)),diagnosis,'off') < p_thresh && p<p_thresh %No longer Bonferroni as only do if diagnosis by region interaction is significant
+                    errorbar(grp-0.1,mean(squeeze(DVT_amplitude(i,group_inds==grp,j)),2),std(squeeze(DVT_amplitude(i,group_inds==grp,j)))/sqrt(sum(group_inds==grp)),'-s','MarkerSize',10,'MarkerEdgeColor','red','MarkerFaceColor','red','LineWidth',1,'color','black')
+                else
+                    errorbar(grp-0.1,mean(squeeze(DVT_amplitude(i,group_inds==grp,j)),2),std(squeeze(DVT_amplitude(i,group_inds==grp,j)))/sqrt(sum(group_inds==grp)),'-s','MarkerSize',10,'MarkerEdgeColor','black','MarkerFaceColor','black','LineWidth',1,'color','black')
+                end
+            else
+                if amplitude_ranovatbl.pValueGG(find(strcmp(amplitude_ranovatbl.Row,'Diagnosis:Condition'))) < p_thresh && p<p_thresh %No longer Bonferroni as only do if diagnosis by region interaction is significant
+                    errorbar(grp-0.1,mean(squeeze(DVT_amplitude(i,group_inds==grp,j)),2),std(squeeze(DVT_amplitude(i,group_inds==grp,j)))/sqrt(sum(group_inds==grp)),'-s','MarkerSize',10,'MarkerEdgeColor','red','MarkerFaceColor','red','LineWidth',1,'color','black')
+                else
+                    errorbar(grp-0.1,mean(squeeze(DVT_amplitude(i,group_inds==grp,j)),2),std(squeeze(DVT_amplitude(i,group_inds==grp,j)))/sqrt(sum(group_inds==grp)),'-s','MarkerSize',10,'MarkerEdgeColor','black','MarkerFaceColor','black','LineWidth',1,'color','black')
+                end
+            end
+        end
+        xlim([0 length(groups)+1])
+        xticks([1:length(groups)])
+        xticklabels(groups)
+        xtickangle(30)
+        title(conditions{j},'FontSize',34)
+        ylabel('Response amplitude (AU)')
+    end
+    saveas(DVT_amplitude_plot,['./outputfigures/source_flipped/stats/' Sname{i} ' response amplitude (AU)_nolegend.png']);
+    saveas(DVT_amplitude_plot,['./outputfigures/source_flipped/stats/' Sname{i} ' response amplitude (AU)_nolegend.pdf']);
+    
+
 %     DEV_plot = figure(20*i);
 %     set(gcf,'Position',[100 100 1600 800]);
 %     set(gcf, 'PaperPositionMode', 'auto');
