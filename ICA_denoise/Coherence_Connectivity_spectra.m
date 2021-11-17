@@ -21,8 +21,6 @@ outdir = ['/imaging/mlr/users/tc02/Holly_MMN/Coherence_Connectivity_Integrated_'
 start_times = p.start_times;
 end_times = p.end_times;
 
-method = p.decompmethod;
-
 %
 Sname = {'left A1';
     'left STG';
@@ -61,5 +59,5 @@ decompositionworkedcorrectly = zeros(1,length(Participant));
 for subj = 1:length(Participant)
     warning('off','all')
     
-    [frequency_spectra(subj,:,:,:,:), frequencies, regions] = MMN_coherence_spectra(fn{subj},[],[],subj,start_times,end_times,fft_method,method);
+    [frequency_spectra(subj,:,:,:,:), frequencies, regions] = MMN_coherence_spectra(fn{subj},[],[],subj,start_times,end_times,fft_method);
 end

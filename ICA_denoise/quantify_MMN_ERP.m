@@ -47,9 +47,10 @@ for ss = 1:length(Participant)
 end
 
 
-plot_points = 1;
+plot_points = 0;
 for ss = 1:length(Participant)
     STD_M100_amplitude(ss)=max(abs(all_STD(ss,D{ss}.time>=0.05&D{ss}.time<=0.15))); %STD amplitude
+    DVT_M100_amplitude(ss)=max(abs(all_DEV(ss,D{ss}.time>=0.05&D{ss}.time<=0.15))); %DVT amplitude
     if plot_points == 1
         values_plot = figure(1);
         clf(gcf)
@@ -121,6 +122,36 @@ xticklabels(groups)
 xtickangle(30)
 ylabel('Magnetometer Amplitude (fT/mm)')
 saveas(M100_plot,['./outputfigures/scalp/stats/M100 Amplitude (AU).png']);
+
+DVT_M100_plot = figure(1780000*j);
+set(gcf,'Position',[100 100 1600 800]);
+set(gcf, 'PaperPositionMode', 'auto');
+supertitle = [];
+if anova1(squeeze(DVT_M100_amplitude),diagnosis,'off') < p_thresh
+    supertitle = [supertitle 'Main effect of Diagnosis p=' num2str(anova1(squeeze(DVT_M100_amplitude),diagnosis,'off'),3) '. '];
+end
+if isempty(supertitle)
+    supertitle = [supertitle 'No main effect of Diagnosis in DVT amplitude'];
+end
+sgtitle(supertitle)
+hold on
+for grp = 1:length(groups)
+    scatter(repmat(grp+0.1,1,sum(group_inds==grp)),DVT_M100_amplitude(group_inds==grp))
+    
+    [~,p] = ttest2(DVT_M100_amplitude(group_inds==1),DVT_M100_amplitude(group_inds==grp));
+    %if p<(p_thresh/(length(groups)-1)) %Bonferroni correct 2 sample t-tests vs controls
+    if DVT_M100_amplitude < p_thresh & p<p_thresh %No longer Bonferroni as only do if diagnosis by region interaction is significant
+        errorbar(grp-0.1,mean(DVT_M100_amplitude(group_inds==grp)),std(DVT_M100_amplitude(group_inds==grp))/sqrt(sum(group_inds==grp)),'-s','MarkerSize',10,'MarkerEdgeColor','red','MarkerFaceColor','red','LineWidth',1,'color','black')
+    else
+        errorbar(grp-0.1,mean(DVT_M100_amplitude(group_inds==grp)),std(DVT_M100_amplitude(group_inds==grp))/sqrt(sum(group_inds==grp)),'-s','MarkerSize',10,'MarkerEdgeColor','black','MarkerFaceColor','black','LineWidth',1,'color','black')
+    end
+end
+xlim([0 length(groups)+1])
+xticks([1:length(groups)])
+xticklabels(groups)
+xtickangle(30)
+ylabel('Magnetometer Amplitude (fT/mm)')
+saveas(DVT_M100_plot,['./outputfigures/scalp/stats/DVT_M100 Amplitude (AU).png']);
 
 MMN_latency_plot = figure(20000);
 set(gcf,'Position',[100 100 1600 800]);

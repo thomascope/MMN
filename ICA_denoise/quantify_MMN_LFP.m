@@ -57,7 +57,7 @@ for ss = 1:length(Participant)
         %STG and IPC negative, and all second deflections in IFG positive
         %(M100 not always reliably seen in IFG)
         all_STD(i,ss,:)=D{ss}(i,:,1);
-        if i == 3 || i == 7
+        if i == 3 || i == 9
             if abs(max(all_STD(i,ss,all_times{ss}>=0.09&all_times{ss}<=0.165))) < abs(min(all_STD(i,ss,all_times{ss}>=0.09&all_times{ss}<=0.165)))
                 D{ss}(i,:,:) = -D{ss}(i,:,:);
                 all_STD(i,ss,:)=D{ss}(i,:,1);
@@ -94,6 +94,8 @@ plot_points = 0;
 for ss = 1:length(Participant)
     for i = 1:length(Sname)
         STD_M100_amplitude(i,ss)=max(abs(all_STD(i,ss,all_times{ss}>=0.05&all_times{ss}<=0.15))); %STD amplitude
+        DVT_M100_amplitude(i,ss)=max(abs(all_STD(i,ss,all_times{ss}>=0.05&all_times{ss}<=0.15))); %STD amplitude
+
         if plot_points == 1
             values_plot = figure(1);
             clf(gcf)
@@ -186,6 +188,51 @@ for i = 1:8
 end
 saveas(M100_plot,['./outputfigures/source_flipped/stats/M100 Amplitude (AU)_nolegend.png']);
 saveas(M100_plot,['./outputfigures/source_flipped/stats/M100 Amplitude (AU)_nolegend.pdf']);
+
+DVT_M100_plot = figure(20000*j);
+set(gcf,'Position',[100 100 1600 800]);
+set(gcf, 'PaperPositionMode', 'auto');
+DVT_M100_table = [table(diagnosis','VariableNames',{'Diagnosis'}),array2table(DVT_M100_amplitude')];
+DVT_M100_covariates = table(Sname,'VariableNames',{'Region'});
+DVT_M100_rm = fitrm(DVT_M100_table,'Var1-Var8~Diagnosis','WithinDesign',DVT_M100_covariates);
+DVT_M100_ranovatbl = ranova(DVT_M100_rm,'WithinModel','Region')
+supertitle = [];
+if DVT_M100_ranovatbl.pValueGG(find(strcmp(DVT_M100_ranovatbl.Row,'Diagnosis'))) < p_thresh
+    supertitle = [supertitle 'Main effect of Diagnosis p=' num2str(DVT_M100_ranovatbl.pValueGG(find(strcmp(DVT_M100_ranovatbl.Row,'Diagnosis'))),3) '. '];
+    Diagnosis_table = multcompare(DVT_M100_rm,'Diagnosis');
+    significant_contrasts = Diagnosis_table.pValue<0.05;
+    Diagnosis_table(significant_contrasts,:)
+end
+if DVT_M100_ranovatbl.pValueGG(find(strcmp(DVT_M100_ranovatbl.Row,'Diagnosis:Region'))) < p_thresh
+    supertitle = [supertitle 'Diagnosis by region interaction p=' num2str(DVT_M100_ranovatbl.pValueGG(find(strcmp(DVT_M100_ranovatbl.Row,'Diagnosis:Region'))),3) '. '];
+end
+if isempty(supertitle)
+    supertitle = [supertitle 'No main effect of Diagnosis or Diagnosis by region interaction in STD amplitude'];
+end
+for i = 1:8
+    subplot(2,4,i)
+    sgtitle(supertitle)
+    hold on
+    for grp = 1:length(groups)
+        scatter(repmat(grp+0.1,1,sum(group_inds==grp)),DVT_M100_amplitude(i,group_inds==grp))
+
+        [~,p] = ttest2(DVT_M100_amplitude(i,group_inds==1),DVT_M100_amplitude(i,group_inds==grp));
+        %if p<(p_thresh/(length(groups)-1)) %Bonferroni correct 2 sample t-tests vs controls
+        if DVT_M100_ranovatbl.pValueGG(find(strcmp(DVT_M100_ranovatbl.Row,'Diagnosis:Region'))) < p_thresh && p<p_thresh %No longer Bonferroni as only do if diagnosis by region interaction is significant
+            errorbar(grp-0.1,mean(DVT_M100_amplitude(i,group_inds==grp),2),std(DVT_M100_amplitude(i,group_inds==grp))/sqrt(sum(group_inds==grp)),'-s','MarkerSize',10,'MarkerEdgeColor','red','MarkerFaceColor','red','LineWidth',1,'color','black')
+        else
+            errorbar(grp-0.1,mean(DVT_M100_amplitude(i,group_inds==grp),2),std(DVT_M100_amplitude(i,group_inds==grp))/sqrt(sum(group_inds==grp)),'-s','MarkerSize',10,'MarkerEdgeColor','black','MarkerFaceColor','black','LineWidth',1,'color','black')
+        end
+    end
+    xlim([0 length(groups)+1])
+    xticks([1:length(groups)])
+    xticklabels(groups)
+    xtickangle(30)
+    title(Sname{i},'FontSize',34)
+    ylabel('STD Amplitude (AU)')
+end
+saveas(DVT_M100_plot,['./outputfigures/source_flipped/stats/DVT_M100 Amplitude (AU)_nolegend.png']);
+saveas(DVT_M100_plot,['./outputfigures/source_flipped/stats/DVT_M100 Amplitude (AU)_nolegend.pdf']);
 
 for j = 1:length(conditions)
     addpath('./stdshade')
@@ -545,11 +592,17 @@ for i = 1:8
         supertitle = [supertitle 'Amplitude diagnosis by condition interaction p=' num2str(amplitude_ranovatbl.pValueGG(find(strcmp(amplitude_ranovatbl.Row,'Diagnosis:Condition'))),3) ' in ' Sname{i} '. '];
     end
     if anova1(squeeze(DVT_amplitude(i,:,2)),diagnosis,'off') < p_thresh
-        supertitle = [supertitle 'One way ANOVA group difference for response amplitude in ' Sname{i} ' p=' num2str(anova1(squeeze(DVT_amplitude(i,:,2)),diagnosis,'off'),3) '. '];
+        supertitle = [supertitle 'One way ANOVA group difference for DVT response amplitude in ' Sname{i} ' p=' num2str(anova1(squeeze(DVT_amplitude(i,:,2)),diagnosis,'off'),3) '. '];
+    end
+    if anova1(squeeze(DVT_amplitude(i,:,1)),diagnosis,'off') < p_thresh
+        supertitle = [supertitle 'One way ANOVA group difference for STD response amplitude in ' Sname{i} ' p=' num2str(anova1(squeeze(DVT_amplitude(i,:,1)),diagnosis,'off'),3) '. '];
+    else
+        supertitle = [supertitle 'No one way ANOVA group difference for STD response amplitude in ' Sname{i} ' p=' num2str(anova1(squeeze(DVT_amplitude(i,:,1)),diagnosis,'off'),3) '. '];
     end
     if isempty(supertitle)
         supertitle = [supertitle 'No main effect of Diagnosis or Diagnosis by region interaction in response amplitude in ' Sname{i}];
     end
+
     
     for j = 1:7
         subplot(2,4,j)

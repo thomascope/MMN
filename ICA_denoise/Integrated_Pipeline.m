@@ -774,6 +774,26 @@ for method = {'partial_coh','partial_plv'} %
     decompositionworkedcorrectly{end+1} = Coherence_Connectivity(Participant,pathstem,p,prefix);
 end
 
+p.start_times = 0;
+p.end_times = 400;
+prefix = 'cffbeM';
+decompositionworkedcorrectly = {};
+val = 2; %for LORETA
+%val = 1 %for IID
+p.time_wind_path = time_wind_path;
+p.wind_cnt = wind_cnt;
+p.inv_meth = inv_meth;
+p.inv_cnt = val;
+
+for todonumber = 1:nsubj
+    try
+        % Participant{todonumber}.name = Participant{todonumber}.namepostmerge;
+    end
+end
+for method = {'partial_coh','partial_plv'} %
+    p.decompmethod = char(method);
+    decompositionworkedcorrectly{end+1} = Coherence_Connectivity(Participant,pathstem,p,prefix);
+end
 
 %% Now do a time-frequency analysis
 for todonumber = 1:nsubj
@@ -1740,7 +1760,7 @@ these_colors = jet(length(p.diagnosis_list));
 
 % STD and DVT look the same in overall 1/f by eye, and coherence/plv analysis is on
 % combined types - only test combined.
-
+addpath('./stdshade')
 figure
 set(gcf,'Position',[100 100 1600 800]);
 set(gcf,'color','w')
@@ -1770,3 +1790,33 @@ drawnow
 saveas(gcf,'Power Spectra.png')
 set(gcf, 'PaperPositionMode', 'auto');
 saveas(gcf,'Power Spectra.pdf')
+savefig('Power Spectra')
+
+%% Plot connectivity violins overall and by connection
+addpath('./CMC_DCM')
+p.CMC_DCM_outdir = '/imaging/mlr/users/tc02/Holly_MMN/CMC_DCMs/';
+all_groups = unique(p.group)';
+p.Sname = {'left A1';
+    'left STG';
+    'left IFG';
+    'left IPC';
+    'right A1';
+    'right STG';
+    'right IFG';
+    'right IPC'};
+
+p.start_times = 0;
+p.end_times = 500;
+
+Connectivity_plotviolins(p.CMC_DCM_outdir,p.diagnosis_list(all_groups),p.Sname,0.7,Participant,p)
+
+p.start_times = 0;
+p.end_times = 250;
+
+Connectivity_plotviolins(p.CMC_DCM_outdir,p.diagnosis_list(all_groups),p.Sname,0.7,Participant,p)
+
+p.start_times = 0;
+p.end_times = 400;
+
+Connectivity_plotviolins(p.CMC_DCM_outdir,p.diagnosis_list(all_groups),p.Sname,0.7,Participant,p)
+
